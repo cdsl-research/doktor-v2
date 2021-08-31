@@ -74,7 +74,7 @@ def read_paper_handler(paper_id: int):
         "categories_id": [3],
         "abstract": "this is a pen.",
         "url": "https://example.com/yyy",
-        "thumnail_url": "https://example.com/zzz",
+        "thumbnail_url": "https://example.com/zzz",
         "created_at": "1985-06-24T23:20:50.52Z",
         "updated_at": "2021-04-18T23:20:50.52Z",
     }
@@ -90,7 +90,7 @@ def update_paper_handler(paper_id: int):
         "categories_id": [3],
         "abstract": "this is a pen.",
         "url": "https://example.com/yyy",
-        "thumnail_url": "https://example.com/zzz",
+        "thumbnail_url": "https://example.com/zzz",
         "created_at": "1985-06-24T23:20:50.52Z",
         "updated_at": "2021-04-18T23:20:50.52Z",
     }
