@@ -3,3 +3,6 @@ dev:
 
 run:
 	env/bin/uvicorn main:app --host 0.0.0.0
+
+build:
+	docker build -t paper .
