@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -9,13 +7,32 @@ app = FastAPI()
 def root_handler():
     return {"Hello": "World"}
 
+
 @app.get("/healthz")
-def health_handler():
+def healthz_handler():
     return {"status": "ok", "message": "it works"}
 
+
 @app.get("/topz")
-def top_handler():
+def topz_handler():
     return {"resource": "busy"}
+
+
+@app.post("/paper")
+def create_paper_handler():
+    return {
+        "id": 1,
+        "author_id": [2, 5, 8],
+        "title": "my second paper",
+        "keywords": ["cloud"],
+        "categories_id": [3],
+        "abstract": "this is a pen.",
+        "url": "https://example.com/yyy",
+        "thumbnail_url": "https://example.com/zzz",
+        "created_at": "1985-06-24T23:20:50.52Z",
+        "updated_at": "2021-04-18T23:20:50.52Z",
+    }
+
 
 @app.get("/paper")
 def read_papers_handler():
@@ -25,9 +42,10 @@ def read_papers_handler():
             "author_id": [2, 3, 4],
             "title": "my original paper",
             "keywords": ["cloud", "network"],
-            "category_id": [1, 2],
+            "categories_id": [1, 2],
             "abstract": "this is a paper.",
             "url": "https://example.com/xxx",
+            "thumbnail_url": "https://example.com/zzz",
             "created_at": "1985-07-12T23:20:50.52Z",
             "updated_at": "2021-05-12T23:20:50.52Z",
         },
@@ -36,25 +54,43 @@ def read_papers_handler():
             "author_id": [2, 5, 8],
             "title": "my second paper",
             "keywords": ["cloud"],
-            "category_id": [3],
+            "categories_id": [3],
             "abstract": "this is a pen.",
             "url": "https://example.com/yyy",
+            "thumbnail_url": "https://example.com/zzz",
             "created_at": "1985-06-24T23:20:50.52Z",
             "updated_at": "2021-04-18T23:20:50.52Z",
         }
     ]
 
-@app.post("/paper/{id}")
-def read_paper_handler():
+
+@app.get("/paper/{paper_id}")
+def read_paper_handler(paper_id: int):
     return {
-        "id": 2,
+        "id": str(paper_id),
         "author_id": [2, 5, 8],
         "title": "my second paper",
         "keywords": ["cloud"],
-        "category_id": [3],
+        "categories_id": [3],
         "abstract": "this is a pen.",
         "url": "https://example.com/yyy",
+        "thumnail_url": "https://example.com/zzz",
         "created_at": "1985-06-24T23:20:50.52Z",
         "updated_at": "2021-04-18T23:20:50.52Z",
     }
 
+
+@app.put("/paper/{paper_id}")
+def update_paper_handler(paper_id: int):
+    return {
+        "id": str(paper_id),
+        "author_id": [2, 5, 8],
+        "title": "my second paper",
+        "keywords": ["cloud"],
+        "categories_id": [3],
+        "abstract": "this is a pen.",
+        "url": "https://example.com/yyy",
+        "thumnail_url": "https://example.com/zzz",
+        "created_at": "1985-06-24T23:20:50.52Z",
+        "updated_at": "2021-04-18T23:20:50.52Z",
+    }
