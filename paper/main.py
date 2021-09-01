@@ -22,7 +22,8 @@ class Paper(BaseModel):
     id: int
     author_id: List[int]
     title: str
-    keyword: List[str]
+    keywords: List[str]
+    label: str
     categories_id: List[int]
     abstract: str
     url: str
@@ -95,18 +96,20 @@ def read_papers_handler():
 
 @app.get("/paper/{paper_id}")
 def read_paper_handler(paper_id: int):
-    return {
+    my_paper = {
         "id": str(paper_id),
-        "author_id": [2, 5, 8],
-        "title": "my second paper",
-        "keywords": ["cloud"],
+        "author_id": [2, 5],
+        "title": "分散トレーシングのためのログ検索の高速化",
+        "keywords": ["分散", "トレーシング", "ログ", "検索", "高速化"],
+        "label": "CDSL-TR-051",
         "categories_id": [3],
-        "abstract": "this is a pen.",
-        "url": "https://example.com/yyy",
+        "abstract": "分散トレーシングは,マイクロサービスアーキテクチャでログによる動作の解析を実現する...",
+        "url": "https://drive.google.com/file/d/1feZlqWejgqf8zpWQBQOSpr5JXYkPQL4t/view",
         "thumbnail_url": "https://example.com/zzz",
-        "created_at": "1985-06-24T23:20:50.52Z",
-        "updated_at": "2021-04-18T23:20:50.52Z",
+        "created_at": datetime(1985, 6, 24, 23, 50, 52),
+        "updated_at": datetime(2021, 2, 4, 13, 52, 22)
     }
+    return Paper(**my_paper)
 
 
 @app.put("/paper/{paper_id}")
