@@ -1,6 +1,10 @@
-from fastapi import FastAPI
-from pymongo import MongoClient
 import os
+from datetime import datetime
+from typing import List
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+from pymongo import MongoClient
 
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
@@ -12,6 +16,19 @@ client = MongoClient(MONGO_CONNECTION_STRING)
 db = client[MONGO_DBNAME]
 
 app = FastAPI()
+
+
+class Paper(BaseModel):
+    id: int
+    author_id: List[int]
+    title: str
+    keyword: List[str]
+    categories_id: List[int]
+    abstract: str
+    url: str
+    thumbnail_url: str
+    created_at: datetime
+    updated_at: datetime
 
 
 @app.get("/")
