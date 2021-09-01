@@ -5,18 +5,18 @@ import os
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
-MONGO_URL = os.getenv("MONGO_URL", "mongo:27017")
-MONGO_CONNECTION_STRING = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_URL}/"
+MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
+MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
 client = MongoClient(MONGO_CONNECTION_STRING)
 db = client[MONGO_DBNAME]
-mongo_collections = db.get_collection()
 
 app = FastAPI()
 
 
 @app.get("/")
 def root_handler():
+    mongo_collections = db
     return {"Hello": "World"}
 
 
