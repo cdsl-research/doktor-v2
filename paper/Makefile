@@ -6,3 +6,6 @@ run:
 
 build:
 	docker build -t paper .
+
+compose:
+	docker-compose up
