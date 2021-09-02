@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 
 from fastapi import FastAPI
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from pymongo import MongoClient
 
@@ -50,20 +51,8 @@ def topz_handler():
 
 @app.post("/paper")
 def create_paper_handler(paper: Paper):
-    my_paper = {
-        "id": 123,
-        "author_id": [2, 5],
-        "title": "分散トレーシングのためのログ検索の高速化",
-        "keywords": ["分散", "トレーシング", "ログ", "検索", "高速化"],
-        "label": "CDSL-TR-051",
-        "categories_id": [3],
-        "abstract": "分散トレーシングは,マイクロサービスアーキテクチャでログによる動作の解析を実現する...",
-        "url": "https://drive.google.com/file/d/1feZlqWejgqf8zpWQBQOSpr5JXYkPQL4t/view",
-        "thumbnail_url": "https://example.com/zzz",
-        "created_at": datetime(1985, 6, 24, 23, 50, 52),
-        "updated_at": datetime(2021, 2, 4, 13, 52, 22)
-    }
-    return Paper(**my_paper)
+    json_paper = jsonable_encoder(paper)
+    return Paper(**json_paper)
 
 
 @app.get("/paper")
