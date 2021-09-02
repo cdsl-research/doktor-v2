@@ -88,43 +88,23 @@ def create_paper_handler(paper: PaperCreateUpdate):
         "created_at": datetime.now(),
         "updated_at": datetime.now()
     }
+    id = db["paper"].insert_one(my_paper).inserted_id
+    print(id)
     return PaperRead(**my_paper)
 
 
 @app.get("/paper")
 def read_papers_handler():
-    my_paper = {
-        "id": 22,
-        "author_id": [2, 5],
-        "title": "分散トレーシングのためのログ検索の高速化",
-        "keywords": ["分散", "トレーシング", "ログ", "検索", "高速化"],
-        "label": "CDSL-TR-051",
-        "categories_id": [3],
-        "abstract": "分散トレーシングは,マイクロサービスアーキテクチャでログによる動作の解析を実現する...",
-        "url": "https://drive.google.com/file/d/1feZlqWejgqf8zpWQBQOSpr5JXYkPQL4t/view",
-        "thumbnail_url": "https://example.com/zzz",
-        "created_at": datetime(1985, 6, 24, 23, 50, 52),
-        "updated_at": datetime(2021, 2, 4, 13, 52, 22)
-    }
-    return [PaperRead(**my_paper), PaperRead(**my_paper)]
+    return list(db["paper"].find({"is_public": True}, {'_id': 0}))
 
 
 @app.get("/paper/{paper_id}")
 def read_paper_handler(paper_id: int):
-    my_paper = {
-        "id": paper_id,
-        "author_id": [2, 5],
-        "title": "分散トレーシングのためのログ検索の高速化",
-        "keywords": ["分散", "トレーシング", "ログ", "検索", "高速化"],
-        "label": "CDSL-TR-051",
-        "categories_id": [3],
-        "abstract": "分散トレーシングは,マイクロサービスアーキテクチャでログによる動作の解析を実現する...",
-        "url": "https://drive.google.com/file/d/1feZlqWejgqf8zpWQBQOSpr5JXYkPQL4t/view",
-        "thumbnail_url": "https://example.com/zzz",
-        "created_at": datetime(1985, 6, 24, 23, 50, 52),
-        "updated_at": datetime(2021, 2, 4, 13, 52, 22)
-    }
-    return PaperRead(**my_paper)
+    entry = db["paper"].find_one({"id": paper_id, "is_public": True}, {'_id': 0})
+    if entry:
+        return entry
+    else:
+        raise HTTPException(status_code=404, detail="Not Found")
 
 
 @app.put("/paper/{paper_id}")
