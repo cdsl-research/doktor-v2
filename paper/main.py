@@ -36,6 +36,7 @@ class PaperCreateUpdate(BaseModel):
     abstract: str
     url: str
     thumbnail_url: str
+    is_public: bool
 
 
 class PaperRead(BaseModel):
@@ -48,6 +49,7 @@ class PaperRead(BaseModel):
     abstract: str
     url: str
     thumbnail_url: str
+    is_public: bool
     created_at: datetime
     updated_at: datetime
 
