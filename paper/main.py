@@ -56,7 +56,6 @@ class PaperRead(BaseModel):
 
 @app.get("/")
 def root_handler():
-    mongo_collections = db
     return {"Hello": "World"}
 
 
