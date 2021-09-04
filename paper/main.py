@@ -52,6 +52,7 @@ class PaperRead(BaseModel):
     is_public: bool
     created_at: datetime
     updated_at: datetime
+    # todo) reference_id: List[int]
 
 
 @app.get("/")
@@ -87,8 +88,8 @@ def create_paper_handler(paper: PaperCreateUpdate):
         "created_at": datetime.now(),
         "updated_at": datetime.now()
     }
-    id = db["paper"].insert_one(my_paper).inserted_id
-    print(id)
+    insert_id = db["paper"].insert_one(my_paper).inserted_id
+    print("insert_id:", insert_id)
     return PaperRead(**my_paper)
 
 
