@@ -7,7 +7,7 @@ from pymongo.errors import ConnectionFailure, OperationFailure
 
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
-MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
+MONGO_DBNAME = os.getenv("MONGO_DBNAME", "author")
 MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
