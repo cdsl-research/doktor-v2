@@ -100,3 +100,22 @@ def read_author_handler(author_id: int):
         return entry
     else:
         raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.put("/author/{author_id}")
+def update_author_handler(author_id: int, author: AuthorCreateUpdate):
+    json_author = jsonable_encoder(author)
+    my_author = {
+        "id": author_id,
+        "first_name_ja": json_author.get("first_name_ja"),
+        "middle_name_ja": json_author.get("middle_name_ja"),
+        "last_name_ja": json_author.get("last_name_ja"),
+        "first_name_en": json_author.get("first_name_en"),
+        "middle_name_en": json_author.get("middle_name_en"),
+        "last_name_en": json_author.get("last_name_en"),
+        "joined_year": json_author.get("joined_year"),
+        "is_graduated": json_author.get("is_graduated"),
+        "created_at": datetime.now(),
+        "updated_at": datetime.now()
+    }
+    return AuthorRead(**my_author)
