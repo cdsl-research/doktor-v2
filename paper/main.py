@@ -29,7 +29,7 @@ app = FastAPI()
 
 
 class PaperCreateUpdate(BaseModel):
-    author_id: List[int]
+    author_uuid: List[UUID]
     title: str
     keywords: List[str]
     label: str
@@ -42,7 +42,7 @@ class PaperCreateUpdate(BaseModel):
 
 class PaperRead(BaseModel):
     uuid: UUID
-    author_id: List[int]
+    author_uuid: List[UUID]
     title: str
     keywords: List[str]
     label: str
@@ -76,7 +76,7 @@ def create_paper_handler(paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
         "uuid": uuid4(),
-        "author_id": json_paper.get("author_id"),
+        "author_uuid": json_paper.get("author_uuid"),
         "title": json_paper.get("title"),
         "keywords": json_paper.get("keywords"),
         "label": json_paper.get("label"),
@@ -112,7 +112,7 @@ def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
         "uuid": paper_uuid,
-        "author_id": json_paper.get("author_id"),
+        "author_uuid": json_paper.get("author_uuid"),
         "title": json_paper.get("title"),
         "keywords": json_paper.get("keywords"),
         "label": json_paper.get("label"),
