@@ -75,7 +75,7 @@ def topz_handler():
 def create_paper_handler(paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
-        "uuid": uuid4().hex,
+        "uuid": uuid4(),
         "author_id": json_paper.get("author_id"),
         "title": json_paper.get("title"),
         "keywords": json_paper.get("keywords"),
