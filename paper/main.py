@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import datetime
 from typing import List
+from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -40,7 +41,7 @@ class PaperCreateUpdate(BaseModel):
 
 
 class PaperRead(BaseModel):
-    id: int
+    uuid: UUID
     author_id: List[int]
     title: str
     keywords: List[str]
@@ -73,9 +74,8 @@ def topz_handler():
 @app.post("/paper")
 def create_paper_handler(paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
-    import random
     my_paper = {
-        "id": random.randint(1, 99),
+        "uuid": uuid4().hex,
         "author_id": json_paper.get("author_id"),
         "title": json_paper.get("title"),
         "keywords": json_paper.get("keywords"),
@@ -98,20 +98,20 @@ def read_papers_handler():
     return list(db["paper"].find({"is_public": True}, {'_id': 0}))
 
 
-@app.get("/paper/{paper_id}")
-def read_paper_handler(paper_id: int):
-    entry = db["paper"].find_one({"id": paper_id, "is_public": True}, {'_id': 0})
+@app.get("/paper/{paper_uuid}")
+def read_paper_handler(paper_uuid: UUID):
+    entry = db["paper"].find_one({"uuid": paper_uuid, "is_public": True}, {'_id': 0})
     if entry:
         return entry
     else:
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.put("/paper/{paper_id}")
-def update_paper_handler(paper_id: int, paper: PaperCreateUpdate):
+@app.put("/paper/{paper_uuid}")
+def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
-        "id": paper_id,
+        "uuid": paper_uuid,
         "author_id": json_paper.get("author_id"),
         "title": json_paper.get("title"),
         "keywords": json_paper.get("keywords"),
@@ -120,8 +120,8 @@ def update_paper_handler(paper_id: int, paper: PaperCreateUpdate):
         "abstract": json_paper.get("abstract"),
         "url": json_paper.get("url"),
         "thumbnail_url": json_paper.get("thumbnail_url"),
-        "is_public": True,
-        "created_at": datetime.now(),
+        "is_public": json_paper.get("is_public"),
+        "created_at": datetime.now(),  # todo: get stored data
         "updated_at": datetime.now()
     }
     return PaperRead(**my_paper)
