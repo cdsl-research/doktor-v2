@@ -4,7 +4,13 @@
     <title>Top</title>
 </head>
 <body>
-<h1>Top</h1>
+<h1>Author - {{ author.name }}</h1>
+
+<ul>
+    <li>在籍: {{ author.status }}</li>
+    <li>配属年: {{ author.joined_year }}</li>
+</ul>
+
 <table>
     <thead>
     <tr>
@@ -20,7 +26,7 @@
             <td>{{ paper.title }}</td>
             <td>
                 {% for author in paper.author %}
-                    <a href="/author/{{ author.uuid }}">{{ author.name }}</a>
+                <a href="/author/{{ author.uuid }}">{{ author.name }}</a>
                 {% endfor %}
             </td>
             <td>{{ paper.label }}</td>
