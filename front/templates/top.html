@@ -1,4 +1,4 @@
-<html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>Top</title>
@@ -17,7 +17,7 @@
     <tbody>
     {% for paper in papers %}
         <tr>
-            <td>{{ paper.title }}</td>
+            <td><a href="/paper/{{ paper.uuid }}">{{ paper.title }}</a></td>
             <td>
                 {% for author in paper.author %}
                     <a href="/author/{{ author.uuid }}">{{ author.name }}</a>

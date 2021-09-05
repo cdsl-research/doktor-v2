@@ -1,0 +1,37 @@
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Top</title>
+</head>
+<body>
+<h1>Paper - {{ paper.title }}</h1>
+
+<ul>
+    <li>タイトル: {{ paper.title }}</li>
+    <li>著者:
+        <ul>
+            {% for author in paper.author %}
+            <li><a href="/author/{{ author.uuid }}">{{ author.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li>キーワード:
+        <ul>
+            {% for keyword in paper.keywords %}
+            <li>{{ keyword }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li>ラベル: {{ paper.label }}</li>
+    <li>公開日: {{ paper.created_at }}</li>
+    <li>更新日: {{ paper.updated_at }}</li>
+</ul>
+
+<h2>Abstract</h2>
+
+<p>{{ paper.abstract }}</p>
+
+<a href="{{ paper.url }}">ダウンロード</a>
+
+</body>
+</html>

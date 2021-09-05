@@ -40,6 +40,7 @@ async def top_handler(request: Request):
         author_list = [{"name": fa.get("last_name_ja") + fa.get("first_name_ja"),
                         "uuid": fa.get("uuid")} for fa in found_author]
         paper_details.append({
+            "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
             "author": author_list,
             "label": rp.get("label", "No Label"),
@@ -48,6 +49,31 @@ async def top_handler(request: Request):
 
     # sample_data = [{"title": "my title", "author": "my author", "label": "my label", "created_at": "2021/02/03"}]
     return templates.TemplateResponse("top.html", {"request": request, "papers": paper_details})
+
+
+@app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
+async def paper_handler(paper_uuid: UUID, request: Request):
+    urls = ("http://localhost:4200/author", f"http://localhost:4100/paper/{paper_uuid}")
+    async with aiohttp.ClientSession() as session:
+        json_raw = await fetch_all(session, urls)
+    res_author = json_raw[0]
+    res_paper_me = json_raw[1]
+
+    found_author = list(filter(lambda x: x.get("uuid") in res_paper_me["author_uuid"], res_author))
+    paper_details = {
+        "title": res_paper_me.get("title"),
+        "author": [{
+            "name": author.get("last_name_ja") + author.get("first_name_ja"),
+            "uuid": author.get("uuid")
+        } for author in found_author],
+        "keywords": res_paper_me.get("keywords"),
+        "label": res_paper_me.get("label"),
+        "created_at": res_paper_me.get("created_at"),
+        "updated_at": res_paper_me.get("updated_at"),
+        "abstract": res_paper_me.get("abstract")
+    }
+
+    return templates.TemplateResponse("paper.html", {"request": request, "paper": paper_details})
 
 
 @app.get("/author/{author_uuid}", response_class=HTMLResponse)
