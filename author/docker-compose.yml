@@ -7,14 +7,14 @@ services:
     volumes:
       - .:/work
     ports:
-      - "8000:8000"
+      - "4200:8000"
   mongo:
     image: mongo:5.0
     restart: always
-    volumes:
-      - ./mongo_init_d:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "27017:27017"
+    # volumes:
+    #   - ./mongo_init_d:/docker-entrypoint-initdb.d:ro
+    # ports:
+    #   - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -22,7 +22,7 @@ services:
     image: mongo-express
     restart: always
     ports:
-      - 8081:8081
+      - 4201:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
