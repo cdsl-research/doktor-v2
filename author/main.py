@@ -1,6 +1,7 @@
 import os
 import sys
 from datetime import datetime
+from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -38,7 +39,7 @@ class AuthorCreateUpdate(BaseModel):
 
 
 class AuthorRead(BaseModel):
-    id: int
+    uuid: UUID
     first_name_ja: str
     middle_name_ja: str
     last_name_ja: str
@@ -69,9 +70,8 @@ def topz_handler():
 @app.post("/author")
 def create_author_handler(author: AuthorCreateUpdate):
     json_author = jsonable_encoder(author)
-    import random
     my_author = {
-        "id": random.randint(1, 99),
+        "uuid": uuid4(),
         "first_name_ja": json_author.get("first_name_ja"),
         "middle_name_ja": json_author.get("middle_name_ja"),
         "last_name_ja": json_author.get("last_name_ja"),
@@ -93,20 +93,20 @@ def read_authors_handler():
     return list(db["author"].find({}, {'_id': 0}))
 
 
-@app.get("/author/{author_id}")
-def read_author_handler(author_id: int):
-    entry = db["author"].find_one({"id": author_id}, {'_id': 0})
+@app.get("/author/{author_uuid}")
+def read_author_handler(author_uuid: UUID):
+    entry = db["author"].find_one({"uuid": author_uuid}, {'_id': 0})
     if entry:
         return entry
     else:
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.put("/author/{author_id}")
-def update_author_handler(author_id: int, author: AuthorCreateUpdate):
+@app.put("/author/{author_uuid}")
+def update_author_handler(author_uuid: UUID, author: AuthorCreateUpdate):
     json_author = jsonable_encoder(author)
     my_author = {
-        "id": author_id,
+        "uuid": author_uuid,
         "first_name_ja": json_author.get("first_name_ja"),
         "middle_name_ja": json_author.get("middle_name_ja"),
         "last_name_ja": json_author.get("last_name_ja"),
@@ -115,7 +115,7 @@ def update_author_handler(author_id: int, author: AuthorCreateUpdate):
         "last_name_en": json_author.get("last_name_en"),
         "joined_year": json_author.get("joined_year"),
         "is_graduated": json_author.get("is_graduated"),
-        "created_at": datetime.now(),
+        "created_at": datetime.now(),  # todo: get stored data
         "updated_at": datetime.now()
     }
     return AuthorRead(**my_author)
