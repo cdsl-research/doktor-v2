@@ -10,7 +10,8 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
-from minio import Minio
+from minio import Minio, S3Error
+
 
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
@@ -47,7 +48,7 @@ try:
         minio_client.make_bucket(MINIO_BUCKET_NAME)
     else:
         print("Bucket 'paper' already exists")
-except Exception as e:
+except S3Error as e:
     print(e)
     sys.exit(-1)
 
@@ -140,9 +141,12 @@ async def download_paper_handler(paper_uuid: UUID):
     try:
         response = minio_client.get_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
         return Response(content=response.read(), media_type="application/pdf")
-    finally:
         response.close()
         response.release_conn()
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
 @app.put("/paper/{paper_uuid}")
