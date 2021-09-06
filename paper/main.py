@@ -30,20 +30,26 @@ db = mongo_client[MONGO_DBNAME]
 
 
 """ Minio Setup"""
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
-MINIO_HOST = os.getenv("MINIO_HOST", "minio")
+MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
+MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
+MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
+MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
 
-minio_client = Minio(
-    MINIO_HOST,
-    access_key=MINIO_ACCESS_KEY,
-    secret_key=MINIO_SECRET_KEY
-)
-found = minio_client.bucket_exists("paper")
-if not found:
-    minio_client.make_bucket("paper")
-else:
-    print("Bucket 'asiatrip' already exists")
+try:
+    minio_client = Minio(
+        MINIO_HOST,
+        access_key=MINIO_ROOT_USER,
+        secret_key=MINIO_ROOT_PASSWORD,
+        secure=False
+    )
+    found = minio_client.bucket_exists("paper")
+    if not found:
+        minio_client.make_bucket("paper")
+    else:
+        print("Bucket 'paper' already exists")
+except Exception as e:
+    print(e)
+    sys.exit(-1)
 
 
 """ FastAPI Setup """
@@ -127,6 +133,12 @@ def read_paper_handler(paper_uuid: UUID):
         return entry
     else:
         raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.get("/paper/{paper_uuid}/download")
+def download_paper_handler(paper_uuid: UUID):
+    result = minio_client.fget_object(MINIO_BUCKET_NAME, str(paper_uuid), f"{paper_uuid}.pdf")
+    return result
 
 
 @app.put("/paper/{paper_uuid}")
