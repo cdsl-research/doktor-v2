@@ -3,11 +3,19 @@ from uuid import UUID
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 import aiohttp
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+
+async def fetch_file(session, url):
+    async with session.get(url) as response:
+        if response.status != 200:
+            response.raise_for_status()
+        return await response.read()
 
 
 async def fetch(session, url):
@@ -61,6 +69,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 
     found_author = list(filter(lambda x: x.get("uuid") in res_paper_me["author_uuid"], res_author))
     paper_details = {
+        "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
         "author": [{
             "name": author.get("last_name_ja") + author.get("first_name_ja"),
@@ -74,6 +83,14 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     }
 
     return templates.TemplateResponse("paper.html", {"request": request, "paper": paper_details})
+
+
+@app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
+async def paper_download_handler(paper_uuid: UUID, request: Request):
+    async with aiohttp.ClientSession() as session:
+        url = f"http://localhost:4100/paper/{paper_uuid}/download"
+        res_pdf = await fetch_file(session, url)
+    return Response(content=res_pdf, media_type="application/pdf")
 
 
 @app.get("/author/{author_uuid}", response_class=HTMLResponse)
