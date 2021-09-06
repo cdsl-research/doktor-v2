@@ -9,22 +9,44 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
+from minio import Minio
+from minio.error import S3Error
 
+""" MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
 MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
-client = MongoClient(MONGO_CONNECTION_STRING)
+mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 try:
-    client.admin.command('ping')
+    mongo_client.admin.command('ping')
     print("MongoDB connected.")
 except (ConnectionFailure, OperationFailure) as e:
     print("MongoDB not available. ", e)
     sys.exit(-1)
+db = mongo_client[MONGO_DBNAME]
 
-db = client[MONGO_DBNAME]
+
+""" Minio Setup"""
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
+MINIO_HOST = os.getenv("MINIO_HOST", "minio")
+
+minio_client = Minio(
+    MINIO_HOST,
+    access_key=MINIO_ACCESS_KEY,
+    secret_key=MINIO_SECRET_KEY
+)
+found = minio_client.bucket_exists("paper")
+if not found:
+    minio_client.make_bucket("paper")
+else:
+    print("Bucket 'asiatrip' already exists")
+
+
+""" FastAPI Setup """
 app = FastAPI()
 
 
