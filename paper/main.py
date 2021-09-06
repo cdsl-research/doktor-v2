@@ -6,11 +6,11 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import Response
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
 from minio import Minio
-from minio.error import S3Error
 
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
@@ -42,9 +42,9 @@ try:
         secret_key=MINIO_ROOT_PASSWORD,
         secure=False
     )
-    found = minio_client.bucket_exists("paper")
+    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
     if not found:
-        minio_client.make_bucket("paper")
+        minio_client.make_bucket(MINIO_BUCKET_NAME)
     else:
         print("Bucket 'paper' already exists")
 except Exception as e:
@@ -136,9 +136,13 @@ def read_paper_handler(paper_uuid: UUID):
 
 
 @app.get("/paper/{paper_uuid}/download")
-def download_paper_handler(paper_uuid: UUID):
-    result = minio_client.fget_object(MINIO_BUCKET_NAME, str(paper_uuid), f"{paper_uuid}.pdf")
-    return result
+async def download_paper_handler(paper_uuid: UUID):
+    try:
+        response = minio_client.get_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
+        return Response(content=response.read(), media_type="application/pdf")
+    finally:
+        response.close()
+        response.release_conn()
 
 
 @app.put("/paper/{paper_uuid}")
