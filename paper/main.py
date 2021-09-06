@@ -6,25 +6,54 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import Response
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
+from minio import Minio, S3Error
 
+
+""" MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
 MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
-client = MongoClient(MONGO_CONNECTION_STRING)
+mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 try:
-    client.admin.command('ping')
+    mongo_client.admin.command('ping')
     print("MongoDB connected.")
 except (ConnectionFailure, OperationFailure) as e:
     print("MongoDB not available. ", e)
     sys.exit(-1)
+db = mongo_client[MONGO_DBNAME]
 
-db = client[MONGO_DBNAME]
+
+""" Minio Setup"""
+MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
+MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
+MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
+MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
+
+try:
+    minio_client = Minio(
+        MINIO_HOST,
+        access_key=MINIO_ROOT_USER,
+        secret_key=MINIO_ROOT_PASSWORD,
+        secure=False
+    )
+    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+    if not found:
+        minio_client.make_bucket(MINIO_BUCKET_NAME)
+    else:
+        print("Bucket 'paper' already exists")
+except S3Error as e:
+    print(e)
+    sys.exit(-1)
+
+
+""" FastAPI Setup """
 app = FastAPI()
 
 
@@ -105,6 +134,19 @@ def read_paper_handler(paper_uuid: UUID):
         return entry
     else:
         raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.get("/paper/{paper_uuid}/download")
+async def download_paper_handler(paper_uuid: UUID):
+    try:
+        response = minio_client.get_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
+        return Response(content=response.read(), media_type="application/pdf")
+        response.close()
+        response.release_conn()
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
 @app.put("/paper/{paper_uuid}")
