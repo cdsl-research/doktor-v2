@@ -2,6 +2,10 @@
 
 This is doktor v2.
 
+## Architecture
+
+<img src="doktor-v2-architecture.png" width="600" alt="doktor-v2 architecture">
+
 ## Directory Structure
 
 - `author` 著者を管理するサービス

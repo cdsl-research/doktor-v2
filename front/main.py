@@ -44,9 +44,15 @@ async def top_handler(request: Request):
 
     paper_details = []
     for rp in res_paper:
-        found_author = list(filter(lambda x: x.get("uuid") in rp.get("author_uuid"), res_author))
-        author_list = [{"name": fa.get("last_name_ja") + fa.get("first_name_ja"),
-                        "uuid": fa.get("uuid")} for fa in found_author]
+        found_author = list(
+            filter(
+                lambda x: x.get("uuid") in rp.get("author_uuid"),
+                res_author))
+        author_list = [
+            {
+                "name": fa.get("last_name_ja") +
+                fa.get("first_name_ja"),
+                "uuid": fa.get("uuid")} for fa in found_author]
         paper_details.append({
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
@@ -56,18 +62,23 @@ async def top_handler(request: Request):
         })
 
     # sample_data = [{"title": "my title", "author": "my author", "label": "my label", "created_at": "2021/02/03"}]
-    return templates.TemplateResponse("top.html", {"request": request, "papers": paper_details})
+    return templates.TemplateResponse(
+        "top.html", {"request": request, "papers": paper_details})
 
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(paper_uuid: UUID, request: Request):
-    urls = ("http://localhost:4200/author", f"http://localhost:4100/paper/{paper_uuid}")
+    urls = ("http://localhost:4200/author",
+            f"http://localhost:4100/paper/{paper_uuid}")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
 
-    found_author = list(filter(lambda x: x.get("uuid") in res_paper_me["author_uuid"], res_author))
+    found_author = list(
+        filter(
+            lambda x: x.get("uuid") in res_paper_me["author_uuid"],
+            res_author))
     paper_details = {
         "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
@@ -82,7 +93,9 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         "abstract": res_paper_me.get("abstract")
     }
 
-    return templates.TemplateResponse("paper.html", {"request": request, "paper": paper_details})
+    return templates.TemplateResponse(
+        "paper.html", {
+            "request": request, "paper": paper_details})
 
 
 @app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
@@ -104,13 +117,22 @@ async def author_handler(author_uuid: UUID, request: Request):
     res_author_me = json_res[2]
 
     # 著者(author_uuid)を含む論文一覧を取得
-    found_paper = list(filter(lambda x: str(author_uuid) in x["author_uuid"], res_paper))
+    found_paper = list(
+        filter(
+            lambda x: str(author_uuid) in x["author_uuid"],
+            res_paper))
     paper_details = []
     for fp in found_paper:
         # 個々の論文の著者ID(uuid)を氏名に変換
-        found_author = list(filter(lambda x: x["uuid"] in fp.get("author_uuid"), res_author))
-        author_list = [{"name": fa.get("last_name_ja") + fa.get("first_name_ja"),
-                        "uuid": fa.get("uuid")} for fa in found_author]
+        found_author = list(
+            filter(
+                lambda x: x["uuid"] in fp.get("author_uuid"),
+                res_author))
+        author_list = [
+            {
+                "name": fa.get("last_name_ja") +
+                fa.get("first_name_ja"),
+                "uuid": fa.get("uuid")} for fa in found_author]
         paper_details.append({
             "title": fp.get("title", "No Title"),
             "author": author_list,
@@ -119,10 +141,11 @@ async def author_handler(author_uuid: UUID, request: Request):
         })
 
     author_details = {
-        "name": res_author_me.get("last_name_ja") + res_author_me.get("first_name_ja"),
+        "name": res_author_me.get("last_name_ja") +
+        res_author_me.get("first_name_ja"),
         "status": "在学" if res_author_me.get("is_graduated") else "既卒",
-        "joined_year": res_author_me.get("joined_year")
-    }
+        "joined_year": res_author_me.get("joined_year")}
 
-    return templates.TemplateResponse("author.html",
-                                      {"request": request, "papers": paper_details, "author": author_details})
+    return templates.TemplateResponse(
+        "author.html", {
+            "request": request, "papers": paper_details, "author": author_details})
