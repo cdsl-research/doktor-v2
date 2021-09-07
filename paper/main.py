@@ -129,7 +129,8 @@ def read_papers_handler():
 
 @app.get("/paper/{paper_uuid}")
 def read_paper_handler(paper_uuid: UUID):
-    entry = db["paper"].find_one({"uuid": paper_uuid, "is_public": True}, {'_id': 0})
+    entry = db["paper"].find_one(
+        {"uuid": paper_uuid, "is_public": True}, {'_id': 0})
     if entry:
         return entry
     else:
@@ -139,13 +140,15 @@ def read_paper_handler(paper_uuid: UUID):
 @app.get("/paper/{paper_uuid}/download")
 async def download_paper_handler(paper_uuid: UUID):
     try:
-        response = minio_client.get_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
+        response = minio_client.get_object(
+            MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
         return Response(content=response.read(), media_type="application/pdf")
         response.close()
         response.release_conn()
     except S3Error as e:
         print("Download exception: ", e)
-        _status_code = 404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        _status_code = 404 if e.code in (
+            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
