@@ -4,7 +4,7 @@ This is doktor v2.
 
 ## Architecture
 
-<img src="doktor-v2-architecture.png" width="400" alt="doktor-v2 architecture">
+<img src="doktor-v2-architecture.png" width="600" alt="doktor-v2 architecture">
 
 ## Directory Structure
 
