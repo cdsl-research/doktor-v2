@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  paper-dind:
+    image: docker:20-dind
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=
+    volumes:
+      - ./paper:/dind
+      - dind-data-paper:/var/lib/docker
+    ports:
+      - "4100:4100"
+      - "4800:8000"
+  paper-compose:
+    image: docker/compose:latest
+    depends_on:
+      - paper-dind
+    environment:
+      - DOCKER_HOST=tcp://paper-dind:2375
+    volumes:
+      - ./paper:/dind
+    working_dir: /dind
+    command:
+      # dockerd の起動を多少待つ
+      - /bin/sh
+      - -c
+      - |
+        sleep 20
+        docker-compose up
+  debian:
+    image: debian:stretch-slim
+    command: ["tail", "-f", "/dev/null"]
+volumes:
+  dind-data-paper:
