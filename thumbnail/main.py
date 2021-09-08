@@ -1,3 +1,5 @@
+import minio_manager
+import pdf2png
 import os
 import sys
 from datetime import datetime
@@ -26,7 +28,6 @@ from pymongo.errors import ConnectionFailure, OperationFailure
 #     sys.exit(-1)
 #
 # db = client[MONGO_DBNAME]
-
 
 
 app = FastAPI()
@@ -97,22 +98,25 @@ def create_paper_handler(paper: ThumbnailCreateUpdate):
     # print("insert_id:", insert_id)
     return PaperRead(**my_paper)
 
+
 @app.get("/hello")
 def read_papers_handler():
-    return {"body":"Hello"}
+    return {"body": "Hello"}
+
 
 # @app.get("/thumbnail")
 # def read_papers_handler():
 #     return list(db["paper"].find({"is_public": True}, {'_id': 0}))
 #
-import pdf2png
-import minio_manager
+
+
 @app.post("/thumbnail/{paper_uuid}")
 def process_paper_thumbnail(paper_uuid: UUID):
 
     folder = pdf2png.thumbnail(f"http://minio:9000/paper/{paper_uuid}.pdf")
     # try:
-    result = minio_manager.upload_local_directory_to_minio(folder, bucket_name="thumbnail",minio_path=f"{paper_uuid}/")
+    result = minio_manager.upload_local_directory_to_minio(
+        folder, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
     return result
     # except Exception as e:
     #     raise HTTPException(status_code=500, detail=e)
@@ -134,7 +138,6 @@ def get_thumbnail(paper_uuid: UUID):
 
     # except:
     #     raise HTTPException(status_code=status_code, detail=str(e.message))
-
 
 
 @app.put("/thumbnail/{paper_uuid}")
