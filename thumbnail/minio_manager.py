@@ -1,4 +1,5 @@
-from minio import Minio,S3Error
+import glob
+from minio import Minio, S3Error
 import os
 """ Minio Setup"""
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
@@ -26,7 +27,6 @@ else:
     print("Bucket 'thumbnail' already exists")
 
 
-import glob
 def download_paper_handler(paper_uuid):
     try:
         response = minio_client.get_object(
@@ -42,14 +42,20 @@ def download_paper_handler(paper_uuid):
             "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
         return _status_code, e
 
+
 def upload_local_directory_to_minio(local_path, bucket_name, minio_path):
     assert os.path.isdir(local_path)
 
     for local_file in glob.glob(local_path + '/**'):
-        local_file = local_file.replace(os.sep, "/")  # Replace \ with / on Windows
+        local_file = local_file.replace(
+            os.sep, "/")  # Replace \ with / on Windows
         if not os.path.isfile(local_file):
             upload_local_directory_to_minio(
-                local_file, bucket_name, minio_path + "/" + os.path.basename(local_file))
+                local_file,
+                bucket_name,
+                minio_path +
+                "/" +
+                os.path.basename(local_file))
         else:
             remote_path = os.path.join(
                 minio_path, local_file[1 + len(local_path):])

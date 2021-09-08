@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import fitz
 import requests
 
@@ -6,16 +7,16 @@ import requests
 def get_pdf(url):
     urlData = requests.get(url).content
     filename = url.split("/")[4]
-    dstdir = './temp/'+filename
+    dstdir = './temp/' + filename
     os.makedirs(dstdir, exist_ok=True)
 
-    with open(dstdir+"/"+filename, mode='wb') as f:  # wb でバイト型を書き込める
+    with open(dstdir + "/" + filename, mode='wb') as f:  # wb でバイト型を書き込める
         f.write(urlData)
-    return dstdir+"/"+filename, dstdir
+    return dstdir + "/" + filename, dstdir
 
 
 def thumbnail(url):
-    file,dstdir = get_pdf(url)
+    file, dstdir = get_pdf(url)
 
     with fitz.open(file) as doc:
         for i, page in enumerate(doc):
@@ -26,6 +27,7 @@ def thumbnail(url):
                     ofh.write(x['image'])
 
     return dstdir
+
 
 def first_page(url):
     dstdir = os.path.splitext(url)[0]
