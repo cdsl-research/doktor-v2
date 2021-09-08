@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 from uuid import UUID, uuid4
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
 from pydantic import BaseModel
@@ -135,6 +135,24 @@ def read_paper_handler(paper_uuid: UUID):
         return entry
     else:
         raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.post("/paper/{paper_uuid}/upload")
+async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
+    try:
+        if file.content_type != "application/pdf":
+            raise HTTPException(status_code=400, detail="Invalid Content-Type")
+
+        print(file.file.fileno())
+        response = minio_client.put_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf",
+                                           file.file, length=-1, part_size=10*1024*1024,
+                                           content_type="application/pdf")
+        return {"status": "ok"}
+        response.close()
+        response.release_conn()
+    except S3Error as e:
+        print("Upload exception: ", e)
+        raise HTTPException(status_code=503, detail=str(e.message))
 
 
 @app.get("/paper/{paper_uuid}/download")
