@@ -21,6 +21,30 @@ This is doktor v2.
 
 ## Development Guide
 
+### サービス全体
+
+docker-composeでDocker in Dockerを起動する．
+
+プロジェクトルートで以下を実行する．
+
+```
+docker-compose up
+```
+
+個々のサービスの`docker-compose`を実行する方法（以下はpaperの場合）
+
+```
+docker-compose exec paper-compose docker-compose ps
+```
+
+個々のサービスの`docker`を実行する方法（以下はpaperの場合）
+
+```
+docker-compose exec paper-dind docker ps
+```
+
+### 個別サービス
+
 それぞれのディレクトリに移動して，以下を実行する．
 
 ```

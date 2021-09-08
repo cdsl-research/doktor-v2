@@ -1,4 +1,5 @@
 import asyncio
+import os
 from uuid import UUID
 
 from fastapi import FastAPI, Request
@@ -6,6 +7,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 import aiohttp
+
+SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-dind")
+SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "4100")
+SVC_AUTHOR_HOST = os.getenv("SERVICE_AUTHOR_HOST", "author-dind")
+SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "4200")
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -36,7 +42,8 @@ async def fetch_all(session, urls):
 
 @app.get("/", response_class=HTMLResponse)
 async def top_handler(request: Request):
-    urls = ("http://localhost:4100/paper", "http://localhost:4200/author")
+    urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
+            f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
     res_paper = json_raw[0]
@@ -68,8 +75,8 @@ async def top_handler(request: Request):
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(paper_uuid: UUID, request: Request):
-    urls = ("http://localhost:4200/author",
-            f"http://localhost:4100/paper/{paper_uuid}")
+    urls = (f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
+            f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
     res_author = json_raw[0]
@@ -101,15 +108,16 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 @app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
 async def paper_download_handler(paper_uuid: UUID, request: Request):
     async with aiohttp.ClientSession() as session:
-        url = f"http://localhost:4100/paper/{paper_uuid}/download"
+        url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
         res_pdf = await fetch_file(session, url)
     return Response(content=res_pdf, media_type="application/pdf")
 
 
 @app.get("/author/{author_uuid}", response_class=HTMLResponse)
 async def author_handler(author_uuid: UUID, request: Request):
-    urls = ("http://localhost:4100/paper", "http://localhost:4200/author",
-            f"http://localhost:4200/author/{author_uuid}")
+    urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
+            f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
+            f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}")
     async with aiohttp.ClientSession() as session:
         json_res = await fetch_all(session, urls)
     res_paper = json_res[0]
