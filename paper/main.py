@@ -144,9 +144,13 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
             raise HTTPException(status_code=400, detail="Invalid Content-Type")
 
         print(file.file.fileno())
-        response = minio_client.put_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf",
-                                           file.file, length=-1, part_size=10*1024*1024,
-                                           content_type="application/pdf")
+        response = minio_client.put_object(
+            MINIO_BUCKET_NAME,
+            f"{paper_uuid}.pdf",
+            file.file,
+            length=-1,
+            part_size=10 * 1024 * 1024,
+            content_type="application/pdf")
         return {"status": "ok"}
         response.close()
         response.release_conn()
