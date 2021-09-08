@@ -1,6 +1,15 @@
 version: "3.9"
 
 services:
+  front:
+    build: ./front
+    command: [ "main:app", "--reload", "--host", "0.0.0.0" ]
+    restart: always
+    volumes:
+      - ./front:/work
+    ports:
+      - "4000:8000"
+
   paper-dind:
     image: docker:20-dind
     privileged: true
@@ -10,8 +19,12 @@ services:
       - ./paper:/dind
       - dind-data-paper:/var/lib/docker
     ports:
+      # app
       - "4100:4100"
-      - "4800:8000"
+      # mongo-express
+      - "4101:4101"
+      # minio-console
+      - "4102:4102"
   paper-compose:
     image: docker/compose:latest
     depends_on:
@@ -27,9 +40,42 @@ services:
       - -c
       - |
         sleep 20
-        docker-compose up
-  debian:
-    image: debian:stretch-slim
-    command: ["tail", "-f", "/dev/null"]
+        docker-compose up --build
+
+  author-dind:
+    image: docker:20-dind
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=
+    volumes:
+      - ./author:/dind
+      - dind-data-author:/var/lib/docker
+    ports:
+      # app
+      - "4200:4200"
+      # mongo-express
+      - "4201:4201"
+  author-compose:
+    image: docker/compose:latest
+    depends_on:
+      - author-dind
+    environment:
+      - DOCKER_HOST=tcp://author-dind:2375
+    volumes:
+      - ./author:/dind
+    working_dir: /dind
+    command:
+      # dockerd の起動を多少待つ
+      - /bin/sh
+      - -c
+      - |
+        sleep 20
+        docker-compose up --build
+
+  # debian:
+  #   image: debian:stretch-slim
+  #   command: ["tail", "-f", "/dev/null"]
+
 volumes:
   dind-data-paper:
+  dind-data-author:

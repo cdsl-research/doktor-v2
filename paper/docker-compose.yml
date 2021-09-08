@@ -8,6 +8,9 @@ services:
       - .:/work
     ports:
       - "4100:8000"
+    depends_on:
+      - mongo
+      - minio
   mongo:
     image: mongo:5.0
     restart: always
@@ -29,10 +32,9 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
   minio:
     image: minio/minio:RELEASE.2021-09-03T03-56-13Z
-    command: server /data --console-address ":4191"
+    command: server /data --console-address ":4102"
     ports:
-      - 4190:9000
-      - 4191:4191
+      - 4102:4102
     environment:
       # username
       - MINIO_ACCESS_KEY=minio
