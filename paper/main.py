@@ -1,5 +1,6 @@
 import os
 import sys
+import urllib3
 from datetime import datetime
 from typing import List
 from uuid import UUID, uuid4
@@ -48,7 +49,7 @@ try:
         minio_client.make_bucket(MINIO_BUCKET_NAME)
     else:
         print("Bucket 'paper' already exists")
-except S3Error as e:
+except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     print(e)
     sys.exit(-1)
 
