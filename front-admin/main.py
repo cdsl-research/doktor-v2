@@ -38,10 +38,7 @@ async def fetch_all(session, urls):
 
 @app.get("/")
 async def top_handler(request: Request):
-    return {"hello": "world"}
-    # sample_data = [{"title": "my title", "author": "my author", "label": "my label", "created_at": "2021/02/03"}]
-    #return templates.TemplateResponse(
-    #    "top.html", {"request": request, "papers": paper_details})
+    return templates.TemplateResponse("top.html", {"request": request})
 
 
 @app.get("/paper")
