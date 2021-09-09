@@ -50,9 +50,11 @@ def read_paper_list_handler(request: Request):
 def add_paper_handler(request: Request):
     return templates.TemplateResponse("paper-add.html", {"request": request})
 
+
 @app.get("/author")
 def read_author_list_handler(request: Request):
     return templates.TemplateResponse("author.html", {"request": request})
+
 
 @app.get("/author/add")
 def add_author_handler(request: Request):
