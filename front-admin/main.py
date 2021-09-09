@@ -40,7 +40,7 @@ async def fetch_all(session, urls):
 async def top_handler(request: Request):
     return {"hello": "world"}
     # sample_data = [{"title": "my title", "author": "my author", "label": "my label", "created_at": "2021/02/03"}]
-    #return templates.TemplateResponse(
+    # return templates.TemplateResponse(
     #    "top.html", {"request": request, "papers": paper_details})
 
 
@@ -53,9 +53,11 @@ def read_paper_list_handler(request: Request):
 def add_paper_handler(request: Request):
     return templates.TemplateResponse("paper-add.html", {"request": request})
 
+
 @app.get("/author")
 def read_author_list_handler(request: Request):
     return templates.TemplateResponse("author.html", {"request": request})
+
 
 @app.get("/author/add")
 def add_author_handler(request: Request):
