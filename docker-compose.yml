@@ -10,6 +10,15 @@ services:
     ports:
       - "4000:8000"
 
+  front-admin:
+    build: ./front-admin
+    command: [ "main:app", "--reload", "--host", "0.0.0.0" ]
+    restart: always
+    volumes:
+      - ./front-admin:/work
+    ports:
+      - "4040:8000"
+
   paper-dind:
     image: docker:20-dind
     privileged: true

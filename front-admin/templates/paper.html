@@ -5,6 +5,23 @@
 </head>
 <body>
 <h1>論文の管理</h1>
-
+<table>
+    <thead>
+    <tr>
+        <th>タイトル</th>
+        <th>ラベル</th>
+        <th>公開日</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for paper in papers %}
+    <tr>
+        <td>{{ paper.title }}</td>
+        <td>{{ paper.label }}</td>
+        <td>{{ paper.created_at }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 </body>
 </html>

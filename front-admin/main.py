@@ -3,6 +3,7 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
+import aiohttp
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-dind")
 SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "4100")
@@ -42,8 +43,24 @@ async def top_handler(request: Request):
 
 
 @app.get("/paper")
-def read_paper_list_handler(request: Request):
-    return templates.TemplateResponse("paper.html", {"request": request})
+async def read_paper_list_handler(request: Request):
+    url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper"
+    async with aiohttp.ClientSession() as session:
+        res_paper = await fetch(session, url)
+
+    paper_details = []
+    for rp in res_paper:
+        paper_details.append({
+            "uuid": rp.get("uuid", "#"),
+            "title": rp.get("title", "No Title"),
+            "label": rp.get("label", "No Label"),
+            "created_at": rp.get("created_at")
+        })
+
+    return templates.TemplateResponse("paper.html", {
+        "request": request,
+        "papers": paper_details
+    })
 
 
 @app.get("/paper/add")

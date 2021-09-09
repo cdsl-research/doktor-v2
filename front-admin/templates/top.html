@@ -5,29 +5,11 @@
 </head>
 <body>
 <h1>Top</h1>
-<table>
-    <thead>
-    <tr>
-        <th>タイトル</th>
-        <th>著者</th>
-        <th>ラベル</th>
-        <th>公開日</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for paper in papers %}
-        <tr>
-            <td><a href="/paper/{{ paper.uuid }}">{{ paper.title }}</a></td>
-            <td>
-                {% for author in paper.author %}
-                    <a href="/author/{{ author.uuid }}">{{ author.name }}</a>
-                {% endfor %}
-            </td>
-            <td>{{ paper.label }}</td>
-            <td>{{ paper.created_at }}</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+<ul>
+    <li><a href="/paper">Paper List</a></li>
+    <li><a href="/paper/add">Paper Registration</a></li>
+    <li><a href="/author">Author List</a></li>
+    <li><a href="/author/add">Author Registration</a></li>
+</ul>
 </body>
 </html>

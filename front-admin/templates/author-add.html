@@ -7,22 +7,29 @@
 <h1>著者の追加</h1>
 
 <form>
-    <label for="title">タイトル</label>
-    <input type="text" name="title" id="title">
+    <label for="fname-ja">姓(日本語)</label>
+    <input type="text" name="first-name-ja" id="fname-ja">
     <br>
-    <label for="author">著者</label>
-    <select name="author" id="author">
-        <option>太郎</option>
-    </select>
+    <label for="mname-ja">ミドルネーム(日本語)</label>
+    <input type="text" name="middle-name-ja" id="mname-ja">
     <br>
-    <label for="keywords">キーワード(カンマ区切り)</label>
-    <input type="text" name="keywords" id="keywords">
+    <label for="lname-ja">名(日本語)</label>
+    <input type="text" name="last-name-ja" id="lname-ja">
     <br>
-    <label for="label">ラベル</label>
-    <input type="text" name="label" id="label">
+    <label for="fname-en">姓(英語)</label>
+    <input type="text" name="first-name-en" id="fname-en">
     <br>
-    <label for="pdffile">PDFファイル</label>
-    <input type="file" name="pdffile" id="pdffile">
+    <label for="mname-en">ミドルネーム(英語)</label>
+    <input type="text" name="middle-name-en" id="mname-en">
+    <br>
+    <label for="lname-en">名(英語)</label>
+    <input type="text" name="last-name-en" id="lname-en">
+    <br>
+    <label for="year">参加年(半角英数)</label>
+    <input type="number" name="joined-year" id="year">
+    <br>
+    <input type="radio" name="graduation" value="0" id="grad" checked="checked"><label for="grad">所属中</label>
+    <input type="radio" name="graduation" value="1" id="ungrad"><label for="ungrad">卒業済み</label>
     <br>
     <button type="button">送信</button>
 </form>
