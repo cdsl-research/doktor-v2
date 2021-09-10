@@ -21,6 +21,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+  mongo-seed:
+    image: mongo:5.0
+    depends_on:
+      - mongo
+    volumes:
+      - ./mongo_init_d:/dump:ro
+    command: ["/bin/bash", "/dump/setup.sh"]
   mongo-express:
     image: mongo-express
     restart: always
