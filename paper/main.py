@@ -1,5 +1,7 @@
 import os
+import socket
 import sys
+import time
 import urllib3
 from datetime import datetime
 from typing import List
@@ -36,6 +38,15 @@ MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
 MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
 MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
+
+for _ in range(120):
+    try:
+        res = socket.getaddrinfo(MINIO_HOST, None)
+        break
+    except Exception as e:
+        print("Retry resolve host:", e)
+        time.sleep(1)
+        continue
 
 try:
     minio_client = Minio(
