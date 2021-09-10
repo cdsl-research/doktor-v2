@@ -14,8 +14,6 @@ services:
   mongo:
     image: mongo:5.0
     restart: always
-    volumes:
-      - ./mongo_init_d:/docker-entrypoint-initdb.d:ro
     # ports:
     #   - "27017:27017"
     environment:
