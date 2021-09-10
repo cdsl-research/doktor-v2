@@ -1,0 +1,152 @@
+[
+  {
+    "_id": {
+      "$oid": "613b17edcb84be13333c0bed"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "dHi3tAqoSm67PSHNS08GDA==",
+        "subType": "03"
+      }
+    },
+    "first_name_ja": "智瀚",
+    "middle_name_ja": "",
+    "last_name_ja": "柴",
+    "first_name_en": "Zhihan",
+    "middle_name_en": "",
+    "last_name_en": "Chai",
+    "joined_year": 2020,
+    "is_graduated": false,
+    "created_at": {
+      "$date": "2021-09-10T08:31:41.698Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:31:41.698Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b17f7cb84be13333c0bee"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "qBqx9I5xRnCEpSCjpJf9tQ==",
+        "subType": "03"
+      }
+    },
+    "first_name_ja": "佳城",
+    "middle_name_ja": "",
+    "last_name_ja": "伊藤",
+    "first_name_en": "Yoshiki",
+    "middle_name_en": "",
+    "last_name_en": "Ito",
+    "joined_year": 2019,
+    "is_graduated": false,
+    "created_at": {
+      "$date": "2021-09-10T08:31:51.180Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:31:51.180Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b1801cb84be13333c0bef"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "Jo+mp9f9Qau4qIPd8+gqRw==",
+        "subType": "03"
+      }
+    },
+    "first_name_ja": "航平",
+    "middle_name_ja": "",
+    "last_name_ja": "大木",
+    "first_name_en": "Kohei",
+    "middle_name_en": "",
+    "last_name_en": "Ohki",
+    "joined_year": 2019,
+    "is_graduated": true,
+    "created_at": {
+      "$date": "2021-09-10T08:32:01.550Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:32:01.550Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b180ccb84be13333c0bf0"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "MJH2E7rlTFK/9cOcK9JXmA==",
+        "subType": "03"
+      }
+    },
+    "first_name_ja": "一彦",
+    "middle_name_ja": "",
+    "last_name_ja": "杉本",
+    "first_name_en": "Kazuhiko",
+    "middle_name_en": "",
+    "last_name_en": "Sugimoto",
+    "joined_year": 2019,
+    "is_graduated": false,
+    "created_at": {
+      "$date": "2021-09-10T08:32:12.646Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:32:12.646Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b1811cb84be13333c0bf1"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "1YStASi5QvCFg0AvHlp13A==",
+        "subType": "03"
+      }
+    },
+    "first_name_ja": "咲也",
+    "middle_name_ja": "",
+    "last_name_ja": "池田",
+    "first_name_en": "Sakuya",
+    "middle_name_en": "",
+    "last_name_en": "Ikeda",
+    "joined_year": 2020,
+    "is_graduated": false,
+    "created_at": {
+      "$date": "2021-09-10T08:32:17.477Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:32:17.477Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b1818cb84be13333c0bf2"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "AkzDYQpKRaeBLvSFC0aPgQ==",
+        "subType": "03"
+      }
+    },
+    "first_name_ja": "高幸",
+    "middle_name_ja": "",
+    "last_name_ja": "串田",
+    "first_name_en": "Takayuki",
+    "middle_name_en": "",
+    "last_name_en": "Kushida",
+    "joined_year": 2019,
+    "is_graduated": false,
+    "created_at": {
+      "$date": "2021-09-10T08:32:24.183Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:32:24.183Z"
+    }
+  }
+]
