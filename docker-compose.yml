@@ -16,6 +16,7 @@ services:
     environment:
       - DOCKER_TLS_CERTDIR=
     volumes:
+      # - /Users/tkoyama/.docker/config.json:/root/.docker/config.json:ro
       - ./paper:/dind
       - dind-data-paper:/var/lib/docker
     ports:
@@ -48,6 +49,7 @@ services:
     environment:
       - DOCKER_TLS_CERTDIR=
     volumes:
+      # - /Users/tkoyama/.docker/config.json:/root/.docker/config.json:ro
       - ./author:/dind
       - dind-data-author:/var/lib/docker
     ports:
