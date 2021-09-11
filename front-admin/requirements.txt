@@ -11,6 +11,8 @@ Jinja2==3.0.1
 MarkupSafe==2.0.1
 multidict==5.1.0
 pydantic==1.8.2
+python-multipart==0.0.5
+six==1.16.0
 starlette==0.14.2
 typing-extensions==3.10.0.2
 uvicorn==0.15.0

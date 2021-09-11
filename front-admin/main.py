@@ -1,8 +1,10 @@
 import asyncio
 import os
+from typing import Optional
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 import aiohttp
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-dind")
@@ -12,6 +14,17 @@ SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "4200")
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+
+class AddAuthor(BaseModel):
+    first_name_ja: str
+    middle_name_ja: str
+    last_name_ja: str
+    first_name_en: str
+    middle_name_en: str
+    last_name_en: str
+    joined_year: int
+    is_graduated: bool
 
 
 async def fetch_file(session, url):
@@ -104,3 +117,44 @@ async def read_author_list_handler(request: Request):
 @app.get("/author/add")
 def add_author_handler(request: Request):
     return templates.TemplateResponse("author-add.html", {"request": request})
+
+
+@app.post("/author/add")
+async def add_author_exec_handler(request: Request,
+                                  first_name_ja: str = Form(...),
+                                  middle_name_ja: Optional[str] = Form(None),
+                                  last_name_ja: str = Form(...),
+                                  first_name_en: str = Form(...),
+                                  middle_name_en: Optional[str] = Form(None),
+                                  last_name_en: str = Form(...),
+                                  joined_year: int = Form(...),
+                                  graduation: bool = Form(...)
+                                  ):
+    url = f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author"
+    req_body = {
+        "first_name_ja": first_name_ja,
+        "middle_name_ja": middle_name_ja if middle_name_ja else "",
+        "last_name_ja": last_name_ja,
+        "first_name_en": first_name_en,
+        "middle_name_en": middle_name_en if middle_name_en else "",
+        "last_name_en": last_name_en,
+        "joined_year": joined_year,
+        "is_graduated": graduation
+    }
+    print("Request Body:", req_body)
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, json=req_body) as response:
+                if response.status != 200:
+                    print("Invalid status:", response.status)
+                    print("Response:", response.json)
+                    raise HTTPException(status_code=503, detail="Internal Error")
+                res = await response.json()
+        except Exception as e:
+            print("HTTP Request failed:", e)
+            raise HTTPException(status_code=503, detail="Internal Error")
+
+    return templates.TemplateResponse("author-add-exec.html", {
+        "request": request,
+        "author": res
+    })

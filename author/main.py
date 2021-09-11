@@ -1,6 +1,7 @@
 import os
 import sys
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
@@ -29,10 +30,10 @@ app = FastAPI()
 
 class AuthorCreateUpdate(BaseModel):
     first_name_ja: str
-    middle_name_ja: str
+    middle_name_ja: Optional[str]
     last_name_ja: str
     first_name_en: str
-    middle_name_en: str
+    middle_name_en: Optional[str]
     last_name_en: str
     joined_year: int
     is_graduated: bool
