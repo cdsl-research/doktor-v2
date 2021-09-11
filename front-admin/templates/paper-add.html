@@ -6,25 +6,39 @@
 <body>
 <h1>論文の追加</h1>
 
-<form>
-    <label for="title">タイトル</label>
-    <input type="text" name="title" id="title">
-    <br>
-    <label for="author">著者</label>
-    <select name="author" id="author">
-        <option>太郎</option>
-    </select>
-    <br>
-    <label for="keywords">キーワード(カンマ区切り)</label>
-    <input type="text" name="keywords" id="keywords">
-    <br>
-    <label for="label">ラベル</label>
-    <input type="text" name="label" id="label">
-    <br>
-    <label for="pdffile">PDFファイル</label>
-    <input type="file" name="pdffile" id="pdffile">
-    <br>
-    <button type="button">送信</button>
+<form method="post" action="/paper/add">
+    <table>
+        <tr>
+            <th><label for="title">タイトル</label></th>
+            <td><input type="text" name="title" id="title"></td>
+        </tr>
+        <tr>
+            <th><label for="author">著者</label></th>
+            <td>
+                <select name="author" id="author" multiple>
+                    {% for author in authors %}
+                    <option value="{{ author.uuid }}">{{ author.name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="keywords">キーワード<br>(カンマ区切り)</label></th>
+            <td><input type="text" name="keywords" id="keywords"></td>
+        </tr>
+        <tr>
+            <th><label for="label">ラベル</label></th>
+            <td><input type="text" name="label" id="label"></td>
+        </tr>
+        <tr>
+            <th><label for="pdffile">PDFファイル</label></th>
+            <td><input type="file" name="pdffile" id="pdffile"></td>
+        </tr>
+        <tr>
+            <th></th>
+            <td><button type="button" style="width: 100%;">送信</button></td>
+        </tr>
+    </table>
 </form>
 
 </body>

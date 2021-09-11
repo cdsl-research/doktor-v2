@@ -69,6 +69,25 @@ async def read_paper_list_handler(request: Request):
 
 
 @app.get("/paper/add")
+async def add_paper_exec_handler(request: Request):
+    url = f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author"
+    async with aiohttp.ClientSession() as session:
+        try:
+            res_author = await fetch(session, url)
+        except BaseException:
+            raise HTTPException(status_code=503, detail="Internal Error")
+
+    author_details = [{
+        "uuid": author.get("uuid", ""),
+        "name": author.get("last_name_ja") + author.get("first_name_ja")
+    } for author in res_author]
+    return templates.TemplateResponse("paper-add.html", {
+        "request": request,
+        "authors": author_details
+    })
+
+
+@app.post("/paper/add")
 def add_paper_handler(request: Request):
     return templates.TemplateResponse("paper-add.html", {"request": request})
 
