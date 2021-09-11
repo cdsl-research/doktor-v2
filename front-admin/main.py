@@ -61,7 +61,7 @@ async def read_paper_list_handler(request: Request):
     async with aiohttp.ClientSession() as session:
         try:
             res_paper = await fetch(session, url)
-        except:
+        except BaseException:
             raise HTTPException(status_code=503, detail="Internal Error")
 
     paper_details = []
@@ -90,7 +90,7 @@ async def read_author_list_handler(request: Request):
     async with aiohttp.ClientSession() as session:
         try:
             res_author = await fetch(session, url)
-        except:
+        except BaseException:
             raise HTTPException(status_code=503, detail="Internal Error")
 
     author_details = []
@@ -148,7 +148,8 @@ async def add_author_exec_handler(request: Request,
                 if response.status != 200:
                     print("Invalid status:", response.status)
                     print("Response:", response.json)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res = await response.json()
         except Exception as e:
             print("HTTP Request failed:", e)
