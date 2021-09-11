@@ -1,10 +1,37 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Author Management</title>
+    <title>著者の管理</title>
 </head>
 <body>
-    <h1>著者の管理</h1>
-
+<h1>著者の管理</h1>
+<table>
+    <thead>
+    <tr>
+        <th>名前(日本語)</th>
+        <th>名前(英語)</th>
+        <th>所属年</th>
+        <th>卒業済み</th>
+        <th>追加日時</th>
+        <th>更新日時</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for author in authors %}
+    <tr>
+        <td>{{ author.last_name_ja }} {{ author.middle_name_ja }} {{ author.first_name_ja }}</td>
+        <td>{{ author.last_name_en }} {{ author.middle_name_en }} {{ author.first_name_en }}</td>
+        <td>{{ author.joined_year }}</td>
+        {% if author.is_graduated %}
+            <td>YES</td>
+        {% else %}
+            <td>NO</td>
+        {% endif %}
+        <td>{{ author.created_at }}</td>
+        <td>{{ author.updated_at }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 </body>
 </html>
