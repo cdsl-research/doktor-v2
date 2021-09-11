@@ -46,7 +46,6 @@ for _ in range(120):
     except Exception as e:
         print("Retry resolve host:", e)
         time.sleep(1)
-        continue
 
 try:
     minio_client = Minio(
