@@ -16,17 +16,6 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 
-class AddAuthor(BaseModel):
-    first_name_ja: str
-    middle_name_ja: str
-    last_name_ja: str
-    first_name_en: str
-    middle_name_en: str
-    last_name_en: str
-    joined_year: int
-    is_graduated: bool
-
-
 async def fetch_file(session, url):
     async with session.get(url) as response:
         if response.status != 200:
@@ -133,10 +122,10 @@ async def add_author_exec_handler(request: Request,
     url = f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author"
     req_body = {
         "first_name_ja": first_name_ja,
-        "middle_name_ja": middle_name_ja if middle_name_ja else "",
+        "middle_name_ja": middle_name_ja,
         "last_name_ja": last_name_ja,
         "first_name_en": first_name_en,
-        "middle_name_en": middle_name_en if middle_name_en else "",
+        "middle_name_en": middle_name_en,
         "last_name_en": last_name_en,
         "joined_year": joined_year,
         "is_graduated": graduation
@@ -148,8 +137,8 @@ async def add_author_exec_handler(request: Request,
                 if response.status != 200:
                     print("Invalid status:", response.status)
                     print("Response:", response.json)
-                    raise HTTPException(
-                        status_code=503, detail="Internal Error")
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
                 res = await response.json()
         except Exception as e:
             print("HTTP Request failed:", e)
