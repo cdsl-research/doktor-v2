@@ -68,8 +68,10 @@ async def top_handler(request: Request):
         })
 
     # sample_data = [{"title": "my title", "author": "my author", "label": "my label", "created_at": "2021/02/03"}]
-    return templates.TemplateResponse(
-        "top.html", {"request": request, "papers": paper_details})
+    return templates.TemplateResponse("top.html", {
+        "request": request,
+        "papers": paper_details
+    })
 
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
@@ -124,22 +126,20 @@ async def author_handler(author_uuid: UUID, request: Request):
     res_author_me = json_res[2]
 
     # 著者(author_uuid)を含む論文一覧を取得
-    found_paper = list(
-        filter(
-            lambda x: str(author_uuid) in x["author_uuid"],
-            res_paper))
+    found_paper = list(filter(
+        lambda x: str(author_uuid) in x["author_uuid"],
+        res_paper))
     paper_details = []
     for fp in found_paper:
         # 個々の論文の著者ID(uuid)を氏名に変換
-        found_author = list(
-            filter(
-                lambda x: x["uuid"] in fp.get("author_uuid"),
-                res_author))
-        author_list = [
-            {
-                "name": fa.get("last_name_ja") +
-                fa.get("first_name_ja"),
-                "uuid": fa.get("uuid")} for fa in found_author]
+        found_author = list(filter(
+            lambda x: x["uuid"] in fp.get("author_uuid"),
+            res_author))
+        author_list = [{
+            "name": fa.get("last_name_ja") +
+                    fa.get("first_name_ja"),
+            "uuid": fa.get("uuid")
+        } for fa in found_author]
         paper_details.append({
             "title": fp.get("title", "No Title"),
             "author": author_list,
@@ -149,10 +149,13 @@ async def author_handler(author_uuid: UUID, request: Request):
 
     author_details = {
         "name": res_author_me.get("last_name_ja") +
-        res_author_me.get("first_name_ja"),
+                res_author_me.get("first_name_ja"),
         "status": "在学" if res_author_me.get("is_graduated") else "既卒",
-        "joined_year": res_author_me.get("joined_year")}
+        "joined_year": res_author_me.get("joined_year")
+    }
 
-    return templates.TemplateResponse(
-        "author.html", {
-            "request": request, "papers": paper_details, "author": author_details})
+    return templates.TemplateResponse("author.html", {
+        "request": request,
+        "papers": paper_details,
+        "author": author_details
+    })
