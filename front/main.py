@@ -51,15 +51,14 @@ async def top_handler(request: Request):
 
     paper_details = []
     for rp in res_paper:
-        found_author = list(
-            filter(
-                lambda x: x.get("uuid") in rp.get("author_uuid"),
-                res_author))
-        author_list = [
-            {
-                "name": fa.get("last_name_ja") +
-                fa.get("first_name_ja"),
-                "uuid": fa.get("uuid")} for fa in found_author]
+        found_author = list(filter(
+            lambda x: x.get("uuid") in rp.get("author_uuid"),
+            res_author))
+        author_list = [{
+            "name": fa.get("last_name_ja") +
+                    fa.get("first_name_ja"),
+            "uuid": fa.get("uuid")
+        } for fa in found_author]
         paper_details.append({
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
