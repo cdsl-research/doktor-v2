@@ -141,10 +141,10 @@ async def add_author_exec_handler(request: Request,
     url = f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author"
     req_body = {
         "first_name_ja": first_name_ja,
-        "middle_name_ja": middle_name_ja,
+        "middle_name_ja": middle_name_ja if middle_name_ja else "",
         "last_name_ja": last_name_ja,
         "first_name_en": first_name_en,
-        "middle_name_en": middle_name_en,
+        "middle_name_en": middle_name_en if middle_name_en else "",
         "last_name_en": last_name_en,
         "joined_year": joined_year,
         "is_graduated": graduation

@@ -4,7 +4,7 @@ import sys
 import time
 import urllib3
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException, File, UploadFile
@@ -134,7 +134,9 @@ def create_paper_handler(paper: PaperCreateUpdate):
 
 
 @app.get("/paper")
-def read_papers_handler():
+def read_papers_handler(private: bool = False):
+    if private:
+        return list(db["paper"].find({}, {'_id': 0}))
     return list(db["paper"].find({"is_public": True}, {'_id': 0}))
 
 
