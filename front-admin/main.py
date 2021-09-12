@@ -138,6 +138,7 @@ async def add_paper_handler(request: Request,
             """ Add paper pdf file """
             url_file = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}"
                         f"/paper/{paper_uuid}/upload")
+            # FIXME: ここを修正する
             payload = aiohttp.FormData()
             payload.add_field('file', b'pdffile', filename=f"{paper_uuid}.pdf",
                               content_type='application/pdf')
