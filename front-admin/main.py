@@ -2,9 +2,8 @@ import asyncio
 import os
 from typing import List, Optional
 
-from fastapi import FastAPI, Request, HTTPException, Form, UploadFile, File
+from fastapi import FastAPI, Request, HTTPException, Form, File
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 import aiohttp
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-dind")
@@ -88,22 +87,79 @@ async def add_paper_exec_handler(request: Request):
 
 
 @app.post("/paper/add")
-def add_paper_handler(request: Request,
-                      title: str = Form(...),
-                      author: List[str] = Form(...),
-                      keywords: Optional[str] = Form(None),
-                      label: Optional[str] = Form(None),
-                      publish: bool = Form(True),
-                      pdffile: bytes = File(...)
-                      ):
-    return {
+async def add_paper_handler(request: Request,
+                            title: str = Form(...),
+                            author1: str = Form(...),
+                            author2: Optional[str] = Form(None),
+                            author3: Optional[str] = Form(None),
+                            keywords: Optional[List[str]] = Form([]),
+                            label: Optional[str] = Form(""),
+                            publish: bool = Form(True),
+                            pdffile: bytes = File(...)
+                            ):
+    author_list = [author1]
+    if author2:
+        author_list.append(author2)
+    if author3:
+        author_list.append(author3)
+    req_body = {
+        "author_uuid": author_list,
         "title": title,
-        "author": author,
         "keywords": keywords,
         "label": label,
-        "publish": publish,
-        "pdffile": len(pdffile)
+        "categories_id": [
+            0
+        ],
+        "abstract": "ここにabstractが入る．",
+        "url": "https://ja.tak-cslab.org/",
+        "thumbnail_url": "https://ja.tak-cslab.org/",
+        "is_public": publish
     }
+    print("Request1:", req_body)
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            """ Add paper info """
+            url_meta = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper"
+            async with session.post(url_meta, json=req_body) as res_meta:
+                if res_meta.status != 200:
+                    print("Invalid status1:", res_meta.status)
+                    print("Response1:", res_meta.json)
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+                res_meta_detail = await res_meta.json()
+                print("Req1 response:", res_meta_detail)
+                if res_meta_detail.get("uuid"):
+                    paper_uuid = res_meta_detail.get("uuid")
+                else:
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+
+            """ Add paper pdf file """
+            url_file = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}"
+                        f"/paper/{paper_uuid}/upload")
+            payload = aiohttp.FormData()
+            payload.add_field('file', b'pdffile', filename=f"{paper_uuid}.pdf",
+                              content_type='application/pdf')
+            #payload.add_field('type', 'application/pdf', filename=f"{paper_uuid}.pdf",
+            #                  content_type='multipart/form-data')
+            # payload = {'file': pdffile}
+            headers = {'Content-Type': 'multipart/form-data'}
+            print("Req2 url:", url_file)
+            async with session.post(url_file, data=payload, headers=headers) as res_body:
+                if res_body.status != 200:
+                    print("Invalid status2:", res_body.status)
+                    print("Response2:", res_body.json)
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+                res_body_detail = res_body.json()
+                print("req2 response:", res_body_detail)
+
+        except Exception as e:
+            print("HTTP Request failed:", e)
+            raise HTTPException(status_code=503, detail="Internal Error")
+
+    return {"status": "ok"}
     # return templates.TemplateResponse("paper-add.html", {"request": request})
 
 

@@ -12,16 +12,19 @@
             <th><label for="title">タイトル</label></th>
             <td><input type="text" name="title" id="title"></td>
         </tr>
+        {% for i in range(1, 4) %}
         <tr>
-            <th><label for="author">著者</label></th>
+            <th><label for="author{{ i }}">著者{{ i }}</label></th>
             <td>
-                <select name="author" id="author" multiple>
+                <select name="author{{ i }}" id="author{{ i }}">
+                    <option value="" selected>---</option>
                     {% for author in authors %}
                     <option value="{{ author.uuid }}">{{ author.name }}</option>
                     {% endfor %}
                 </select>
             </td>
         </tr>
+        {% endfor %}
         <tr>
             <th><label for="keywords">キーワード<br>(カンマ区切り)</label></th>
             <td><input type="text" name="keywords" id="keywords"></td>
