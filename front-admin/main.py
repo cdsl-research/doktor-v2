@@ -1,8 +1,8 @@
 import asyncio
 import os
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import FastAPI, Request, HTTPException, Form
+from fastapi import FastAPI, Request, HTTPException, Form, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import aiohttp
@@ -88,8 +88,23 @@ async def add_paper_exec_handler(request: Request):
 
 
 @app.post("/paper/add")
-def add_paper_handler(request: Request):
-    return templates.TemplateResponse("paper-add.html", {"request": request})
+def add_paper_handler(request: Request,
+                      title: str = Form(...),
+                      author: List[str] = Form(...),
+                      keywords: Optional[str] = Form(None),
+                      label: Optional[str] = Form(None),
+                      publish: bool = Form(True),
+                      pdffile: bytes = File(...)
+                      ):
+    return {
+        "title": title,
+        "author": author,
+        "keywords": keywords,
+        "label": label,
+        "publish": publish,
+        "pdffile": len(pdffile)
+    }
+    # return templates.TemplateResponse("paper-add.html", {"request": request})
 
 
 @app.get("/author")
