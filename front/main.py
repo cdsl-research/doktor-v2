@@ -51,9 +51,10 @@ async def top_handler(request: Request):
 
     paper_details = []
     for rp in res_paper:
-        found_author = list(filter(
-            lambda x: x.get("uuid") in rp.get("author_uuid"),
-            res_author))
+        found_author = []
+        for author_uuid in rp.get("author_uuid"):
+            author = next(filter(lambda x: author_uuid == x.get("uuid"), res_author))
+            found_author.append(author)
         author_list = [{
             "name": fa.get("last_name_ja") +
                     fa.get("first_name_ja"),
@@ -83,10 +84,11 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
 
-    found_author = list(
-        filter(
-            lambda x: x.get("uuid") in res_paper_me["author_uuid"],
-            res_author))
+    found_author = []
+    for author_uuid in res_paper_me["author_uuid"]:
+        author = next(filter(lambda x: author_uuid == x.get("uuid"), res_author))
+        found_author.append(author)
+
     paper_details = {
         "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
@@ -132,9 +134,10 @@ async def author_handler(author_uuid: UUID, request: Request):
     paper_details = []
     for fp in found_paper:
         # 個々の論文の著者ID(uuid)を氏名に変換
-        found_author = list(filter(
-            lambda x: x["uuid"] in fp.get("author_uuid"),
-            res_author))
+        found_author = []
+        for author_uuid in fp.get("author_uuid"):
+            author = next(filter(lambda x: author_uuid == x.get("uuid"), res_author))
+            found_author.append(author)
         author_list = [{
             "name": fa.get("last_name_ja") +
                     fa.get("first_name_ja"),
