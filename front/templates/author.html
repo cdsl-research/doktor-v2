@@ -23,7 +23,7 @@
     <tbody>
     {% for paper in papers %}
         <tr>
-            <td>{{ paper.title }}</td>
+            <td><a href="/paper/{{ paper.uuid }}">{{ paper.title }}</a></td>
             <td>
                 {% for author in paper.author %}
                 <a href="/author/{{ author.uuid }}">{{ author.name }}</a>

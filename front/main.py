@@ -141,6 +141,7 @@ async def author_handler(author_uuid: UUID, request: Request):
             "uuid": fa.get("uuid")
         } for fa in found_author]
         paper_details.append({
+            "uuid": fp.get("uuid", "#"),
             "title": fp.get("title", "No Title"),
             "author": author_list,
             "label": fp.get("label", "No Label"),
