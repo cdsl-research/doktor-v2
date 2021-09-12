@@ -53,11 +53,14 @@ async def top_handler(request: Request):
     for rp in res_paper:
         found_author = []
         for author_uuid in rp.get("author_uuid"):
-            author = next(filter(lambda x: author_uuid == x.get("uuid"), res_author))
+            author = next(
+                filter(
+                    lambda x: author_uuid == x.get("uuid"),
+                    res_author))
             found_author.append(author)
         author_list = [{
             "name": fa.get("last_name_ja") +
-                    fa.get("first_name_ja"),
+            fa.get("first_name_ja"),
             "uuid": fa.get("uuid")
         } for fa in found_author]
         paper_details.append({
@@ -86,7 +89,10 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 
     found_author = []
     for author_uuid in res_paper_me["author_uuid"]:
-        author = next(filter(lambda x: author_uuid == x.get("uuid"), res_author))
+        author = next(
+            filter(
+                lambda x: author_uuid == x.get("uuid"),
+                res_author))
         found_author.append(author)
 
     paper_details = {
@@ -136,11 +142,14 @@ async def author_handler(author_uuid: UUID, request: Request):
         # 個々の論文の著者ID(uuid)を氏名に変換
         found_author = []
         for author_uuid in fp.get("author_uuid"):
-            author = next(filter(lambda x: author_uuid == x.get("uuid"), res_author))
+            author = next(
+                filter(
+                    lambda x: author_uuid == x.get("uuid"),
+                    res_author))
             found_author.append(author)
         author_list = [{
             "name": fa.get("last_name_ja") +
-                    fa.get("first_name_ja"),
+            fa.get("first_name_ja"),
             "uuid": fa.get("uuid")
         } for fa in found_author]
         paper_details.append({
@@ -153,7 +162,7 @@ async def author_handler(author_uuid: UUID, request: Request):
 
     author_details = {
         "name": res_author_me.get("last_name_ja") +
-                res_author_me.get("first_name_ja"),
+        res_author_me.get("first_name_ja"),
         "status": "在学" if res_author_me.get("is_graduated") else "既卒",
         "joined_year": res_author_me.get("joined_year")
     }
