@@ -6,22 +6,25 @@
 <body>
 <h1>論文の追加</h1>
 
-<form method="post" action="/paper/add">
+<form method="post" action="/paper/add" enctype="multipart/form-data">
     <table>
         <tr>
             <th><label for="title">タイトル</label></th>
             <td><input type="text" name="title" id="title"></td>
         </tr>
+        {% for i in range(1, 4) %}
         <tr>
-            <th><label for="author">著者</label></th>
+            <th><label for="author{{ i }}">著者{{ i }}</label></th>
             <td>
-                <select name="author" id="author" multiple>
+                <select name="author{{ i }}" id="author{{ i }}">
+                    <option value="" selected>---</option>
                     {% for author in authors %}
                     <option value="{{ author.uuid }}">{{ author.name }}</option>
                     {% endfor %}
                 </select>
             </td>
         </tr>
+        {% endfor %}
         <tr>
             <th><label for="keywords">キーワード<br>(カンマ区切り)</label></th>
             <td><input type="text" name="keywords" id="keywords"></td>
@@ -43,7 +46,7 @@
         </tr>
         <tr>
             <th></th>
-            <td><button type="button" style="width: 100%;">送信</button></td>
+            <td><button type="submit" style="width: 100%;">送信</button></td>
         </tr>
     </table>
 </form>

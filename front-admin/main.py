@@ -1,10 +1,10 @@
 import asyncio
+import io
 import os
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import FastAPI, Request, HTTPException, Form
+from fastapi import FastAPI, Request, HTTPException, Form, File, UploadFile
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 import aiohttp
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-dind")
@@ -88,8 +88,78 @@ async def add_paper_exec_handler(request: Request):
 
 
 @app.post("/paper/add")
-def add_paper_handler(request: Request):
-    return templates.TemplateResponse("paper-add.html", {"request": request})
+async def add_paper_handler(request: Request,
+                            title: str = Form(...),
+                            author1: str = Form(...),
+                            author2: Optional[str] = Form(None),
+                            author3: Optional[str] = Form(None),
+                            keywords: Optional[List[str]] = Form([]),
+                            label: Optional[str] = Form(""),
+                            publish: bool = Form(True),
+                            pdffile: UploadFile = File(...)
+                            ):
+    author_list = [author1]
+    if author2:
+        author_list.append(author2)
+    if author3:
+        author_list.append(author3)
+    req_body = {
+        "author_uuid": author_list,
+        "title": title,
+        "keywords": keywords,
+        "label": label,
+        "categories_id": [
+            0
+        ],
+        "abstract": "ここにabstractが入る．",
+        "url": "https://ja.tak-cslab.org/",
+        "thumbnail_url": "https://ja.tak-cslab.org/",
+        "is_public": publish
+    }
+    print("Request1:", req_body)
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            """ Add paper info """
+            url_meta = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper"
+            print("Req1 url:", url_meta)
+            async with session.post(url_meta, json=req_body) as res_meta:
+                if res_meta.status != 200:
+                    print("Invalid status1:", res_meta.status)
+                    print("Response1:", res_meta.json)
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+                res_meta_detail = await res_meta.json()
+                if res_meta_detail.get("uuid"):
+                    paper_uuid = res_meta_detail.get("uuid")
+                else:
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+
+            """ Add paper pdf file """
+            url_file = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}"
+                        f"/paper/{paper_uuid}/upload")
+            file_content = pdffile.file.read()
+            payload = aiohttp.FormData()
+            payload.add_field('file', io.BytesIO(file_content),
+                              filename=f"{paper_uuid}.pdf",
+                              content_type='application/pdf')
+            print("Req2 url:", url_file)
+            async with session.post(url_file, data=payload) as res_body:
+                if res_body.status != 200:
+                    print("Invalid status2:", res_body.status)
+                    print("Response2:", res_body.json)
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+                res_body_detail = res_body.json()
+                print("req2 response:", res_body_detail)
+
+        except Exception as e:
+            print("HTTP Request failed:", e)
+            raise HTTPException(status_code=503, detail="Internal Error")
+
+    return {"status": "ok"}
+    # return templates.TemplateResponse("paper-add.html", {"request": request})
 
 
 @app.get("/author")
