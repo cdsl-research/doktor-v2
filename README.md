@@ -8,8 +8,14 @@ This is doktor v2.
 
 ## Directory Structure
 
-- `author` 著者を管理するサービス
+構成ファイル・スクリプト
+
+- `deploy` デプロイ用の構成ファイル
 - `dev_tools` 開発用のツール群
+
+各サービス
+
+- `author` 著者を管理するサービス
 - `front` ユーザが操作するWeb UIのサービス
 - `front-admin` 管理者が操作するWeb UIのサービス
 - `fulltext` 論文の本文を全文検索するサービス
