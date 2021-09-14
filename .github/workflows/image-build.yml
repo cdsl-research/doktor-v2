@@ -12,7 +12,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        target: ["paper", "author"]
+        target: ["author", "front-admin", "front", "paper"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
