@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: author-app-deploy
+  labels:
+    app: author
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: author
+  template:
+    metadata:
+      labels:
+        app: author
+    spec:
+      containers:
+        - name: author-app-container
+          image: ghcr.io/cdsl-research/author:master-0ffe797
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MONGO_HOST
+              value: author-mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: author-app
+spec:
+  type: ClusterIP
+  selector:
+    app: author
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 8000

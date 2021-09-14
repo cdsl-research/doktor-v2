@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: author-mongo-deploy
+  labels:
+    db: author
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      db: author
+  template:
+    metadata:
+      labels:
+        db: author
+    spec:
+      containers:
+        - name: author-mongo-container
+          image: mongo:5.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: example
+          volumeMounts:
+            - name: author-mongo-volv
+              mountPath: /data/db
+      volumes:
+        - name: author-mongo-volv
+          persistentVolumeClaim:
+            claimName: author-mongo-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: author-mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: author-mongo
+spec:
+  type: ClusterIP
+  selector:
+    db: author
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
