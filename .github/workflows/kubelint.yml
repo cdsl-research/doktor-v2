@@ -1,0 +1,15 @@
+name: KubeLinter
+on:
+  push:
+    branches:
+      - master
+jobs:
+  kubelint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Scan repo with kube-linter
+        uses: stackrox/kube-linter-action@v1.0.2
+        with:
+          directory: deploy/
