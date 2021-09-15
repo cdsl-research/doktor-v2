@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paper-app-deploy
+  labels:
+    app: paper
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: paper
+  template:
+    metadata:
+      labels:
+        app: paper
+    spec:
+      containers:
+        - name: paper-app-container
+          image: ghcr.io/cdsl-research/paper:master-0ffe797
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MONGO_HOST
+              value: paper-mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paper-app
+spec:
+  type: ClusterIP
+  selector:
+    app: paper
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 8000
