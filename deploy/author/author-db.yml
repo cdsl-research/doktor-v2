@@ -28,6 +28,14 @@ spec:
           volumeMounts:
             - name: author-mongo-volv
               mountPath: /data/db
+          livenessProbe:
+            exec:
+              command:
+                - ls
+                - /data/db/lost+found
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 4
       volumes:
         - name: author-mongo-volv
           persistentVolumeClaim:
@@ -40,10 +48,11 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  volumeMode: Block
+  storageClassName: longhorn
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
 ---
 apiVersion: v1
 kind: Service
