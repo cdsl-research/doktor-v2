@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paper-mongo-deploy
+  labels:
+    db: paper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      db: paper
+  template:
+    metadata:
+      labels:
+        db: paper
+    spec:
+      containers:
+        - name: paper-mongo-container
+          image: mongo:5.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: example
+          volumeMounts:
+            - name: paper-mongo-volv
+              mountPath: /data/db
+          livenessProbe:
+            exec:
+              command:
+                - ls
+                - /data/db/lost+found
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 4
+      volumes:
+        - name: paper-mongo-volv
+          persistentVolumeClaim:
+            claimName: paper-mongo-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paper-mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paper-mongo
+spec:
+  type: ClusterIP
+  selector:
+    db: paper
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
