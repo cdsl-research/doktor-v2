@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: author-app-deploy
+  namespace: author
   labels:
     app: author
 spec:
@@ -22,12 +23,13 @@ spec:
             - containerPort: 8000
           env:
             - name: MONGO_HOST
-              value: author-mongo
+              value: author-mongo.author.svc.cluster.local
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: author-app
+  namespace: author
 spec:
   type: ClusterIP
   selector:

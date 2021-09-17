@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: author-mongo-deploy
+  namespace: author
   labels:
     db: author
 spec:
@@ -45,6 +46,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: author-mongo-pvc
+  namespace: author
 spec:
   accessModes:
     - ReadWriteOnce
@@ -58,6 +60,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: author-mongo
+  namespace: author
 spec:
   type: ClusterIP
   selector:
