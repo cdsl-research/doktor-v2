@@ -20,7 +20,7 @@ def main():
             mod_main = importlib.import_module(full_mod_name)
             app = mod_main.app
 
-            with open(f"docs/openapi_{mod_name}.json", 'w') as f:
+            with open(f"docs_src/openapi_{mod_name}.json", 'w') as f:
                 json.dump(get_openapi(
                     title=app.title,
                     version=app.version,
