@@ -17,14 +17,8 @@ MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
 client = MongoClient(MONGO_CONNECTION_STRING)
-try:
-    client.admin.command('ping')
-    print("MongoDB connected.")
-except (ConnectionFailure, OperationFailure) as e:
-    print("MongoDB not available. ", e)
-    sys.exit(-1)
-
 db = client[MONGO_DBNAME]
+
 app = FastAPI()
 
 
@@ -120,3 +114,15 @@ def update_author_handler(author_uuid: UUID, author: AuthorCreateUpdate):
         "updated_at": datetime.now()
     }
     return AuthorRead(**my_author)
+
+
+if __name__ == "__main__":
+    try:
+        client.admin.command('ping')
+        print("MongoDB connected.")
+    except (ConnectionFailure, OperationFailure) as e:
+        print("MongoDB not available. ", e)
+        sys.exit(-1)
+
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0")
