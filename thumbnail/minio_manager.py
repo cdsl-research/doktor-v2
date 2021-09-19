@@ -14,17 +14,20 @@ minio_client = Minio(
     secret_key=MINIO_SECRET_KEY,
     secure=False
 )
-found = minio_client.bucket_exists("paper")
-if not found:
-    minio_client.make_bucket("paper")
-else:
-    print("Bucket 'paper' already exists")
 
-found = minio_client.bucket_exists("thumbnail")
-if not found:
-    minio_client.make_bucket("thumbnail")
-else:
-    print("Bucket 'thumbnail' already exists")
+
+def initialize():
+    found = minio_client.bucket_exists("paper")
+    if not found:
+        minio_client.make_bucket("paper")
+    else:
+        print("Bucket 'paper' already exists")
+
+    found = minio_client.bucket_exists("thumbnail")
+    if not found:
+        minio_client.make_bucket("thumbnail")
+    else:
+        print("Bucket 'thumbnail' already exists")
 
 
 def download_paper_handler(paper_uuid):

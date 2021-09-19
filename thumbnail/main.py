@@ -1,33 +1,12 @@
-import minio_manager
-import pdf2png
-import os
-import sys
 from datetime import datetime
 from typing import List
 from uuid import UUID, uuid4
+
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
-# from minio_manager.error import S3Error
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, OperationFailure
-
-# MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
-# MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
-# MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
-# MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
-# MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
-
-# client = MongoClient(MONGO_CONNECTION_STRING)
-# try:
-#     client.admin.command('ping')
-#     print("MongoDB connected.")
-# except (ConnectionFailure, OperationFailure) as e:
-#     print("MongoDB not available. ", e)
-#     sys.exit(-1)
-#
-# db = client[MONGO_DBNAME]
+import minio_manager
 
 
 app = FastAPI()
@@ -112,7 +91,7 @@ def read_papers_handler():
 
 @app.post("/thumbnail/{paper_uuid}")
 def process_paper_thumbnail(paper_uuid: UUID):
-
+    import pdf2png
     folder = pdf2png.thumbnail(f"http://minio:9000/paper/{paper_uuid}.pdf")
     # try:
     result = minio_manager.upload_local_directory_to_minio(
@@ -158,3 +137,9 @@ def update_paper_handler(paper_uuid: UUID, paper: ThumbnailCreateUpdate):
         "updated_at": datetime.now()
     }
     return PaperRead(**my_paper)
+
+
+if __name__ == "__main__":
+    minio_manager.initialize()
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0")
