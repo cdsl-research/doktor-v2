@@ -4,6 +4,7 @@ import importlib
 
 from fastapi.openapi.utils import get_openapi
 
+
 def main():
     import os
     import sys
