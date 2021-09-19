@@ -24,12 +24,6 @@ MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
 mongo_client = MongoClient(MONGO_CONNECTION_STRING)
-try:
-    mongo_client.admin.command('ping')
-    print("MongoDB connected.")
-except (ConnectionFailure, OperationFailure) as e:
-    print("MongoDB not available. ", e)
-    sys.exit(-1)
 db = mongo_client[MONGO_DBNAME]
 
 
@@ -39,14 +33,6 @@ MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
 MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
 
-for _ in range(120):
-    try:
-        res = socket.getaddrinfo(MINIO_HOST, None)
-        break
-    except Exception as e:
-        print("Retry resolve host:", e)
-        time.sleep(1)
-
 try:
     minio_client = Minio(
         MINIO_HOST,
@@ -54,11 +40,6 @@ try:
         secret_key=MINIO_ROOT_PASSWORD,
         secure=False
     )
-    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
-    if not found:
-        minio_client.make_bucket(MINIO_BUCKET_NAME)
-    else:
-        print("Bucket 'paper' already exists")
 except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     print(e)
     sys.exit(-1)
@@ -205,3 +186,29 @@ def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
         "updated_at": datetime.now()
     }
     return PaperRead(**my_paper)
+
+
+if __name__ == "__main__":
+    try:
+        mongo_client.admin.command('ping')
+        print("MongoDB connected.")
+    except (ConnectionFailure, OperationFailure) as e:
+        print("MongoDB not available. ", e)
+        sys.exit(-1)
+
+    for _ in range(120):
+        try:
+            res = socket.getaddrinfo(MINIO_HOST, None)
+            break
+        except Exception as e:
+            print("Retry resolve host:", e)
+            time.sleep(1)
+
+    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+    if not found:
+        minio_client.make_bucket(MINIO_BUCKET_NAME)
+    else:
+        print("Bucket 'paper' already exists")
+
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0")
