@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: paper-mongo-deploy
+  namespace: paper
   labels:
     db: paper
 spec:
@@ -45,19 +46,20 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: paper-mongo-pvc
+  namespace: paper
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeMode: Block
   storageClassName: longhorn
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: paper-mongo
+  namespace: paper
 spec:
   type: ClusterIP
   selector:

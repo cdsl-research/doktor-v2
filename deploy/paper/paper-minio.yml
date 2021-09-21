@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: paper-minio-deploy
+  namespace: paper
   labels:
     minio: paper
 spec:
@@ -18,12 +19,12 @@ spec:
         - name: paper-minio-container
           image: minio/minio:RELEASE.2021-09-03T03-56-13Z
           imagePullPolicy: IfNotPresent
-          command: ["server"]
+          command: ["minio", "server"]
           args: ["/data", "--console-address", ":9100"]
           ports:
-            - name: minio api
+            - name: minio-api
               containerPort: 9000
-            - name: minio dashboard
+            - name: minio-dashboard
               containerPort: 9100
           env:
             - name: MINIO_ACCESS_KEY
@@ -50,14 +51,14 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: paper-minio-pvc
+  namespace: paper
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeMode: Block
   storageClassName: longhorn
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
 ---
 apiVersion: v1
 kind: Service
@@ -76,6 +77,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: paper-minio-dashboard
+  namespace: paper
 spec:
   type: NodePort
   selector:
