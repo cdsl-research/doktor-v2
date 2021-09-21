@@ -17,13 +17,15 @@ spec:
     spec:
       containers:
         - name: paper-app-container
-          image: ghcr.io/cdsl-research/paper:master-0ffe797
+          image: ghcr.io/cdsl-research/paper:master-c58e16d
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
           env:
             - name: MONGO_HOST
               value: paper-mongo
+            - name: MINIO_HOST
+              value: "paper-minio.paper.svc.local:9000"
 ---
 apiVersion: v1
 kind: Service
