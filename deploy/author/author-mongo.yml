@@ -50,7 +50,6 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeMode: Block
   storageClassName: longhorn
   resources:
     requests:
