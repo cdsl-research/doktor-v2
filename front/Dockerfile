@@ -1,4 +1,5 @@
-FROM python:3.9-alpine
+# FROM python:3.9-alpine
+FROM python:3.9-slim
 WORKDIR /work
 COPY main.py requirements.txt /work/
 COPY templates/ /work/templates/
