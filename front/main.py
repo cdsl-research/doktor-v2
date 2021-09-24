@@ -51,6 +51,8 @@ async def top_handler(request: Request):
     res_paper = json_raw[0]
     res_author = json_raw[1]
     print("debug 3")
+    print("paper", res_paper)
+    print("author", res_author)
 
     paper_details = []
     for rp in res_paper:
