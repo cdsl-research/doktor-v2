@@ -40,23 +40,19 @@ async def fetch_all(session, urls):
     return results
 
 
-@app.get("/", response_class=HTMLResponse)
+# @app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def top_handler(request: Request):
-    print("debug 1")
     urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
-    print("debug 2")
     res_paper = json_raw[0]
     res_author = json_raw[1]
-    print("debug 3")
-    print("paper", res_paper)
-    print("author", res_author)
 
+    """
     paper_details = []
     for rp in res_paper:
-        print("debug 4")
         found_author = []
         for author_uuid in rp.get("author_uuid"):
             author = next(
@@ -64,13 +60,11 @@ async def top_handler(request: Request):
                     lambda x: author_uuid == x.get("uuid"),
                     res_author))
             found_author.append(author)
-        print("debug 5")
         author_list = [{
             "name": fa.get("last_name_ja") +
             fa.get("first_name_ja"),
             "uuid": fa.get("uuid")
         } for fa in found_author]
-        print("debug 6")
         paper_details.append({
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
@@ -78,13 +72,14 @@ async def top_handler(request: Request):
             "label": rp.get("label", "No Label"),
             "created_at": rp.get("created_at")
         })
-    print("debug 7")
 
     # sample_data = [{"title": "my title", "author": "my author", "label": "my label", "created_at": "2021/02/03"}]
     return templates.TemplateResponse("top.html", {
         "request": request,
         "papers": paper_details
     })
+    """
+    return {"hello": "123"}
 
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
