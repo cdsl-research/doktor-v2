@@ -28,7 +28,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set image tag for master
-        # if: github.ref == 'refs/heads/master'
         run: |
           COMMITID=$(git rev-parse --short ${{ github.sha }})
           CUR_BRANCH=$(git symbolic-ref --short HEAD)
