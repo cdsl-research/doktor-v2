@@ -55,9 +55,9 @@ async def top_handler(request: Request):
         found_author = []
         for uuid in rp.get("author_uuid"):
             candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
-            candidates_set = set(candidates)
-            if len(candidates_set) > 0:
-                author = candidates_set[0]
+            candidates_lst = list(candidates)
+            if len(candidates_lst) > 0:
+                author = candidates_lst[0]
                 found_author.append(author)
 
         author_list = [{
@@ -99,9 +99,9 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     found_author = []
     for uuid in res_paper_me["author_uuid"]:
         candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
-        candidates_set = set(candidates)
-        if len(candidates_set) > 0:
-            author = candidates_set[0]
+        candidates_lst = list(candidates)
+        if len(candidates_lst) > 0:
+            author = candidates_lst[0]
             found_author.append(author)
 
     paper_details = {
@@ -152,9 +152,9 @@ async def author_handler(author_uuid: UUID, request: Request):
         found_author = []
         for uuid in fp.get("author_uuid"):
             candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
-            candidates_set = set(candidates)
-            if len(candidates_set) > 0:
-                author = candidates_set[0]
+            candidates_lst = list(candidates)
+            if len(candidates_lst) > 0:
+                author = candidates_lst[0]
                 found_author.append(author)
 
         author_list = [{
