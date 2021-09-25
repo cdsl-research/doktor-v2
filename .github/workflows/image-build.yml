@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - add-k8s-front
 
 jobs:
   build-and-push:
