@@ -50,9 +50,9 @@ async def top_handler(request: Request):
     res_paper = json_raw[0]
     res_author = json_raw[1]
 
-    """
     paper_details = []
     for rp in res_paper:
+        """
         found_author = []
         for author_uuid in rp.get("author_uuid"):
             author = next(
@@ -65,6 +65,13 @@ async def top_handler(request: Request):
             fa.get("first_name_ja"),
             "uuid": fa.get("uuid")
         } for fa in found_author]
+        """
+        author_list = [
+            {
+                "name": "sample sample",
+                "uuid": "49d4dbec-3f48-4ba7-88b4-2372913087e1"
+            }
+        ]
         paper_details.append({
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
@@ -78,8 +85,7 @@ async def top_handler(request: Request):
         "request": request,
         "papers": paper_details
     })
-    """
-    return {"hello": "123"}
+    # return {"hello": "123"}
 
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
