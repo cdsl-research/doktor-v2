@@ -2,7 +2,8 @@ import json
 import os
 import requests
 
-ENDPOINT_URL = os.getenv("FRONT_ADMIN_ENDPOINT", "http://localhost:4300")
+AUTHOR_URL = os.getenv("AUTHOR_ENDPOINT", "http://localhost:4200")
+PAPER_URL = os.getenv("PAPER_ENDPOINT", "http://localhost:4100")
 
 
 def author_add(
@@ -13,17 +14,20 @@ def author_add(
     joined_year: int,
     graduation: bool
 ):
-    AUTHOR_UPLOAD_URL = f"{ENDPOINT_URL}/author/add"
+    AUTHOR_UPLOAD_URL = f"{AUTHOR_URL}/author"
     # todo: generate from openapi schema
     payload = {
         "first_name_ja": first_name_ja,
+        "middle_name_ja": "",
         "last_name_ja": last_name_ja,
         "first_name_en": first_name_en,
+        "middle_name_en": "",
         "last_name_en": last_name_en,
         "joined_year": joined_year,
-        "graduation": graduation
+        "is_graduated": graduation
     }
-    req = requests.post(AUTHOR_UPLOAD_URL, data=payload)
+    req = requests.post(AUTHOR_UPLOAD_URL, json=payload)
+    print("Res:", req.text)
     assert req.status_code == 200
 
 
@@ -35,7 +39,7 @@ def paper_add(
     author2_uuid: str = "",
     author3_uuid: str = "",
 ):
-    PAPER_UPLOAD_URL = f"{ENDPOINT_URL}/paper/add"
+    PAPER_UPLOAD_URL = f"{ENDPOINT_URL}/paper"
     # todo: generate from openapi schema
     pdffile = {'file': open(pdf_file_path, 'rb')}
     payload = {
@@ -53,7 +57,7 @@ def main():
     with open("author.json") as f:
         author_list = json.load(f)
     for author in author_list:
-        print("Add:", author)
+        print("Req:", author)
         author_add(
             first_name_ja=author.get("first_name_ja"),
             last_name_ja=author.get("last_name_ja"),
@@ -62,6 +66,7 @@ def main():
             joined_year=author.get("joined_year"),
             graduation=author.get("graduation")
         )
+
 
 if __name__ == "__main__":
     main()
