@@ -1,6 +1,5 @@
-from io import BytesIO
+import json
 import os
-from typing import IO, BinaryIO
 import requests
 
 ENDPOINT_URL = os.getenv("FRONT_ADMIN_ENDPOINT", "http://localhost:4300")
@@ -51,10 +50,18 @@ def paper_add(
 
 
 def main():
-    # author_add()
-    # paper_add
-    pass
-
+    with open("author.json") as f:
+        author_list = json.load(f)
+    for author in author_list:
+        print("Add:", author)
+        author_add(
+            first_name_ja=author.get("first_name_ja"),
+            last_name_ja=author.get("last_name_ja"),
+            first_name_en=author.get("first_name_en"),
+            last_name_en=author.get("last_name_en"),
+            joined_year=author.get("joined_year"),
+            graduation=author.get("graduation")
+        )
 
 if __name__ == "__main__":
     main()
