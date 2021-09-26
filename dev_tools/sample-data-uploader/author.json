@@ -40,6 +40,14 @@
     "graduation": false
   },
   {
+    "first_name_ja": "智之",
+    "last_name_ja": "小山",
+    "first_name_en": "Tomoyuki",
+    "last_name_en": "Koyama",
+    "joined_year": 2019,
+    "graduation": false
+  },
+  {
     "first_name_ja": "隆太",
     "last_name_ja": "新宮",
     "first_name_en": "Ryuta",
@@ -180,6 +188,22 @@
     "first_name_en": "Shun",
     "last_name_en": "Yamaguchi",
     "joined_year": 2020,
+    "graduation": false
+  },
+  {
+    "first_name_ja": "翔太",
+    "last_name_ja": "中川",
+    "first_name_en": "Shota",
+    "last_name_en": "Nakagawa",
+    "joined_year": 2019,
+    "graduation": false
+  },
+  {
+    "first_name_ja": "悠太郎",
+    "last_name_ja": "髙谷",
+    "first_name_en": "Yutaro",
+    "last_name_en": "Takaya",
+    "joined_year": 2019,
     "graduation": false
   }
 ]

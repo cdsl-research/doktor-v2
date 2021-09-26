@@ -1,12 +1,15 @@
+import csv
 import json
 import os
 import requests
+from typing import List
+
 
 AUTHOR_URL = os.getenv("AUTHOR_ENDPOINT", "http://localhost:4200")
 PAPER_URL = os.getenv("PAPER_ENDPOINT", "http://localhost:4100")
 
 
-def author_add(
+def _author_add(
     first_name_ja: str,
     last_name_ja: str,
     first_name_en: str,
@@ -31,34 +34,38 @@ def author_add(
     assert req.status_code == 200
 
 
-def paper_add(
+def _paper_add(
     title: str,
     label: str,
     pdf_file_path: str,
-    author1_uuid: str,
-    author2_uuid: str = "",
-    author3_uuid: str = "",
+    author_uuid_list: List
 ):
-    PAPER_UPLOAD_URL = f"{ENDPOINT_URL}/paper"
+    PAPER_UPLOAD_URL = f"{PAPER_URL}/paper"
     # todo: generate from openapi schema
-    pdffile = {'file': open(pdf_file_path, 'rb')}
+    # pdffile = {'file': open(pdf_file_path, 'rb')}
     payload = {
+        "author_uuid": author_uuid_list,
         "title": title,
+        "keywords": [],
         "label": label,
-        "author1": author1_uuid,
-        "author2": author2_uuid,
-        "author3": author3_uuid
+        "categories_id": [],
+        "abstract": "",
+        "url": "",
+        "thumbnail_url": "",
+        "is_public": True
     }
-    req = requests.post(PAPER_UPLOAD_URL, data=payload, files=pdffile)
+    print(payload)
+    req = requests.post(PAPER_UPLOAD_URL, json=payload)
     assert req.status_code == 200
 
 
-def main():
+def author_add_wrapper():
+    """ 著者の追加 """
     with open("author.json") as f:
         author_list = json.load(f)
     for author in author_list:
         print("Req:", author)
-        author_add(
+        _author_add(
             first_name_ja=author.get("first_name_ja"),
             last_name_ja=author.get("last_name_ja"),
             first_name_en=author.get("first_name_en"),
@@ -66,6 +73,41 @@ def main():
             joined_year=author.get("joined_year"),
             graduation=author.get("graduation")
         )
+
+
+def paper_add_wrapper():
+    """ 論文の追加 """
+    req = requests.get(f"{AUTHOR_URL}/author")
+    author_list = req.json()
+    # print(author_list)
+    author_uuid_table = {
+        (author["last_name_ja"], author["first_name_ja"]): author["uuid"]
+        for author in author_list
+    }
+
+    with open('paper.csv', newline='') as csvfile:
+        spamreader = csv.reader(csvfile)
+        next(spamreader)
+        for row in spamreader:
+            # (lastname, firstname)
+            author1 = (row[0], row[1])
+            uuid1 = author_uuid_table.get(author1)
+            author2 = (row[2], row[3])
+            uuid2 = author_uuid_table.get(author2)
+            author3 = (row[4], row[5])
+            uuid3 = author_uuid_table.get(author3)
+            uuid_list = list(filter(None, [uuid1, uuid2, uuid3]))
+            _paper_add(
+                title=row[6],
+                label=row[7],
+                pdf_file_path="pdf_files/x.pdf",
+                author_uuid_list=uuid_list
+            )
+
+
+def main():
+    author_add_wrapper()
+    paper_add_wrapper()
 
 
 if __name__ == "__main__":
