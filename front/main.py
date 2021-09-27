@@ -111,7 +111,10 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 
     return templates.TemplateResponse(
         "paper.html", {
-            "request": request, "paper": paper_details})
+            "request": request,
+            "paper": paper_details,
+            "page_title": f"{paper_details['title']}"
+        })
 
 
 @app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
@@ -171,5 +174,6 @@ async def author_handler(author_uuid: UUID, request: Request):
     return templates.TemplateResponse("author.html", {
         "request": request,
         "papers": paper_details,
-        "author": author_details
+        "author": author_details,
+        "page_title": author_details["name"]
     })

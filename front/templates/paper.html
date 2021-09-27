@@ -1,10 +1,5 @@
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>Top</title>
-</head>
-<body>
-<h1>Paper - {{ paper.title }}</h1>
+{% include '_header.html' %}
+<h1>{{ paper.title }}</h1>
 
 <ul>
     <li>タイトル: {{ paper.title }}</li>
@@ -27,9 +22,11 @@
     <li>更新日: {{ paper.updated_at }}</li>
 </ul>
 
+<!--
 <h2>Abstract</h2>
 
 <p>{{ paper.abstract }}</p>
+-->
 
 <a href="{{ paper.uuid }}/download">ダウンロード</a>
 
