@@ -111,7 +111,10 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 
     return templates.TemplateResponse(
         "paper.html", {
-            "request": request, "paper": paper_details})
+            "request": request,
+            "paper": paper_details,
+            "page_title": f"{paper_details['title']}"
+        })
 
 
 @app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
@@ -164,12 +167,13 @@ async def author_handler(author_uuid: UUID, request: Request):
     author_details = {
         "name": res_author_me.get("last_name_ja") +
         res_author_me.get("first_name_ja"),
-        "status": "在学" if res_author_me.get("is_graduated") else "既卒",
+        "status": "既卒" if res_author_me.get("is_graduated") else "在学",
         "joined_year": res_author_me.get("joined_year")
     }
 
     return templates.TemplateResponse("author.html", {
         "request": request,
         "papers": paper_details,
-        "author": author_details
+        "author": author_details,
+        "page_title": author_details["name"]
     })
