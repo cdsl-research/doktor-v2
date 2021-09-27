@@ -62,7 +62,7 @@ def _paper_add(
 
     """ 論文PDFの追加 """
     pdffile = {'file': (
-        f"{paper_uuid}.pdf", 
+        f"{paper_uuid}.pdf",
         open(pdf_file_path, 'rb'),
         "application/pdf"
     )}
@@ -70,7 +70,6 @@ def _paper_add(
     print("PAPER_FILE_UPLOAD_URL:", PAPER_FILE_UPLOAD_URL)
     req = requests.post(PAPER_FILE_UPLOAD_URL, files=pdffile)
     assert req.status_code == 200
-
 
 
 def author_add_wrapper():
