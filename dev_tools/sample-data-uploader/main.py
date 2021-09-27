@@ -40,9 +40,9 @@ def _paper_add(
     pdf_file_path: str,
     author_uuid_list: List
 ):
+    """ 論文情報の追加 """
     PAPER_UPLOAD_URL = f"{PAPER_URL}/paper"
     # todo: generate from openapi schema
-    # pdffile = {'file': open(pdf_file_path, 'rb')}
     payload = {
         "author_uuid": author_uuid_list,
         "title": title,
@@ -54,9 +54,23 @@ def _paper_add(
         "thumbnail_url": "",
         "is_public": True
     }
-    print(payload)
+    # print(payload)
     req = requests.post(PAPER_UPLOAD_URL, json=payload)
     assert req.status_code == 200
+    res = req.json()
+    paper_uuid = res["uuid"]
+
+    """ 論文PDFの追加 """
+    pdffile = {'file': (
+        f"{paper_uuid}.pdf", 
+        open(pdf_file_path, 'rb'),
+        "application/pdf"
+    )}
+    PAPER_FILE_UPLOAD_URL = f"{PAPER_URL}/paper/{paper_uuid}/upload"
+    print("PAPER_FILE_UPLOAD_URL:", PAPER_FILE_UPLOAD_URL)
+    req = requests.post(PAPER_FILE_UPLOAD_URL, files=pdffile)
+    assert req.status_code == 200
+
 
 
 def author_add_wrapper():
@@ -100,7 +114,7 @@ def paper_add_wrapper():
             _paper_add(
                 title=row[6],
                 label=row[7],
-                pdf_file_path="pdf_files/x.pdf",
+                pdf_file_path=f"pdf_files/{row[7]}.pdf",
                 author_uuid_list=uuid_list
             )
 
