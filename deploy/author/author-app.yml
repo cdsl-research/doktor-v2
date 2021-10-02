@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: author-app-container
-          image: ghcr.io/cdsl-research/author:master-c5c8099
+          image: ghcr.io/cdsl-research/author:master-b03a669
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
@@ -31,7 +31,7 @@ metadata:
   name: author-app
   namespace: author
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: author
   ports:
