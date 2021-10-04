@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: paper-app-container
-          image: ghcr.io/cdsl-research/paper:master-c5c8099
+          image: ghcr.io/cdsl-research/paper:master-b03a669
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
@@ -33,7 +33,7 @@ metadata:
   name: paper-app
   namespace: paper
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: paper
   ports:
