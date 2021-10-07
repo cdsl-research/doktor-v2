@@ -137,7 +137,10 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
         if file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="Invalid Content-Type")
 
-        print(file.file.fileno())
+        # print("file number:", file.file.fileno())
+        exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+        if not exist:
+            minio_client.make_bucket(MINIO_BUCKET_NAME)
         response = minio_client.put_object(
             MINIO_BUCKET_NAME,
             f"{paper_uuid}.pdf",
