@@ -23,11 +23,11 @@ spec:
             - containerPort: 8000
           env:
             - name: SERVICE_PAPER_HOST
-              value: paper-app.paper.svc.cluster.local
+              value: paper-app.paper
             - name: SERVICE_PAPER_PORT
               value: "4000"
             - name: SERVICE_AUTHOR_HOST
-              value: author-app.author.svc.cluster.local
+              value: author-app.author
             - name: SERVICE_AUTHOR_PORT
               value: "4000"
 ---
