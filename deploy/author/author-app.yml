@@ -13,7 +13,7 @@ spec:
   template:
     metadata:
       annotations:
-        sidecar.istio.io/status:
+        sidecar.istio.io/status: ""
       labels:
         app: author
     spec:
