@@ -12,6 +12,8 @@ spec:
       app: author
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/status:
       labels:
         app: author
     spec:

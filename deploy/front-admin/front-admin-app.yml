@@ -12,6 +12,8 @@ spec:
       app: front-admin
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/status:
       labels:
         app: front-admin
     spec:
