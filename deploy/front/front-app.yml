@@ -12,6 +12,8 @@ spec:
       app: front
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/status:
       labels:
         app: front
     spec:

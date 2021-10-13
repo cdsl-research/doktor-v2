@@ -12,6 +12,8 @@ spec:
       app: paper
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/status:
       labels:
         app: paper
     spec:
