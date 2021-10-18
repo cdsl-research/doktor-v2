@@ -1,34 +1,20 @@
 {% include '_header.html' %}
 <h1>{{ author.name }}</h1>
 
+<p>このサイトでは，<a href="https://ja.tak-cslab.org/">クラウド・分散システム研究室</a>で作成されたテクニカルレポートを公開しています．</p>
+
 <ul>
     <li>在籍: {{ author.status }}</li>
     <li>配属年: {{ author.joined_year }}</li>
 </ul>
 
-<table>
-    <thead>
-    <tr>
-        <th>タイトル</th>
-        <th>著者</th>
-        <th>ラベル</th>
-        <th>公開日</th>
-    </tr>
-    </thead>
-    <tbody>
+<ul>
     {% for paper in papers %}
-        <tr>
-            <td><a href="/paper/{{ paper.uuid }}">{{ paper.title }}</a></td>
-            <td>
-                {% for author in paper.author %}
-                <a href="/author/{{ author.uuid }}">{{ author.name }}</a>
-                {% endfor %}
-            </td>
-            <td>{{ paper.label }}</td>
-            <td>{{ paper.created_at }}</td>
-        </tr>
+        <li><a href="/paper/{{ paper.uuid }}">
+            {% for author in paper.author %} {{ author }}, {% endfor %}
+            "{{ paper.title }}", {{ paper.label }}, {{ paper.created_at }}.
+        </a></li>
     {% endfor %}
-    </tbody>
-</table>
+</ul>
 </body>
 </html>
