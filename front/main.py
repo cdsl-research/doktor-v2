@@ -155,7 +155,7 @@ async def author_handler(author_uuid: UUID, request: Request):
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
                 display_name = author.get('last_name_ja') + " " + \
-                               author.get('first_name_ja')
+                    author.get('first_name_ja')
                 found_author.append(display_name)
 
         paper_details.append({
