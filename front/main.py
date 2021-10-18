@@ -1,5 +1,6 @@
 import asyncio
 import os
+from datetime import datetime as dt
 from uuid import UUID
 
 from fastapi import FastAPI, Request
@@ -50,26 +51,28 @@ async def top_handler(request: Request):
     res_author = json_raw[1]
 
     paper_details = []
-    for rp in res_paper:
+    for rp in res_paper:  # 論文を選択
+        # 論文に対応する著者名を検索
         found_author = []
         for uuid in rp.get("author_uuid"):
             candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
             candidates_lst = list(candidates)
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
-                found_author.append(author)
+                display_name = author.get('last_name_ja') + " " + \
+                               author.get('first_name_ja')
+                found_author.append(display_name)
 
-        author_list = [{
-            "name": fa.get("last_name_ja") +
-            fa.get("first_name_ja"),
-            "uuid": fa.get("uuid")
-        } for fa in found_author]
+        # 日付のフォーマットを修正
+        _created = dt.strptime(rp.get("created_at"), "%Y-%m-%dT%H:%M:%S.%f")
+        display_created = _created.strftime("%b. %d, %Y")
+
         paper_details.append({
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
-            "author": author_list,
+            "author": found_author,
             "label": rp.get("label", "No Label"),
-            "created_at": rp.get("created_at")
+            "created_at": display_created
         })
 
     return templates.TemplateResponse("top.html", {
