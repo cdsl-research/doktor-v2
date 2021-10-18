@@ -1,5 +1,6 @@
 import asyncio
 import os
+from datetime import datetime as dt
 from uuid import UUID
 
 from fastapi import FastAPI, Request
@@ -15,6 +16,12 @@ SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "4200")
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+
+# 日付のフォーマットを修正
+def reformat_datetime(raw_str: str) -> str:
+    _created = dt.strptime(raw_str, "%Y-%m-%dT%H:%M:%S.%f")
+    return _created.strftime("%b. %d, %Y")
 
 
 async def fetch_file(session, url):
@@ -50,26 +57,24 @@ async def top_handler(request: Request):
     res_author = json_raw[1]
 
     paper_details = []
-    for rp in res_paper:
+    for rp in res_paper:  # 論文を選択
+        # 論文に対応する著者名を検索
         found_author = []
         for uuid in rp.get("author_uuid"):
             candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
             candidates_lst = list(candidates)
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
-                found_author.append(author)
+                display_name = author.get('last_name_ja') + " " + \
+                    author.get('first_name_ja')
+                found_author.append(display_name)
 
-        author_list = [{
-            "name": fa.get("last_name_ja") +
-            fa.get("first_name_ja"),
-            "uuid": fa.get("uuid")
-        } for fa in found_author]
         paper_details.append({
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
-            "author": author_list,
+            "author": found_author,
             "label": rp.get("label", "No Label"),
-            "created_at": rp.get("created_at")
+            "created_at": reformat_datetime(rp.get("created_at"))
         })
 
     return templates.TemplateResponse("top.html", {
@@ -104,8 +109,8 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         } for author in found_author],
         "keywords": res_paper_me.get("keywords"),
         "label": res_paper_me.get("label"),
-        "created_at": res_paper_me.get("created_at"),
-        "updated_at": res_paper_me.get("updated_at"),
+        "created_at": reformat_datetime(res_paper_me.get("created_at")),
+        "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
         "abstract": res_paper_me.get("abstract")
     }
 
@@ -149,19 +154,16 @@ async def author_handler(author_uuid: UUID, request: Request):
             candidates_lst = list(candidates)
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
-                found_author.append(author)
+                display_name = author.get('last_name_ja') + " " + \
+                    author.get('first_name_ja')
+                found_author.append(display_name)
 
-        author_list = [{
-            "name": fa.get("last_name_ja") +
-            fa.get("first_name_ja"),
-            "uuid": fa.get("uuid")
-        } for fa in found_author]
         paper_details.append({
             "uuid": fp.get("uuid", "#"),
             "title": fp.get("title", "No Title"),
-            "author": author_list,
+            "author": found_author,
             "label": fp.get("label", "No Label"),
-            "created_at": fp.get("created_at")
+            "created_at": reformat_datetime(fp.get("created_at"))
         })
 
     author_details = {

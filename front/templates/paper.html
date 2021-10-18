@@ -1,6 +1,8 @@
 {% include '_header.html' %}
 <h1>{{ paper.title }}</h1>
 
+<p>このサイトでは，<a href="https://ja.tak-cslab.org/">クラウド・分散システム研究室</a>で作成されたテクニカルレポートを公開しています．</p>
+
 <ul>
     <li>タイトル: {{ paper.title }}</li>
     <li>著者:
@@ -21,12 +23,6 @@
     <li>公開日: {{ paper.created_at }}</li>
     <li>更新日: {{ paper.updated_at }}</li>
 </ul>
-
-<!--
-<h2>Abstract</h2>
-
-<p>{{ paper.abstract }}</p>
--->
 
 <a href="{{ paper.uuid }}/download">ダウンロード</a>
 
