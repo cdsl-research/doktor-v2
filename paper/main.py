@@ -115,10 +115,17 @@ def create_paper_handler(paper: PaperCreateUpdate):
 
 
 @app.get("/paper")
-def read_papers_handler(private: bool = False):
+def read_papers_handler(private: bool = False, title: str = ""):
+    query = {"is_public": True}
     if private:
-        return list(db["paper"].find({}, {'_id': 0}))
-    return list(db["paper"].find({"is_public": True}, {'_id': 0}))
+        del query["is_public"]
+
+    if title:
+        query["title"] = {
+            "$regex": title
+        }
+
+    return list(db["paper"].find(query, {'_id': 0}))
 
 
 @app.get("/paper/{paper_uuid}")
