@@ -123,13 +123,13 @@ def read_papers_handler(private: bool = False, title: str = ""):
 
     if title:
         _title = title.strip()
-        valid_title = re.search('[0-9a-zA-Zあ-んア-ン一-鿐ー :]+', _title)
-        if valid_title:
+        validate = re.search('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', _title)
+        if validate is None:
+            raise HTTPException(status_code=400, detail="Invalid input")
+        else:
             query["title"] = {
                 "$regex": title
             }
-        else:
-            raise HTTPException(status_code=400, detail="Invalid input")
 
     return list(db["paper"].find(query, {'_id': 0}))
 
