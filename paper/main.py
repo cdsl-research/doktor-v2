@@ -1,4 +1,5 @@
 import os
+import re
 import socket
 import sys
 import time
@@ -79,7 +80,7 @@ class PaperRead(BaseModel):
 
 @app.get("/")
 def root_handler():
-    return {"Hello": "World"}
+    return {"name": "paper"}
 
 
 @app.get("/healthz")
@@ -115,10 +116,22 @@ def create_paper_handler(paper: PaperCreateUpdate):
 
 
 @app.get("/paper")
-def read_papers_handler(private: bool = False):
+def read_papers_handler(private: bool = False, title: str = ""):
+    query = {"is_public": True}
     if private:
-        return list(db["paper"].find({}, {'_id': 0}))
-    return list(db["paper"].find({"is_public": True}, {'_id': 0}))
+        del query["is_public"]
+
+    if title:
+        _title = title.strip()
+        validate = re.search('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', _title)
+        if validate is None:
+            raise HTTPException(status_code=400, detail="Invalid input")
+        else:
+            query["title"] = {
+                "$regex": title
+            }
+
+    return list(db["paper"].find(query, {'_id': 0}))
 
 
 @app.get("/paper/{paper_uuid}")
