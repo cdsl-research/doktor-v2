@@ -1,5 +1,8 @@
 name: Format python code
-on: push
+on:
+  push:
+    branches-ignore:
+      - "k8s-config-updater"
 jobs:
   autopep8:
     runs-on: ubuntu-20.04
