@@ -18,4 +18,4 @@ jobs:
           title: Fixes by k8s-config-updater
           body: This is an auto-generated PR with fixes by k8s-config-updater.
           labels: k8s-config-updater, automated pr
-          branch: autopep8-patches
+          branch: k8s-config-updater
