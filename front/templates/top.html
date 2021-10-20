@@ -8,6 +8,10 @@
     <button type="submit">検索</button>
 </form>
 
+{% if search_title %}
+<a href="/">戻る</a>
+{% endif %}
+
 <ul>
 {% for paper in papers %}
     <li><a href="/paper/{{ paper.uuid }}">
