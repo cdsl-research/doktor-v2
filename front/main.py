@@ -56,10 +56,11 @@ async def top_handler(request: Request, title: str = ""):
         striped_title = title.strip().replace("　", "")
         validate = re.match('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', striped_title)
         if validate is None:
-            raise HTTPException(status_code=400, detail="Invalid title") 
+            raise HTTPException(status_code=400, detail="Invalid title")
 
-    urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
-            f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
+    urls = (
+        f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
+        f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
     res_paper = json_raw[0]
