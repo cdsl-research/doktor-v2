@@ -1,9 +1,10 @@
 import asyncio
 import os
+import re
 from datetime import datetime as dt
 from uuid import UUID
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
@@ -48,8 +49,16 @@ async def fetch_all(session, urls):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def top_handler(request: Request):
-    urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
+async def top_handler(request: Request, title: str = ""):
+    striped_title = ""
+    if title:
+        # スペースを削除
+        striped_title = title.strip().replace("　", "")
+        validate = re.match('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', striped_title)
+        if validate is None:
+            raise HTTPException(status_code=400, detail="Invalid title") 
+
+    urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
@@ -79,7 +88,8 @@ async def top_handler(request: Request):
 
     return templates.TemplateResponse("top.html", {
         "request": request,
-        "papers": paper_details
+        "papers": paper_details,
+        "search_title": striped_title
     })
 
 
