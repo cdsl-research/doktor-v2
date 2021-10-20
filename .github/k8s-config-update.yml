@@ -1,0 +1,21 @@
+name: Config update for k8s
+on:
+  push:
+    branches:
+      - master
+jobs:
+  config-update:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          COMMITID=$(git rev-parse --short ${{ github.sha }})
+          find deploy -type f -exec sed -i "s/:master-.*/:master-$COMMITID/g" \{\} \;
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: k8s-config-updater fixes
+          title: Fixes by k8s-config-updater
+          body: This is an auto-generated PR with fixes by k8s-config-updater.
+          labels: k8s-config-updater, automated pr
+          branch: autopep8-patches
