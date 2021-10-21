@@ -6,7 +6,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-20.04
-    if: ${{ github.event.pusher.email != 'k8s-config-updater@tak-cslab.org' }}
+    if: ${{ github.event.pusher.name != 'github-actions' }}
     permissions:
       contents: read
       packages: write
@@ -39,12 +39,3 @@ jobs:
           context: ./${{ matrix.target }}
           push: true
           tags: ghcr.io/cdsl-research/${{ matrix.target }}:${{ env.DOCKER_TAG }}
-
-      - run: |
-          COMMITID=$(git rev-parse --short ${{ github.sha }})
-          find deploy -type f -exec sed -i "s/:master-.*/:master-$COMMITID/g" \{\} \;
-          git config --local user.email "k8s-config-updater@tak-cslab.org"
-          git config --local user.name "github-actions"
-          git add deploy/
-          git commit -m 'Auto commit by k8s-config updater'
-          git push origin HEAD
