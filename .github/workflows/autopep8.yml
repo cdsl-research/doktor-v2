@@ -1,8 +1,8 @@
 name: Format python code
 on:
   push:
-    branches-ignore:
-      - "k8s-config-updater"
+    paths:
+      - '**.py'
 jobs:
   autopep8:
     runs-on: ubuntu-20.04
@@ -19,5 +19,4 @@ jobs:
           title: Fixes by autopep8 action
           body: This is an auto-generated PR with fixes by autopep8.
           labels: autopep8, automated pr
-          reviewers: peter-evans
           branch: autopep8-patches
