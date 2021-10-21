@@ -6,6 +6,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-20.04
+    if: ${{ github.event.pusher.email != 'k8s-update-config@users.noreply.github.com' }}
     permissions:
       contents: read
       packages: write
