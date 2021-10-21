@@ -6,6 +6,7 @@ on:
 jobs:
   config-update:
     runs-on: ubuntu-20.04
+    if: github.event.pusher.email != 'k8s-update-config@users.noreply.github.com'
     steps:
       - uses: actions/checkout@v2
       - run: |
@@ -15,6 +16,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           commit-message: k8s-config-updater fixes
+          author: github-actions <k8s-update-config@users.noreply.github.com>
           title: Fixes by k8s-config-updater
           body: This is an auto-generated PR with fixes by k8s-config-updater.
           labels: k8s-config-updater, automated pr
