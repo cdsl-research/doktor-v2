@@ -6,7 +6,7 @@ on:
 jobs:
   config-update:
     runs-on: ubuntu-20.04
-    if: github.event.pusher.email != 'k8s-update-config@users.noreply.github.com'
+    if: ${{ github.event.pusher.email != 'k8s-update-config@users.noreply.github.com' }}
     steps:
       - uses: actions/checkout@v2
       - run: |
