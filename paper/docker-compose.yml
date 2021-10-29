@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  app:
+  paper-app:
     build: .
     command: ["main:app", "--reload", "--host", "0.0.0.0"]
     restart: always
@@ -8,25 +8,33 @@ services:
       - .:/work
     ports:
       - "4100:8000"
+    environment:
+      - MONGO_HOST=paper-mongo
+      - MINIO_HOST=paper-minio
     depends_on:
-      - mongo
-      - minio
-  mongo:
+      - paper-mongo
+      - paper-minio
+    networks:
+      - frontend
+      - backend
+  paper-mongo:
     image: mongo:5.0
     restart: always
-    # ports:
-    #   - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-  mongo-seed:
+    networks:
+      - backend
+  paper-mongo-seed:
     image: mongo:5.0
     depends_on:
       - mongo
     volumes:
       - ./mongo_init_d:/dump:ro
     command: ["/bin/bash", "/dump/setup.sh"]
-  mongo-express:
+    networks:
+      - backend
+  paper-mongo-express:
     image: mongo-express
     restart: always
     ports:
@@ -34,8 +42,11 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-  minio:
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@paper-mongo:27017/
+    networks:
+      - frontend
+      - backend
+  paper-minio:
     image: minio/minio:RELEASE.2021-09-03T03-56-13Z
     command: server /data --console-address ":4102"
     ports:
@@ -47,3 +58,11 @@ services:
       - MINIO_SECRET_KEY=minio123
     volumes:
       - ./minio_data:/data
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
