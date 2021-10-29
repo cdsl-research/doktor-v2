@@ -37,6 +37,11 @@ Makeでdocker-composeをまとめて起動する．
 make up
 ```
 
+ブラウザで以下のURLへアクセスする．
+
+- Web UI(front) http://localhost:4000/
+- Admin UI(front-admin) http://localhost:4300/
+
 停止する場合は以下のコマンドを実行する．
 
 ```shell
