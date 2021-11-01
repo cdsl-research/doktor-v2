@@ -1,6 +1,7 @@
 import glob
 from minio import Minio, S3Error
 import os
+
 """ Minio Setup"""
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
