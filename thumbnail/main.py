@@ -49,28 +49,22 @@ def topz_handler():
 @app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     import pdf2png
-    folder = pdf2png.thumbnail(f"http://minio:9000/paper/{paper_uuid}.pdf")
-    # try:
-    result = minio_manager.upload_local_directory_to_minio(
-        folder, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
-    return result
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=e)
+    folder = pdf2png.thumbnail(f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf")
+    try:
+        res = minio_manager.upload_local_directory_to_minio(
+            folder, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=e)
 
 
-@app.get("/thumbnail/{paper_uuid}")
-def read_thumbnail(paper_uuid: UUID):
-    # try:
-    res = minio_manager.download_paper_handler(paper_uuid)
-    return Response(content=res, media_type="image/png")
-
-    # except:
-    #     raise HTTPException(status_code=status_code, detail=str(e.message))
-
-
-@app.put("/thumbnail/{paper_uuid}")
-def update_paper_handler(paper_uuid: UUID, paper: ThumbnailCreateUpdate):
-    pass
+@app.get("/thumbnail/{paper_uuid}/{image_id}")
+def read_thumbnail(paper_uuid: UUID, image_id: int):
+    try:
+        res = minio_manager.download_paper_handler(paper_uuid)
+        return Response(content=res, media_type="image/png")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e.message))
 
 
 if __name__ == "__main__":
