@@ -14,7 +14,7 @@ services:
     image: minio/minio:RELEASE.2021-09-03T03-56-13Z
     command: server /data --console-address ":4402"
     ports:
-      - 4402:4102
+      - 4402:4402
     environment:
       # username
       - MINIO_ACCESS_KEY=minio
