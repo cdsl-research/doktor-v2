@@ -46,7 +46,7 @@ class ThumbnailRead(BaseModel):
     is_public: bool
 
 
-def download_paper_handler(paper_uuid):
+def _download_paper_from_minio(paper_uuid):
     try:
         response = minio_client.get_object(
             MINIO_BUCKET_NAME, f"{paper_uuid}-00.png")
@@ -109,7 +109,7 @@ def create_thumbnail(paper_uuid: UUID):
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
 def read_thumbnail(paper_uuid: UUID, image_id: int):
     try:
-        res = download_paper_handler(paper_uuid)
+        res = _download_paper_from_minio(paper_uuid)
         return Response(content=res, media_type="image/png")
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Error")

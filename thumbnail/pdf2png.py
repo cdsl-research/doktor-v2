@@ -16,17 +16,17 @@ def _get_pdf_http(pdf_url: str):
 
 
 def create(url):
-    file, dstdir = _get_pdf_http(url)
+    file, dest_dir = _get_pdf_http(url)
 
     with fitz.open(file) as doc:
         for i, page in enumerate(doc):
             for j, img in enumerate(page.getImageList()):
                 x = doc.extractImage(img[0])
-                name = os.path.join(dstdir, f"{i:04}_{j:02}.{x['ext']}")
+                name = os.path.join(dest_dir, f"{i:04}_{j:02}.{x['ext']}")
                 with open(name, "wb") as ofh:
                     ofh.write(x['image'])
 
-    return dstdir
+    return dest_dir
 
 
 def get_first_page(url):
