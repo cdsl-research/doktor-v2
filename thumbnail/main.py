@@ -1,13 +1,15 @@
 import os
 import socket
+import sys
 import time
+import urllib3
 from typing import List
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Response
+from minio import Minio, S3Error
 from pydantic import BaseModel
 
-import minio_manager
 import pdf2png
 
 
@@ -16,6 +18,18 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
 MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "thumbnail")
+
+try:
+    minio_client = Minio(
+        MINIO_HOST,
+        access_key=MINIO_ACCESS_KEY,
+        secret_key=MINIO_SECRET_KEY,
+        secure=False
+    )
+except (S3Error, urllib3.exceptions.MaxRetryError) as e:
+    print(e)
+    sys.exit(-1)
+
 
 """ FastAPI Setup """
 app = FastAPI()
@@ -30,6 +44,44 @@ class ThumbnailRead(BaseModel):
     paper_uuid: UUID
     thumbnail_url: List[str]
     is_public: bool
+
+
+def download_paper_handler(paper_uuid):
+    try:
+        response = minio_client.get_object(
+            MINIO_BUCKET_NAME, f"{paper_uuid}-00.png")
+        res = response.read()
+        response.close()
+        response.release_conn()
+        return res
+
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in (
+            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        return _status_code, e
+
+
+def upload_local_directory_to_minio(local_path, bucket_name, minio_path):
+    import glob
+    assert os.path.isdir(local_path)
+
+    for local_file in glob.glob(local_path + '/**'):
+        local_file = local_file.replace(
+            os.sep, "/")  # Replace \ with / on Windows
+        if not os.path.isfile(local_file):
+            upload_local_directory_to_minio(
+                local_file,
+                bucket_name,
+                minio_path +
+                "/" +
+                os.path.basename(local_file))
+        else:
+            remote_path = os.path.join(
+                minio_path, local_file[1 + len(local_path):])
+            remote_path = remote_path.replace(
+                os.sep, "/")  # Replace \ with / on Windows
+            minio_client.fput_object(bucket_name, remote_path, local_file)
 
 
 @app.get("/")
@@ -50,21 +102,17 @@ def topz_handler():
 @app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     folder = pdf2png.create(f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf")
-    try:
-        res = minio_manager.upload_local_directory_to_minio(
-            folder, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
-        return res
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+    upload_local_directory_to_minio(
+        folder, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
 
 
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
 def read_thumbnail(paper_uuid: UUID, image_id: int):
     try:
-        res = minio_manager.download_paper_handler(paper_uuid)
+        res = download_paper_handler(paper_uuid)
         return Response(content=res, media_type="image/png")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e.message))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal Error")
 
 
 if __name__ == "__main__":
@@ -76,6 +124,11 @@ if __name__ == "__main__":
             print("Retry resolve host:", e)
             time.sleep(1)
 
-    minio_manager.initialize()
+    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+    if not found:
+        minio_client.make_bucket(MINIO_BUCKET_NAME)
+    else:
+        print("Bucket 'paper' already exists")
+
     import uvicorn
     uvicorn.run(app, host="0.0.0.0")
