@@ -49,7 +49,8 @@ def topz_handler():
 @app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     import pdf2png
-    folder = pdf2png.thumbnail(f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf")
+    folder = pdf2png.thumbnail(
+        f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf")
     try:
         res = minio_manager.upload_local_directory_to_minio(
             folder, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
