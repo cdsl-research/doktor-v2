@@ -4,19 +4,19 @@ import fitz
 import requests
 
 
-def get_pdf(url):
-    urlData = requests.get(url).content
-    filename = url.split("/")[4]
-    dstdir = './temp/' + filename
-    os.makedirs(dstdir, exist_ok=True)
+def _get_pdf_http(pdf_url: str):
+    pdf_data = requests.get(pdf_url).content
+    filename = pdf_url.split("/")[-1]
+    dest_dir = './temp/' + filename
+    os.makedirs(dest_dir, exist_ok=True)
 
-    with open(dstdir + "/" + filename, mode='wb') as f:  # wb でバイト型を書き込める
-        f.write(urlData)
-    return dstdir + "/" + filename, dstdir
+    with open(dest_dir + "/" + filename, mode='wb') as f:  # wb でバイト型を書き込める
+        f.write(pdf_data)
+    return dest_dir + "/" + filename, dest_dir
 
 
-def thumbnail(url):
-    file, dstdir = get_pdf(url)
+def create(url):
+    file, dstdir = _get_pdf_http(url)
 
     with fitz.open(file) as doc:
         for i, page in enumerate(doc):
@@ -29,7 +29,7 @@ def thumbnail(url):
     return dstdir
 
 
-def first_page(url):
+def get_first_page(url):
     dstdir = os.path.splitext(url)[0]
     os.makedirs(dstdir, exist_ok=True)
     with fitz.open(url) as doc:
