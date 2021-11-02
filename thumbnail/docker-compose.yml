@@ -21,7 +21,7 @@ services:
       # password
       - MINIO_SECRET_KEY=minio123
     volumes:
-      - ./minio_data::/data
+      - ./minio_data:/data
     networks:
       - frontend
 
