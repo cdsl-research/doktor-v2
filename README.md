@@ -6,6 +6,20 @@ This is doktor v2.
 
 <img src="doktor-v2-architecture.png" width="600" alt="doktor-v2 architecture">
 
+## Branch Policy
+
+- `master`
+  - 最新の安定した実装
+  - 開発したコードはここへマージ
+- `staging`
+  - 検証環境と同期
+  - 手元（ローカル）で動作検証を行った後にPull Requestをmasterからstagingへ作成
+  - http://doktor-prod1:30200/
+- `production` 
+  - 本番環境と同期
+  - stagingで動作検証を行った後にPull Requestをmasterからproductionへ作成
+  - https://doktor.tak-cslab.org/
+
 ## Directory Structure
 
 構成ファイル・スクリプト
