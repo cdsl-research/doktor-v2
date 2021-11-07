@@ -6,17 +6,21 @@ This is doktor v2.
 
 <img src="doktor-v2-architecture.png" width="600" alt="doktor-v2 architecture">
 
+## For Developer
+
+When you contribute to doktor-v2, you need to read [Developer Guide](./DEVELOP_GUIDE.md).
+
 ## Branch Policy
 
 - `master`
-  - 最新の安定した実装
+  - Latest and Stable release
   - 開発したコードはここへマージ
 - `staging`
-  - 検証環境と同期
+  - Staging release (equal to staging environment)
   - 手元（ローカル）で動作検証を行った後にPull Requestをmasterからstagingへ作成
   - http://doktor-prod1:30200/
 - `production` 
-  - 本番環境と同期
+  - Production release (equal to production environment)
   - stagingで動作検証を行った後にPull Requestをmasterからproductionへ作成
   - https://doktor.tak-cslab.org/
 
