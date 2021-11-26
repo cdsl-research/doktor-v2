@@ -28,7 +28,8 @@ def convert_pdf_to_png(target_dir, pdf_filename: str) -> set:
         for i, page in enumerate(doc):
             for j, img in enumerate(page.getImageList()):
                 x = doc.extractImage(img[0])
-                image_filename = os.path.join(target_dir, f"{i:04}_{j:02}.{x['ext']}")
+                image_filename = os.path.join(
+                    target_dir, f"{i:04}_{j:02}.{x['ext']}")
                 created_files.add(image_filename)
                 with open(image_filename, "wb") as ofh:
                     ofh.write(x['image'])
