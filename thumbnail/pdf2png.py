@@ -1,32 +1,39 @@
 import os
-import sys
+from typing import Union
+
 import fitz
 import requests
 
 
-def _get_pdf_http(pdf_url: str):
-    pdf_data = requests.get(pdf_url).content
-    filename = pdf_url.split("/")[-1]
-    dest_dir = './temp/' + filename
+def fetch_pdf_http(pdf_url: str) -> Union[tuple[str, str], None]:
+    try:
+        pdf_data = requests.get(pdf_url).content
+    except Exception:
+        return None
+
+    stored_filename = pdf_url.split("/")[-1]
+    _paper_uuid = stored_filename.replace(".pdf", "")
+    dest_dir = os.path.join('./temp/', _paper_uuid)
     os.makedirs(dest_dir, exist_ok=True)
-
-    with open(dest_dir + "/" + filename, mode='wb') as f:  # wb でバイト型を書き込める
+    stored_path = os.path.join(dest_dir, stored_filename)
+    with open(stored_path, mode='wb') as f:  # wb でバイト型を書き込める
         f.write(pdf_data)
-    return dest_dir + "/" + filename, dest_dir
+
+    return stored_path, stored_filename
 
 
-def create(url):
-    file, dest_dir = _get_pdf_http(url)
-
-    with fitz.open(file) as doc:
+def convert_pdf_to_png(target_dir, pdf_filename: str) -> set:
+    created_files = set()
+    with fitz.open(pdf_filename) as doc:
         for i, page in enumerate(doc):
             for j, img in enumerate(page.getImageList()):
                 x = doc.extractImage(img[0])
-                name = os.path.join(dest_dir, f"{i:04}_{j:02}.{x['ext']}")
-                with open(name, "wb") as ofh:
+                image_filename = os.path.join(target_dir, f"{i:04}_{j:02}.{x['ext']}")
+                created_files.add(image_filename)
+                with open(image_filename, "wb") as ofh:
                     ofh.write(x['image'])
 
-    return dest_dir
+    return created_files
 
 
 def get_first_page(url):
