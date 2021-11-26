@@ -5,11 +5,11 @@ import fitz
 import requests
 
 
-def fetch_pdf_http(pdf_url: str) -> Union[tuple[str, str], None]:
+def fetch_pdf_http(pdf_url: str) -> Union[tuple[str, str]]:
     try:
         pdf_data = requests.get(pdf_url).content
-    except Exception:
-        return None
+    except Exception as e:
+        raise e
 
     stored_filename = pdf_url.split("/")[-1]
     _paper_uuid = stored_filename.replace(".pdf", "")
