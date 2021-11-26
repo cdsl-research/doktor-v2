@@ -81,7 +81,8 @@ def upload_local_directory_to_minio(local_dir, minio_bucket_name, minio_path):
                 minio_path, local_file[1 + len(local_dir):])
             remote_path = remote_path.replace(
                 os.sep, "/")  # Replace \ with / on Windows
-            minio_client.fput_object(minio_bucket_name, remote_path, local_file)
+            minio_client.fput_object(
+                minio_bucket_name, remote_path, local_file)
 
 
 @app.get("/")
@@ -104,7 +105,8 @@ def create_thumbnail(paper_uuid: UUID):
     file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
     stored_path, stored_filename = pdf2png.fetch_pdf_http(file_url)
     if stored_path is None:
-        raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
+        raise HTTPException(status_code=400,
+                            detail="Cloud not downloads the file.")
 
     created_files = pdf2png.convert_pdf_to_png(stored_path, stored_filename)
     # created_files_fullpath = [os.path.join(stored_path, f) for f in created_files]
