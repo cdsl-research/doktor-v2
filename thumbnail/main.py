@@ -103,8 +103,9 @@ def topz_handler():
 @app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
-    stored_path, stored_filename = pdf2png.fetch_pdf_http(file_url)
-    if stored_path is None:
+    try:
+        stored_path, stored_filename = pdf2png.fetch_pdf_http(file_url)
+    except Exception:
         raise HTTPException(status_code=400,
                             detail="Cloud not downloads the file.")
 
