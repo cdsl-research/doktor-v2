@@ -16,8 +16,7 @@ jobs:
       - name: Generate docs from FastAPI
         run: |
           find . -type f -name requirements.txt -exec pip install -r {} \;
-          cd docs_src/
-          python generate_openapi_json.py
+          python docs_src/generate_openapi_json.py
       - uses: actions/setup-node@v3
         with:
           node-version: "14"
@@ -28,3 +27,9 @@ jobs:
           cd docs_src/
           npm install
           bash generate.bash
+      - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
+        with:
+          add: "docs/"
+          message: "Update docs for public"
+          new_branch: docs
+          pull: "--rebase --autostash"
