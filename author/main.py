@@ -49,7 +49,7 @@ class AuthorRead(BaseModel):
 
 @app.get("/")
 def root_handler():
-    return {"Hello": "World"}
+    return {"name": "author"}
 
 
 @app.get("/healthz")
