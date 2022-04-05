@@ -1,5 +1,6 @@
 from asyncore import write
 from distutils.file_util import write_file
+import io
 import os
 import socket
 import sys
@@ -18,7 +19,7 @@ import fitz
 """ Minio Setup"""
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
-MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
+MINIO_HOST = os.getenv("MINIO_HOST", "thumbnail-minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "thumbnail")
 
 try:
@@ -31,6 +32,10 @@ try:
 except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     print(e)
     sys.exit(-1)
+
+exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+if not exist:
+    minio_client.make_bucket(MINIO_BUCKET_NAME)
 
 
 """ FastAPI Setup """
@@ -83,8 +88,7 @@ def topz_handler():
 def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
     try:
-        # file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
-        file_url = "https://koyama.me/assets/IPSJ-JNL6302029.pdf"
+        file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
         pdf_data = requests.get(file_url)
     except Exception:
         raise HTTPException(status_code=400,
@@ -92,7 +96,7 @@ def create_thumbnail(paper_uuid: UUID):
 
     # 画像の取り出し
     write_file_buffer = {}
-    with fitz.open(pdf_data.raw) as doc:
+    with fitz.open(stream=pdf_data.content, filetype="pdf") as doc:
         for p in range(doc.page_count):
             imglist = doc.get_page_images(p)
             for j, img in enumerate(imglist):
@@ -105,7 +109,9 @@ def create_thumbnail(paper_uuid: UUID):
     # 画像の書き出し
     for fname, fbody in write_file_buffer.items():
         put_path = os.path.join(f"{paper_uuid}", fname)
-        minio_client.put_object(MINIO_BUCKET_NAME, put_path, fbody, -1)
+        print("put_path =", put_path)
+        minio_client.put_object(
+            MINIO_BUCKET_NAME, put_path, io.BytesIO(fbody), length=-1, part_size=1000*1024*1024)
 
 
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
