@@ -1,3 +1,5 @@
+from asyncore import write
+from distutils.file_util import write_file
 import os
 import socket
 import sys
@@ -9,8 +11,8 @@ from uuid import UUID
 from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
 from pydantic import BaseModel
-
-import pdf2png
+import requests
+import fitz
 
 
 """ Minio Setup"""
@@ -62,29 +64,6 @@ def _download_paper_from_minio(paper_uuid):
         return _status_code, e
 
 
-def upload_local_directory_to_minio(local_dir, minio_bucket_name, minio_path):
-    import glob
-    assert os.path.isdir(local_dir)
-
-    for local_file in glob.glob(local_dir + '/**'):
-        local_file = local_file.replace(
-            os.sep, "/")  # Replace \ with / on Windows
-        if not os.path.isfile(local_file):
-            upload_local_directory_to_minio(
-                local_file,
-                minio_bucket_name,
-                minio_path +
-                "/" +
-                os.path.basename(local_file))
-        else:
-            remote_path = os.path.join(
-                minio_path, local_file[1 + len(local_dir):])
-            remote_path = remote_path.replace(
-                os.sep, "/")  # Replace \ with / on Windows
-            minio_client.fput_object(
-                minio_bucket_name, remote_path, local_file)
-
-
 @app.get("/")
 def root_handler():
     return {"name": "thumbnail"}
@@ -102,17 +81,31 @@ def topz_handler():
 
 @app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
-    file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
+    # ファイルの取得
     try:
-        stored_path, stored_filename = pdf2png.fetch_pdf_http(file_url)
+        # file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
+        file_url = "https://koyama.me/assets/IPSJ-JNL6302029.pdf"
+        pdf_data = requests.get(file_url)
     except Exception:
         raise HTTPException(status_code=400,
                             detail="Cloud not downloads the file.")
 
-    created_files = pdf2png.convert_pdf_to_png(stored_path, stored_filename)
-    # created_files_fullpath = [os.path.join(stored_path, f) for f in created_files]
-    upload_local_directory_to_minio(
-        stored_path, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
+    # 画像の取り出し
+    write_file_buffer = {}
+    with fitz.open(pdf_data.raw) as doc:
+        for p in range(doc.page_count):
+            imglist = doc.get_page_images(p)
+            for j, img in enumerate(imglist):
+                x_ref = img[0]  # xref number
+                x_img = doc.extract_image(x_ref)
+                x_ext = x_img.get("ext")
+                filename = f"{p:02}-{j:02}.{x_ext}"
+                write_file_buffer[filename] = x_img.get("image")
+
+    # 画像の書き出し
+    for fname, fbody in write_file_buffer.items():
+        put_path = os.path.join(f"{paper_uuid}", fname)
+        minio_client.put_object(MINIO_BUCKET_NAME, put_path, fbody, -1)
 
 
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
