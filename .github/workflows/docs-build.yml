@@ -31,5 +31,5 @@ jobs:
         with:
           add: "docs/"
           message: "Update docs for public"
-          new_branch: docs
+          # new_branch: docs
           pull: "--rebase --autostash"
