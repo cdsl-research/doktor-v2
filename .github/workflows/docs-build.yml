@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: "14"
           cache: "npm"
+          cache-dependency-path: docs_src/package-lock.json
       - name: Build docs and index
         run: |
           cd docs_src/
