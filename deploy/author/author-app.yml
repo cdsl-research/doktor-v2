@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: author-app-container
-          image: ghcr.io/cdsl-research/author:master-3b67686
+          image: ghcr.io/cdsl-research/author:master-611da55
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
