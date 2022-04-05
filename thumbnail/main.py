@@ -15,6 +15,8 @@ from pydantic import BaseModel
 import requests
 import fitz
 
+""" Paper Service """
+PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:4100")
 
 """ Minio Setup"""
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
@@ -68,7 +70,7 @@ def topz_handler():
 def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
     try:
-        file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
+        file_url = f"http://{PAPER_SVC_HOST}/paper/{paper_uuid}"
         pdf_data = requests.get(file_url)
     except Exception:
         raise HTTPException(status_code=400,
