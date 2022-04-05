@@ -96,6 +96,8 @@ def create_thumbnail(paper_uuid: UUID):
         minio_client.put_object(
             MINIO_BUCKET_NAME, put_path, io.BytesIO(fbody), length=-1, part_size=1000*1024*1024)
 
+    return {"status": "ok"}
+
 
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
 def read_thumbnail(paper_uuid: UUID, image_id: str):
