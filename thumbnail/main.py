@@ -1,49 +1,77 @@
-from datetime import datetime
+from asyncore import write
+from distutils.file_util import write_file
+import io
+import os
+import socket
+import sys
+import time
+import urllib3
 from typing import List
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Response
-from fastapi.encoders import jsonable_encoder
+from minio import Minio, S3Error
 from pydantic import BaseModel
+import requests
+import fitz
 
-import minio_manager
+
+""" Minio Setup"""
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
+MINIO_HOST = os.getenv("MINIO_HOST", "thumbnail-minio:9000")
+MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "thumbnail")
+
+try:
+    minio_client = Minio(
+        MINIO_HOST,
+        access_key=MINIO_ACCESS_KEY,
+        secret_key=MINIO_SECRET_KEY,
+        secure=False
+    )
+except (S3Error, urllib3.exceptions.MaxRetryError) as e:
+    print(e)
+    sys.exit(-1)
+
+exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+if not exist:
+    minio_client.make_bucket(MINIO_BUCKET_NAME)
 
 
+""" FastAPI Setup """
 app = FastAPI()
 
 
 class ThumbnailCreateUpdate(BaseModel):
     paper_uuid: List[UUID]
-    paper_url: str
+    paper_pdf_url: str
 
 
-class PaperRead(BaseModel):
+class ThumbnailRead(BaseModel):
     paper_uuid: UUID
-    thumbnail_url: str
+    thumbnail_url: List[str]
     is_public: bool
-    created_at: datetime
-    updated_at: datetime
-    # todo) reference_id: List[int]
 
-# def minio_upload():
-#
-#     # Upload '/home/user/Photos/asiaphotos.zip' as object name
-#     # 'asiaphotos-2015.zip' to bucket 'asiatrip'.
-#     minio_client.fput_object(
-#         "asiatrip", "asiaphotos-2015.zip", "/home/user/Photos/asiaphotos.zip",
-#     )
-#     print(
-#         "'/home/user/Photos/asiaphotos.zip' is successfully uploaded as "
-#         "object 'asiaphotos-2015.zip' to bucket 'asiatrip'."
-#     )
-#
-# # except S3Error as exc:
-# #     print("error occurred.", exc)
+
+def _download_paper_from_minio(paper_uuid):
+    try:
+        response = minio_client.get_object(
+            MINIO_BUCKET_NAME, f"{paper_uuid}-00.png")
+        res = response.read()
+        response.close()
+        response.release_conn()
+        return res
+
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in (
+            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        return _status_code, e
 
 
 @app.get("/")
 def root_handler():
-    return {"Hello": "World"}
+    return {"name": "thumbnail"}
 
 
 @app.get("/healthz")
@@ -56,90 +84,59 @@ def topz_handler():
     return {"resource": "busy"}
 
 
-@app.post("/thumbnail")
-def create_paper_handler(paper: ThumbnailCreateUpdate):
-    json_paper = jsonable_encoder(paper)
-    my_paper = {
-        "uuid": uuid4(),
-        "author_uuid": json_paper.get("author_uuid"),
-        "title": json_paper.get("title"),
-        "keywords": json_paper.get("keywords"),
-        "label": json_paper.get("label"),
-        "categories_id": json_paper.get("categories_id"),
-        "abstract": json_paper.get("abstract"),
-        "url": json_paper.get("url"),
-        "thumbnail_url": json_paper.get("thumbnail_url"),
-        "is_public": json_paper.get("is_public"),
-        "created_at": datetime.now(),
-        "updated_at": datetime.now()
-    }
-    # insert_id = db["paper"].insert_one(my_paper).inserted_id
-    # print("insert_id:", insert_id)
-    return PaperRead(**my_paper)
-
-
-@app.get("/hello")
-def read_papers_handler():
-    return {"body": "Hello"}
-
-
-# @app.get("/thumbnail")
-# def read_papers_handler():
-#     return list(db["paper"].find({"is_public": True}, {'_id': 0}))
-#
-
-
 @app.post("/thumbnail/{paper_uuid}")
-def process_paper_thumbnail(paper_uuid: UUID):
-    import pdf2png
-    folder = pdf2png.thumbnail(f"http://minio:9000/paper/{paper_uuid}.pdf")
-    # try:
-    result = minio_manager.upload_local_directory_to_minio(
-        folder, bucket_name="thumbnail", minio_path=f"{paper_uuid}/")
-    return result
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=e)
+def create_thumbnail(paper_uuid: UUID):
+    # ファイルの取得
+    try:
+        file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
+        pdf_data = requests.get(file_url)
+    except Exception:
+        raise HTTPException(status_code=400,
+                            detail="Cloud not downloads the file.")
 
-# @app.get("/thumbnail/{paper_uuid}")
-# def read_paper_handler(paper_uuid: UUID):
-#     entry = db["paper"].find_one({"uuid": paper_uuid, "is_public": True}, {'_id': 0})
-#     if entry:
-#         return entry
-#     else:
-#         raise HTTPException(status_code=404, detail="Not Found")
+    # 画像の取り出し
+    write_file_buffer = {}
+    with fitz.open(stream=pdf_data.content, filetype="pdf") as doc:
+        for p in range(doc.page_count):
+            imglist = doc.get_page_images(p)
+            for j, img in enumerate(imglist):
+                x_ref = img[0]  # xref number
+                x_img = doc.extract_image(x_ref)
+                x_ext = x_img.get("ext")
+                filename = f"{p:02}-{j:02}.{x_ext}"
+                write_file_buffer[filename] = x_img.get("image")
+
+    # 画像の書き出し
+    for fname, fbody in write_file_buffer.items():
+        put_path = os.path.join(f"{paper_uuid}", fname)
+        print("put_path =", put_path)
+        minio_client.put_object(
+            MINIO_BUCKET_NAME, put_path, io.BytesIO(fbody), length=-1, part_size=1000*1024*1024)
 
 
-@app.get("/thumbnail/{paper_uuid}")
-def get_thumbnail(paper_uuid: UUID):
-    # try:
-    res = minio_manager.download_paper_handler(paper_uuid)
-    return Response(content=res, media_type="image/png")
-
-    # except:
-    #     raise HTTPException(status_code=status_code, detail=str(e.message))
-
-
-@app.put("/thumbnail/{paper_uuid}")
-def update_paper_handler(paper_uuid: UUID, paper: ThumbnailCreateUpdate):
-    json_paper = jsonable_encoder(paper)
-    my_paper = {
-        "uuid": paper_uuid,
-        "author_uuid": json_paper.get("author_uuid"),
-        "title": json_paper.get("title"),
-        "keywords": json_paper.get("keywords"),
-        "label": json_paper.get("label"),
-        "categories_id": json_paper.get("categories_id"),
-        "abstract": json_paper.get("abstract"),
-        "url": json_paper.get("url"),
-        "thumbnail_url": json_paper.get("thumbnail_url"),
-        "is_public": json_paper.get("is_public"),
-        "created_at": datetime.now(),  # todo: get stored data
-        "updated_at": datetime.now()
-    }
-    return PaperRead(**my_paper)
+@app.get("/thumbnail/{paper_uuid}/{image_id}")
+def read_thumbnail(paper_uuid: UUID, image_id: int):
+    try:
+        res = _download_paper_from_minio(paper_uuid)
+        return Response(content=res, media_type="image/png")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal Error")
 
 
 if __name__ == "__main__":
-    minio_manager.initialize()
+    for _ in range(120):
+        try:
+            res = socket.getaddrinfo(MINIO_HOST, None)
+            break
+        except Exception as e:
+            print("Retry resolve host:", e)
+            time.sleep(1)
+
+    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+    if not found:
+        minio_client.make_bucket(MINIO_BUCKET_NAME)
+    else:
+        print("Bucket 'paper' already exists")
+
     import uvicorn
     uvicorn.run(app, host="0.0.0.0")
