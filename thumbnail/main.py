@@ -33,10 +33,6 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     print(e)
     sys.exit(-1)
 
-exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
-if not exist:
-    minio_client.make_bucket(MINIO_BUCKET_NAME)
-
 
 """ FastAPI Setup """
 app = FastAPI()
@@ -51,22 +47,6 @@ class ThumbnailRead(BaseModel):
     paper_uuid: UUID
     thumbnail_url: List[str]
     is_public: bool
-
-
-def _download_paper_from_minio(paper_uuid):
-    try:
-        response = minio_client.get_object(
-            MINIO_BUCKET_NAME, f"{paper_uuid}-00.png")
-        res = response.read()
-        response.close()
-        response.release_conn()
-        return res
-
-    except S3Error as e:
-        print("Download exception: ", e)
-        _status_code = 404 if e.code in (
-            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        return _status_code, e
 
 
 @app.get("/")
@@ -117,10 +97,19 @@ def create_thumbnail(paper_uuid: UUID):
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
 def read_thumbnail(paper_uuid: UUID, image_id: int):
     try:
-        res = _download_paper_from_minio(paper_uuid)
-        return Response(content=res, media_type="image/png")
-    except Exception:
-        raise HTTPException(status_code=500, detail="Internal Error")
+        obj_path = f"{paper_uuid}/{image_id}.png"
+        response = minio_client.get_object(MINIO_BUCKET_NAME, obj_path)
+        res = response.read()
+        response.close()
+        response.release_conn()
+        return Response(content=res.read(), media_type="image/png")
+    except Exception as e:
+        res_status = 503
+        res_message = "Internal Error"
+        if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound"):
+            res_status = 404
+            res_message = "Not Found"
+        raise HTTPException(status_code=res_status, detail=res_message)
 
 
 if __name__ == "__main__":
