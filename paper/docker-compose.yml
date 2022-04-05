@@ -8,9 +8,6 @@ services:
       - .:/work
     ports:
       - "4100:8000"
-    environment:
-      - MONGO_HOST=paper-mongo
-      - MINIO_HOST=paper-minio
     depends_on:
       - paper-mongo
       - paper-minio
@@ -28,7 +25,7 @@ services:
   paper-mongo-seed:
     image: mongo:5.0
     depends_on:
-      - mongo
+      - paper-mongo
     volumes:
       - ./mongo_init_d:/dump:ro
     command: ["/bin/bash", "/dump/setup.sh"]

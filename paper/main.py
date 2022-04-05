@@ -31,7 +31,7 @@ db = mongo_client[MONGO_DBNAME]
 """ Minio Setup"""
 MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
 MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
-MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
+MINIO_HOST = os.getenv("MINIO_HOST", "paper-minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
 
 try:

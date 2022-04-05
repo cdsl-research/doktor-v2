@@ -15,6 +15,8 @@ from pydantic import BaseModel
 import requests
 import fitz
 
+""" Paper Service """
+PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
 
 """ Minio Setup"""
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
@@ -33,10 +35,6 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     print(e)
     sys.exit(-1)
 
-exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
-if not exist:
-    minio_client.make_bucket(MINIO_BUCKET_NAME)
-
 
 """ FastAPI Setup """
 app = FastAPI()
@@ -51,22 +49,6 @@ class ThumbnailRead(BaseModel):
     paper_uuid: UUID
     thumbnail_url: List[str]
     is_public: bool
-
-
-def _download_paper_from_minio(paper_uuid):
-    try:
-        response = minio_client.get_object(
-            MINIO_BUCKET_NAME, f"{paper_uuid}-00.png")
-        res = response.read()
-        response.close()
-        response.release_conn()
-        return res
-
-    except S3Error as e:
-        print("Download exception: ", e)
-        _status_code = 404 if e.code in (
-            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        return _status_code, e
 
 
 @app.get("/")
@@ -88,7 +70,8 @@ def topz_handler():
 def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
     try:
-        file_url = f"http://{MINIO_HOST}:9000/paper/{paper_uuid}.pdf"
+        file_url = f"http://{PAPER_SVC_HOST}/paper/{paper_uuid}/download"
+        print("Fetch url:", file_url)
         pdf_data = requests.get(file_url)
     except Exception:
         raise HTTPException(status_code=400,
@@ -103,7 +86,7 @@ def create_thumbnail(paper_uuid: UUID):
                 x_ref = img[0]  # xref number
                 x_img = doc.extract_image(x_ref)
                 x_ext = x_img.get("ext")
-                filename = f"{p:02}-{j:02}.{x_ext}"
+                filename = f"{p}-{j}.{x_ext}"
                 write_file_buffer[filename] = x_img.get("image")
 
     # 画像の書き出し
@@ -113,14 +96,22 @@ def create_thumbnail(paper_uuid: UUID):
         minio_client.put_object(
             MINIO_BUCKET_NAME, put_path, io.BytesIO(fbody), length=-1, part_size=1000*1024*1024)
 
+    return {"status": "ok"}
+
 
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
-def read_thumbnail(paper_uuid: UUID, image_id: int):
+def read_thumbnail(paper_uuid: UUID, image_id: str):
+    # todo: image_id の形式のバリデーション
     try:
-        res = _download_paper_from_minio(paper_uuid)
-        return Response(content=res, media_type="image/png")
-    except Exception:
-        raise HTTPException(status_code=500, detail="Internal Error")
+        obj_path = f"{paper_uuid}/{image_id}.png"
+        response = minio_client.get_object(MINIO_BUCKET_NAME, obj_path)
+        # response.close()
+        return Response(content=response.read(), media_type="image/png")
+    except Exception as e:
+        res_status = 503
+        res_message = "Internal Error"
+        print("image fetch error:", e)
+        raise HTTPException(status_code=res_status, detail=res_message)
 
 
 if __name__ == "__main__":
