@@ -8,9 +8,6 @@ services:
       - .:/work
     ports:
       - "4100:8000"
-    environment:
-      - MONGO_HOST=paper-mongo
-      - MINIO_HOST=paper-minio
     depends_on:
       - paper-mongo
       - paper-minio
