@@ -1,0 +1,31 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: doktor-gateway
+  namespace: production
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: doktor
+  namespace: production
+spec:
+  hosts:
+  - "*"
+  gateways:
+  # - production/doktor-gateway
+  - doktor-gateway
+  http:
+  - route:
+    - destination:
+        host: front-app.front.svc.cluster.local
