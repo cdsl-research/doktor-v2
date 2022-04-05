@@ -94,7 +94,11 @@ def create_thumbnail(paper_uuid: UUID):
         put_path = os.path.join(f"{paper_uuid}", fname)
         print("put_path =", put_path)
         minio_client.put_object(
-            MINIO_BUCKET_NAME, put_path, io.BytesIO(fbody), length=-1, part_size=1000*1024*1024)
+            MINIO_BUCKET_NAME,
+            put_path,
+            io.BytesIO(fbody),
+            length=-1,
+            part_size=1000 * 1024 * 1024)
 
     return {"status": "ok"}
 
