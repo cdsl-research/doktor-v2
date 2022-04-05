@@ -28,7 +28,7 @@ services:
   paper-mongo-seed:
     image: mongo:5.0
     depends_on:
-      - mongo
+      - paper-mongo
     volumes:
       - ./mongo_init_d:/dump:ro
     command: ["/bin/bash", "/dump/setup.sh"]
