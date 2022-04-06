@@ -11,7 +11,6 @@ from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
-from pydantic import BaseModel
 import requests
 import fitz
 
