@@ -1,35 +1,28 @@
-from asyncore import write
-from distutils.file_util import write_file
+from curses import raw
 import os
 import socket
 import time
 from typing import List
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException, Response
-from pydantic import BaseModel
+from elasticsearch import Elasticsearch
+import fitz
 import requests
+from fastapi import FastAPI, HTTPException
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
 
 """ Elasticsearch Setup """
 ELASTICSEARCH_HOST = os.getenv(
-    "ELASTICSEARCH_HOST", "fulltext-elasticsearch:9200")
+    "ELASTICSEARCH_HOST", "fulltext-elastic:9200")
+ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
+
+es = Elasticsearch(f"http://{ELASTICSEARCH_HOST}")
+
 
 """ FastAPI Setup """
 app = FastAPI()
-
-
-# class ThumbnailCreateUpdate(BaseModel):
-#     paper_uuid: List[UUID]
-#     paper_pdf_url: str
-
-
-# class ThumbnailRead(BaseModel):
-#     paper_uuid: UUID
-#     thumbnail_url: List[str]
-#     is_public: bool
 
 
 @app.get("/")
@@ -58,6 +51,21 @@ def create_fulltext(paper_uuid: UUID):
         raise HTTPException(status_code=400,
                             detail="Cloud not downloads the file.")
 
+    # PDFからテキストを取り出し
+    with fitz.open(stream=pdf_data.content, filetype="pdf") as doc:
+        for i in range(doc.page_count):
+            raw_text = doc.get_page_text(pno=i)
+            formated_text = raw_text.replace("\n", "")
+            record = {
+                'paper_uuid': paper_uuid,
+                'page_number': i,
+                'text': formated_text
+            }
+            try:
+                res = es.index(index=ELASTICSEARCH_INDEX, document=record)
+                print(res)
+            except Exception as e:
+                print(e)
     return {"status": "ok"}
 
 
