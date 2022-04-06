@@ -11,7 +11,6 @@ from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
-from pydantic import BaseModel
 import requests
 import fitz
 
@@ -38,17 +37,6 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 
 """ FastAPI Setup """
 app = FastAPI()
-
-
-class ThumbnailCreateUpdate(BaseModel):
-    paper_uuid: List[UUID]
-    paper_pdf_url: str
-
-
-class ThumbnailRead(BaseModel):
-    paper_uuid: UUID
-    thumbnail_url: List[str]
-    is_public: bool
 
 
 @app.get("/")
