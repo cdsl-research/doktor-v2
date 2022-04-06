@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  fulltext-app:
+    build: .
+    command: [ "main:app", "--reload", "--host", "0.0.0.0" ]
+    restart: always
+    volumes:
+      - .:/work
+    ports:
+      - "4500:8000"
+    networks:
+      - frontend
+  fulltext-elasticsearch:
+    image: xxx
+    ports:
+      - 4503:9200
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
