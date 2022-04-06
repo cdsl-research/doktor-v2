@@ -71,7 +71,20 @@ def create_fulltext(paper_uuid: UUID):
 
 @app.get("/fulltext/{paper_uuid}")
 def read_fulltext(paper_uuid: UUID):
-    pass
+    payload = {
+        "query": {
+            "match": {
+                "paper_uuid": {
+                    "query": paper_uuid,
+                }
+            }
+        }
+    }
+    res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
+    # records_count = res["hits"]["total"]["value"]
+    records_list = list(map(lambda x: x["_source"], res["hits"]["hits"]))
+    # print(records_list)
+    return records_list
 
 
 if __name__ == "__main__":
