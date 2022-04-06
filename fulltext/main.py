@@ -15,7 +15,7 @@ PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
 
 """ Elasticsearch Setup """
 ELASTICSEARCH_HOST = os.getenv(
-    "ELASTICSEARCH_HOST", "fulltext-elasticsearch:9000")
+    "ELASTICSEARCH_HOST", "fulltext-elasticsearch:9200")
 
 """ FastAPI Setup """
 app = FastAPI()
