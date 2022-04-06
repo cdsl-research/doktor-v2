@@ -41,7 +41,7 @@ def topz_handler():
 
 
 @app.post("/fulltext/{paper_uuid}")
-def create_fulltext(paper_uuid: UUID):
+def create_fulltext_handler(paper_uuid: UUID):
     # ファイルの取得
     try:
         file_url = f"http://{PAPER_SVC_HOST}/paper/{paper_uuid}/download"
@@ -70,7 +70,7 @@ def create_fulltext(paper_uuid: UUID):
 
 
 @app.get("/fulltext/{paper_uuid}")
-def read_fulltext(paper_uuid: UUID):
+def read_fulltext_handler(paper_uuid: UUID):
     payload = {
         "query": {
             "match": {
@@ -84,6 +84,23 @@ def read_fulltext(paper_uuid: UUID):
     # records_count = res["hits"]["total"]["value"]
     records_list = list(map(lambda x: x["_source"], res["hits"]["hits"]))
     # print(records_list)
+    return records_list
+
+
+@app.get("/fulltext")
+def reads_fulltext_handler(keyword: str = ""):
+    payload = {
+        "query": {
+            "match": {
+                "text": {
+                    "query": keyword,
+                    "operator": "and"
+                }
+            }
+        }
+    }
+    res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
+    records_list = list(map(lambda x: x["_source"], res["hits"]["hits"]))
     return records_list
 
 
