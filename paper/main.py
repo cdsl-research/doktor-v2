@@ -21,7 +21,7 @@ from minio import Minio, S3Error
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
-MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
+MONGO_HOST = os.getenv("MONGO_HOST", "paper-mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
 mongo_client = MongoClient(MONGO_CONNECTION_STRING)
