@@ -12,7 +12,10 @@ services:
       - ELASTIC_PASSWORD=elastic123
     networks:
       - frontend
-  fulltext-elasticsearch:
+      - backend
+    depends_on:
+      - fulltext-elastic
+  fulltext-elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.1.2
     volumes:
       - es_data:/usr/share/elasticsearch/data
@@ -26,6 +29,8 @@ services:
       memlock:
         soft: -1
         hard: -1
+    networks:
+      - backend
   fulltext-kibana:
     image: docker.elastic.co/kibana/kibana:8.1.2
     volumes:
@@ -33,9 +38,12 @@ services:
     ports:
       - 4504:5601
     environment:
-      - ELASTICSEARCH_HOSTS=http://fulltext-elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://fulltext-elastic:9200
     depends_on:
-      - fulltext-app
+      - fulltext-elastic
+    networks:
+      - frontend
+      - backend
 
 volumes:
   es_data:
@@ -46,3 +54,4 @@ volumes:
 networks:
   frontend:
     external: true
+  backend:
