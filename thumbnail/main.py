@@ -40,17 +40,6 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 app = FastAPI()
 
 
-class ThumbnailCreateUpdate(BaseModel):
-    paper_uuid: List[UUID]
-    paper_pdf_url: str
-
-
-class ThumbnailRead(BaseModel):
-    paper_uuid: UUID
-    thumbnail_url: List[str]
-    is_public: bool
-
-
 @app.get("/")
 def root_handler():
     return {"name": "thumbnail"}
