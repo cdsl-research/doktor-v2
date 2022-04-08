@@ -26,10 +26,10 @@ jobs:
         run: |
           cd docs_src/
           npm install
+          rm ../docs/index.html
           bash generate.bash
       - uses: EndBug/add-and-commit@v9
         with:
           add: "docs/"
           message: "Update docs for public"
-          # new_branch: docs
           pull: "--rebase --autostash "
