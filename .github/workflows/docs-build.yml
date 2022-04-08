@@ -33,4 +33,3 @@ jobs:
           add: "docs/ docs_src/"
           message: "Update docs for public"
           push: true
-          pull: "--rebase --autostash "
