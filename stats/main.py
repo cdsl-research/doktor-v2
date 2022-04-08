@@ -48,7 +48,7 @@ def topz_handler():
 def create_stats_handler(stats: StatsCreateUpdate):
     json_stats = jsonable_encoder(stats)
     my_stats = {
-        "uuid": json_stats.get("paper_uuid"),
+        "paper_uuid": json_stats.get("paper_uuid"),
         "ip_v4_addr": str(json_stats.get("ip_v4_addr")),
         "timestamp": datetime.now(),
     }
