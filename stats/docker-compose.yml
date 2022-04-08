@@ -1,0 +1,43 @@
+version: "3.3"
+
+services:
+  stats-app:
+    build: .
+    command: ["main:app", "--reload", "--host", "0.0.0.0"]
+    restart: always
+    volumes:
+      - .:/work
+    ports:
+      - "4600:8000"
+    environment:
+      - MONGO_HOST=stats-mongo
+    depends_on:
+      - stats-mongo
+    networks:
+      - frontend
+      - backend
+  stats-mongo:
+    image: mongo:5.0
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - backend
+  stats-mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 4601:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@stats-mongo:27017/
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
