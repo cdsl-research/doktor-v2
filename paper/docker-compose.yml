@@ -2,7 +2,7 @@ version: "3.3"
 services:
   paper-app:
     build: .
-    command: ["main:app", "--reload", "--host", "0.0.0.0"]
+    command: [ "main:app", "--reload", "--host", "0.0.0.0" ]
     restart: always
     volumes:
       - .:/work
@@ -28,7 +28,7 @@ services:
       - paper-mongo
     volumes:
       - ./mongo_init_d:/dump:ro
-    command: ["/bin/bash", "/dump/setup.sh"]
+    command: [ "/bin/bash", "/dump/setup.sh" ]
     networks:
       - backend
   paper-mongo-express:

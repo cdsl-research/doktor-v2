@@ -3,7 +3,7 @@ version: "3.3"
 services:
   stats-app:
     build: .
-    command: ["main:app", "--reload", "--host", "0.0.0.0"]
+    command: [ "main:app", "--reload", "--host", "0.0.0.0" ]
     restart: always
     volumes:
       - .:/work
