@@ -38,3 +38,6 @@ services:
       - backend
 
 networks:
+  frontend:
+    external: true
+  backend:

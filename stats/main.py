@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
+from ipaddress import IPv4Address
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -24,7 +25,7 @@ app = FastAPI()
 
 class StatsCreateUpdate(BaseModel):
     paper_uuid: UUID
-    ip_addr: str
+    ip_v4_addr: IPv4Address
     timestamp: datetime
 
 
@@ -48,7 +49,7 @@ def create_stats_handler(stats: StatsCreateUpdate):
     json_stats = jsonable_encoder(stats)
     my_stats = {
         "uuid": json_stats.get("paper_uuid"),
-        "ip_addr": json_stats.get("ip_addr"),
+        "ip_v4_addr": str(json_stats.get("ip_v4_addr")),
         "timestamp": datetime.now(),
     }
     insert_id = db["stats"].insert_one(my_stats).inserted_id
