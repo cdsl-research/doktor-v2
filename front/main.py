@@ -139,7 +139,13 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 async def paper_download_handler(paper_uuid: UUID, request: Request):
     async with aiohttp.ClientSession() as session:
         url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
-        res_pdf = await fetch_file(session, url)
+        try:
+            res_pdf = await fetch_file(session, url)
+        except aiohttp.ClientResponseError as e:
+            print("Paper Download Error:", e)
+            if e.code == 404:
+                raise HTTPException(status_code=404)
+            raise HTTPException(status_code=503)
     return Response(content=res_pdf, media_type="application/pdf")
 
 
