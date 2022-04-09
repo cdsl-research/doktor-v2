@@ -3,9 +3,6 @@ import os
 import socket
 import sys
 import time
-from asyncore import write
-from distutils.file_util import write_file
-from typing import List
 from uuid import UUID
 
 import fitz
