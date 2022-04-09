@@ -98,12 +98,15 @@ async def top_handler(request: Request, title: str = ""):
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(paper_uuid: UUID, request: Request):
     urls = (f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
-            f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}")
+            f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
+            f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
+    res_thumbnail = json_raw[2]
 
+    # 著者の取得
     found_author = []
     for uuid in res_paper_me["author_uuid"]:
         candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
@@ -112,6 +115,9 @@ async def paper_handler(paper_uuid: UUID, request: Request):
             author = candidates_lst[0]
             found_author.append(author)
 
+    # サムネイル一覧
+    prefix = f"/thumbnail/{paper_uuid}/"
+    thumbnail_list = map(lambda x: prefix+x, res_thumbnail['images'])
     paper_details = {
         "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
@@ -130,7 +136,8 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         "paper.html", {
             "request": request,
             "paper": paper_details,
-            "page_title": f"{paper_details['title']}"
+            "page_title": f"{paper_details['title']}",
+            "image_urls": thumbnail_list
         })
 
 
