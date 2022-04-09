@@ -56,8 +56,8 @@ def read_thumbnail(paper_uuid: UUID):
     try:
         files = minio_client.list_objects(
             MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
-        filenames = [f._object_name.replace(
-            f"{paper_uuid}/", "") for f in files]
+        filenames = [f._object_name.replace(f"{paper_uuid}/", "")
+                     .replace(".png", "") for f in files]
         return {"images": filenames}
     except S3Error as e:
         print("Download exception: ", e)
