@@ -200,4 +200,4 @@ async def thumbnail_handler(paper_uuid: UUID, image_id: str):
         url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
                f"/thumbnail/{paper_uuid}/{image_id}")
         res_img = await fetch_file(session, url)
-    return Response(content=res_img, media_type="image/jpg")
+    return Response(content=res_img, media_type="image/png")
