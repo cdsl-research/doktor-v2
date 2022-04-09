@@ -97,9 +97,10 @@ async def top_handler(request: Request, title: str = ""):
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(paper_uuid: UUID, request: Request):
-    urls = (f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
-            f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
-            f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}")
+    urls = (
+        f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
+        f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
+        f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
     res_author = json_raw[0]
@@ -117,7 +118,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 
     # サムネイル一覧
     prefix = f"/thumbnail/{paper_uuid}/"
-    thumbnail_list = map(lambda x: prefix+x, res_thumbnail['images'])
+    thumbnail_list = map(lambda x: prefix + x, res_thumbnail['images'])
     paper_details = {
         "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
