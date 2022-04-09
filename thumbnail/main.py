@@ -54,7 +54,15 @@ def topz_handler():
     return {"resource": "busy"}
 
 
-@app.post("/thumbnail/{paper_uuid}")
+@app.get("/thumbnail/{paper_uuid}")
+def read_thumbnail(paper_uuid: UUID):
+    files = minio_client.list_objects(
+        MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
+    filenames = [f._object_name.replace(f"{paper_uuid}/", "") for f in files]
+    return {"images": filenames}
+
+
+@ app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
     try:
@@ -91,7 +99,7 @@ def create_thumbnail(paper_uuid: UUID):
     return {"status": "ok"}
 
 
-@app.get("/thumbnail/{paper_uuid}/{image_id}")
+@ app.get("/thumbnail/{paper_uuid}/{image_id}")
 def read_thumbnail(paper_uuid: UUID, image_id: str):
     # todo: image_id の形式のバリデーション
     try:
