@@ -10,10 +10,12 @@ from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 import aiohttp
 
-SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-dind")
-SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "4100")
-SVC_AUTHOR_HOST = os.getenv("SERVICE_AUTHOR_HOST", "author-dind")
-SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "4200")
+SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
+SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")
+SVC_AUTHOR_HOST = os.getenv("SERVICE_AUTHOR_HOST", "author-app")
+SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "8000")
+SVC_THUMBNAIL_HOST = os.getenv("SERVICE_THUMBNAIL_HOST", "thumbnail-app")
+SVC_THUMBNAIL_PORT = os.getenv("SERVICE_THUMBNAIL_PORT", "8000")
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -190,3 +192,12 @@ async def author_handler(author_uuid: UUID, request: Request):
         "author": author_details,
         "page_title": author_details["name"]
     })
+
+
+@app.get("/thumbnail/{paper_uuid}/{image_id}")
+async def thumbnail_handler(paper_uuid: UUID, image_id: str):
+    async with aiohttp.ClientSession() as session:
+        url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
+               f"/thumbnail/{paper_uuid}/{image_id}")
+        res_img = await fetch_file(session, url)
+    return Response(content=res_img, media_type="image/jpg")
