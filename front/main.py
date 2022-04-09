@@ -4,11 +4,10 @@ import re
 from datetime import datetime as dt
 from uuid import UUID
 
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.responses import Response
-from fastapi.templating import Jinja2Templates
 import aiohttp
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, Response
+from fastapi.templating import Jinja2Templates
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
 SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")

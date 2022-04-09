@@ -1,18 +1,18 @@
-from asyncore import write
-from distutils.file_util import write_file
 import io
 import os
 import socket
 import sys
 import time
-import urllib3
+from asyncore import write
+from distutils.file_util import write_file
 from typing import List
 from uuid import UUID
 
+import fitz
+import requests
+import urllib3
 from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
-import requests
-import fitz
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
