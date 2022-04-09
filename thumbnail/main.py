@@ -56,13 +56,20 @@ def topz_handler():
 
 @app.get("/thumbnail/{paper_uuid}")
 def read_thumbnail(paper_uuid: UUID):
-    files = minio_client.list_objects(
-        MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
-    filenames = [f._object_name.replace(f"{paper_uuid}/", "") for f in files]
-    return {"images": filenames}
+    try:
+        files = minio_client.list_objects(
+            MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
+        filenames = [f._object_name.replace(
+            f"{paper_uuid}/", "") for f in files]
+        return {"images": filenames}
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in (
+            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
-@ app.post("/thumbnail/{paper_uuid}")
+@app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
     try:
@@ -107,6 +114,11 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
         response = minio_client.get_object(MINIO_BUCKET_NAME, obj_path)
         # response.close()
         return Response(content=response.read(), media_type="image/png")
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in (
+            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        raise HTTPException(status_code=_status_code, detail=str(e.message))
     except Exception as e:
         res_status = 503
         res_message = "Internal Error"
