@@ -26,5 +26,12 @@
 
 <a href="{{ paper.uuid }}/download">ダウンロード</a>
 
+<br>
+
+{% for img_url in image_urls %}
+<img src="{{ img_url }}" width="300">
+{% endfor %}
+
 </body>
+
 </html>

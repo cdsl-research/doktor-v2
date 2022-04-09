@@ -1,18 +1,15 @@
-from asyncore import write
-from distutils.file_util import write_file
 import io
 import os
 import socket
 import sys
 import time
-import urllib3
-from typing import List
 from uuid import UUID
 
+import fitz
+import requests
+import urllib3
 from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
-import requests
-import fitz
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -54,6 +51,21 @@ def topz_handler():
     return {"resource": "busy"}
 
 
+@app.get("/thumbnail/{paper_uuid}")
+def read_thumbnail(paper_uuid: UUID):
+    try:
+        files = minio_client.list_objects(
+            MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
+        filenames = [f._object_name.replace(f"{paper_uuid}/", "")
+                     .replace(".png", "") for f in files]
+        return {"images": filenames}
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in (
+            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        raise HTTPException(status_code=_status_code, detail=str(e.message))
+
+
 @app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
@@ -91,7 +103,7 @@ def create_thumbnail(paper_uuid: UUID):
     return {"status": "ok"}
 
 
-@app.get("/thumbnail/{paper_uuid}/{image_id}")
+@ app.get("/thumbnail/{paper_uuid}/{image_id}")
 def read_thumbnail(paper_uuid: UUID, image_id: str):
     # todo: image_id の形式のバリデーション
     try:
@@ -99,6 +111,11 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
         response = minio_client.get_object(MINIO_BUCKET_NAME, obj_path)
         # response.close()
         return Response(content=response.read(), media_type="image/png")
+    except S3Error as e:
+        print("Download exception: ", e)
+        _status_code = 404 if e.code in (
+            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        raise HTTPException(status_code=_status_code, detail=str(e.message))
     except Exception as e:
         res_status = 503
         res_message = "Internal Error"
