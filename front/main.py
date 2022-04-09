@@ -199,5 +199,11 @@ async def thumbnail_handler(paper_uuid: UUID, image_id: str):
     async with aiohttp.ClientSession() as session:
         url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
                f"/thumbnail/{paper_uuid}/{image_id}")
-        res_img = await fetch_file(session, url)
+        try:
+            res_img = await fetch_file(session, url)
+        except aiohttp.ClientResponseError as e:
+            print("Thumbnail Download Error:", e)
+            if e.code == 404:
+                raise HTTPException(status_code=404)
+            raise HTTPException(status_code=503)
     return Response(content=res_img, media_type="image/png")
