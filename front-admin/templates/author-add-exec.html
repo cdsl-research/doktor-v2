@@ -1,49 +1,53 @@
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>著者の追加</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
 </head>
-<body>
-<h1>著者の追加</h1>
 
-<table>
-    <tr>
-        <th>姓(日本語)</th>
-        <td>{{ author.last_name_ja }}</td>
-    </tr>
-    <tr>
-        <th>ミドルネーム(日本語)</th>
-        <td>{{ author.middle_name_ja }}</td>
-    </tr>
-    <tr>
-        <th>名(日本語)</th>
-        <td>{{ author.first_name_ja }}</td>
-    </tr>
-    <tr>
-        <th>姓(英語)</th>
-        <td>{{ author.last_name_en }}</td>
-    </tr>
-    <tr>
-        <th>ミドルネーム(英語)</th>
-        <td>{{ author.middle_name_en }}</td>
-    </tr>
-    <tr>
-        <th>名(英語)</th>
-        <td>{{ author.first_name_en }}</td>
-    </tr>
-    <tr>
-        <th>参加年(半角英数)</th>
-        <td>{{ author.joined_year }}</td>
-    </tr>
-    <tr>
-        <th>所属の有無</th>
-        {% if author.is_graduated %}
+<body>
+    <h1>著者の追加</h1>
+
+    <table>
+        <tr>
+            <th>姓(日本語)</th>
+            <td>{{ author.last_name_ja }}</td>
+        </tr>
+        <tr>
+            <th>ミドルネーム(日本語)</th>
+            <td>{{ author.middle_name_ja }}</td>
+        </tr>
+        <tr>
+            <th>名(日本語)</th>
+            <td>{{ author.first_name_ja }}</td>
+        </tr>
+        <tr>
+            <th>姓(英語)</th>
+            <td>{{ author.last_name_en }}</td>
+        </tr>
+        <tr>
+            <th>ミドルネーム(英語)</th>
+            <td>{{ author.middle_name_en }}</td>
+        </tr>
+        <tr>
+            <th>名(英語)</th>
+            <td>{{ author.first_name_en }}</td>
+        </tr>
+        <tr>
+            <th>参加年(半角英数)</th>
+            <td>{{ author.joined_year }}</td>
+        </tr>
+        <tr>
+            <th>所属の有無</th>
+            {% if author.is_graduated %}
             <td>YES</td>
-        {% else %}
+            {% else %}
             <td>NO</td>
-        {% endif %}
-    </tr>
-</table>
+            {% endif %}
+        </tr>
+    </table>
 
 </body>
+
 </html>

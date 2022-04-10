@@ -1,55 +1,60 @@
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>論文の追加</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
 </head>
-<body>
-<h1>論文の追加</h1>
 
-<form method="post" action="/paper/add" enctype="multipart/form-data">
-    <table>
-        <tr>
-            <th><label for="title">タイトル</label></th>
-            <td><input type="text" name="title" id="title"></td>
-        </tr>
-        {% for i in range(1, 4) %}
-        <tr>
-            <th><label for="author{{ i }}">著者{{ i }}</label></th>
-            <td>
-                <select name="author{{ i }}" id="author{{ i }}">
-                    <option value="" selected>---</option>
-                    {% for author in authors %}
-                    <option value="{{ author.uuid }}">{{ author.name }}</option>
-                    {% endfor %}
-                </select>
-            </td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <th><label for="keywords">キーワード<br>(カンマ区切り)</label></th>
-            <td><input type="text" name="keywords" id="keywords"></td>
-        </tr>
-        <tr>
-            <th><label for="label">ラベル</label></th>
-            <td><input type="text" name="label" id="label"></td>
-        </tr>
-        <tr>
-            <th>公開の有無</th>
-            <td>
-                <input type="radio" name="publish" value="1" id="public" checked="checked"><label for="public">公開</label>
-                <input type="radio" name="publish" value="0" id="unpublic"><label for="unpublic">非公開</label>
-            </td>
-        </tr>
-        <tr>
-            <th><label for="pdffile">PDFファイル</label></th>
-            <td><input type="file" name="pdffile" id="pdffile"></td>
-        </tr>
-        <tr>
-            <th></th>
-            <td><button type="submit" style="width: 100%;">送信</button></td>
-        </tr>
-    </table>
-</form>
+<body>
+    <h1>論文の追加</h1>
+
+    <form method="post" action="/paper/add" enctype="multipart/form-data">
+        <table>
+            <tr>
+                <th><label for="title">タイトル</label></th>
+                <td><input type="text" name="title" id="title"></td>
+            </tr>
+            {% for i in range(1, 4) %}
+            <tr>
+                <th><label for="author{{ i }}">著者{{ i }}</label></th>
+                <td>
+                    <select name="author{{ i }}" id="author{{ i }}">
+                        <option value="" selected>---</option>
+                        {% for author in authors %}
+                        <option value="{{ author.uuid }}">{{ author.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th><label for="keywords">キーワード<br>(カンマ区切り)</label></th>
+                <td><input type="text" name="keywords" id="keywords"></td>
+            </tr>
+            <tr>
+                <th><label for="label">ラベル</label></th>
+                <td><input type="text" name="label" id="label"></td>
+            </tr>
+            <tr>
+                <th>公開の有無</th>
+                <td>
+                    <input type="radio" name="publish" value="1" id="public" checked="checked"><label
+                        for="public">公開</label>
+                    <input type="radio" name="publish" value="0" id="unpublic"><label for="unpublic">非公開</label>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="pdffile">PDFファイル</label></th>
+                <td><input type="file" name="pdffile" id="pdffile"></td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><button type="submit" style="width: 100%;">送信</button></td>
+            </tr>
+        </table>
+    </form>
 
 </body>
+
 </html>
