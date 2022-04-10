@@ -65,7 +65,14 @@ async def top_handler(request: Request, title: str = ""):
         f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
         f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
     async with aiohttp.ClientSession() as session:
-        json_raw = await fetch_all(session, urls)
+        try:
+            json_raw = await fetch_all(session, urls)
+        except aiohttp.ClientResponseError as e:
+            print("Top Error:", e)
+            if e.code == 404:
+                raise HTTPException(status_code=404)
+            raise HTTPException(status_code=503)
+
     res_paper = json_raw[0]['papers']
     res_author = json_raw[1]
 
@@ -105,7 +112,13 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}",
         f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}")
     async with aiohttp.ClientSession() as session:
-        json_raw = await fetch_all(session, urls)
+        try:
+            json_raw = await fetch_all(session, urls)
+        except aiohttp.ClientResponseError as e:
+            print("Paper Single View Fetch Error:", e)
+            if e.code == 404:
+                raise HTTPException(status_code=404)
+            raise HTTPException(status_code=503)
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
     res_thumbnail = json_raw[2]
@@ -114,15 +127,22 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     # 著者の取得
     found_author = []
     for uuid in res_paper_me["author_uuid"]:
-        candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
-        candidates_lst = list(candidates)
-        if len(candidates_lst) > 0:
-            author = candidates_lst[0]
-            found_author.append(author)
+        try:
+            candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
+            candidates_lst = list(candidates)
+            if len(candidates_lst) > 0:
+                author = candidates_lst[0]
+                found_author.append(author)
+        except Exception as e:
+            print("Paper Single View Author Error:", e)
+            continue
 
     # サムネイル一覧
     prefix = f"/thumbnail/{paper_uuid}/"
-    thumbnail_list = map(lambda x: prefix + x, res_thumbnail['images'])
+    try:
+        thumbnail_list = map(lambda x: prefix + x, res_thumbnail['images'])
+    except Exception:
+        thumbnail_list = []
     paper_details = {
         "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
@@ -138,8 +158,12 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     }
 
     # 全文
-    first_page = list(filter(lambda x: x['page_number'] == 0, res_fulltext))[0]
-    first_page_300 = first_page['text'][0:300]
+    try:
+        first_page = list(
+            filter(lambda x: x['page_number'] == 0, res_fulltext))[0]
+        first_page_300 = first_page['text'][0:300]
+    except Exception:
+        first_page_300 = ""
 
     return templates.TemplateResponse(
         "paper.html", {
@@ -171,7 +195,13 @@ async def author_handler(author_uuid: UUID, request: Request):
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}")
     async with aiohttp.ClientSession() as session:
-        json_res = await fetch_all(session, urls)
+        try:
+            json_res = await fetch_all(session, urls)
+        except aiohttp.ClientResponseError as e:
+            print("Author Single View Error:", e)
+            if e.code == 404:
+                raise HTTPException(status_code=404)
+            raise HTTPException(status_code=503)
     res_paper = json_res[0]['papers']
     res_author = json_res[1]
     res_author_me = json_res[2]
