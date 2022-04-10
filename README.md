@@ -1,16 +1,22 @@
 # doktor-v2
 
-This is doktor v2.
+マイクロサービスアーキテクチャで設計された論文検索サイトです．
 
-## Architecture
+## アーキテクチャ
+
+Kubernetesクラスタ上にデプロイする設計です．サービスメッシュにはIstioを利用しています．
 
 <img src="doktor-v2-architecture.png" width="600" alt="doktor-v2 architecture">
 
-## For Developer
+## 開発者向け
 
-When you contribute to doktor-v2, you need to read [Developer Guide](./DEVELOP_GUIDE.md).
+開発にJOINする場合は，[Developer Guide](./DEVELOP_GUIDE.md)を参照ください．
 
-## Branch Policy
+個々のサービスはコンテナ化されています．それぞれのサービスのAPIドキュメントは以下から参照できます．
+
+https://cdsl-research.github.io/doktor-v2/
+
+## ブランチポリシー
 
 - `master`
   - Latest and Stable release
@@ -19,7 +25,7 @@ When you contribute to doktor-v2, you need to read [Developer Guide](./DEVELOP_G
   - Staging release (equal to staging environment)
   - 手元（ローカル）で動作検証を行った後にPull Requestをmasterからstagingへ作成
   - http://doktor-prod1:30200/
-- `production` 
+- `production`
   - Production release (equal to production environment)
   - stagingで動作検証を行った後にPull Requestをmasterからproductionへ作成
   - https://doktor.tak-cslab.org/
