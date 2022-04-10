@@ -15,6 +15,8 @@ SVC_AUTHOR_HOST = os.getenv("SERVICE_AUTHOR_HOST", "author-app")
 SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "8000")
 SVC_THUMBNAIL_HOST = os.getenv("SERVICE_THUMBNAIL_HOST", "thumbnail-app")
 SVC_THUMBNAIL_PORT = os.getenv("SERVICE_THUMBNAIL_PORT", "8000")
+SVC_FULLTEXT_HOST = os.getenv("SERVICE_FULLTEXT_HOST", "fulltext-app")
+SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -100,12 +102,14 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     urls = (
         f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
         f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
-        f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}")
+        f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}",
+        f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
     res_thumbnail = json_raw[2]
+    res_fulltext = json_raw[3]
 
     # 著者の取得
     found_author = []
@@ -133,16 +137,21 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         "abstract": res_paper_me.get("abstract")
     }
 
+    # 全文
+    first_page = list(filter(lambda x: x['page_number'] == 0, res_fulltext))[0]
+    first_page_300 = first_page['text'][0:300]
+
     return templates.TemplateResponse(
         "paper.html", {
             "request": request,
             "paper": paper_details,
             "page_title": f"{paper_details['title']}",
-            "image_urls": thumbnail_list
+            "image_urls": thumbnail_list,
+            "abstract": first_page_300
         })
 
 
-@app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
+@ app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
 async def paper_download_handler(paper_uuid: UUID, request: Request):
     async with aiohttp.ClientSession() as session:
         url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
@@ -156,7 +165,7 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
     return Response(content=res_pdf, media_type="application/pdf")
 
 
-@app.get("/author/{author_uuid}", response_class=HTMLResponse)
+@ app.get("/author/{author_uuid}", response_class=HTMLResponse)
 async def author_handler(author_uuid: UUID, request: Request):
     urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
@@ -207,7 +216,7 @@ async def author_handler(author_uuid: UUID, request: Request):
     })
 
 
-@app.get("/thumbnail/{paper_uuid}/{image_id}")
+@ app.get("/thumbnail/{paper_uuid}/{image_id}")
 async def thumbnail_handler(paper_uuid: UUID, image_id: str):
     async with aiohttp.ClientSession() as session:
         url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
