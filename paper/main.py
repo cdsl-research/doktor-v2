@@ -5,7 +5,7 @@ import sys
 import time
 import urllib3
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException, File, UploadFile
@@ -50,6 +50,11 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 app = FastAPI()
 
 
+class StatusResponse(BaseModel):
+    status: Literal["ok", "error"]
+    message: Optional[str] = ""
+
+
 class PaperCreateUpdate(BaseModel):
     author_uuid: List[UUID]
     title: str
@@ -78,12 +83,16 @@ class PaperRead(BaseModel):
     # todo) reference_id: List[int]
 
 
+class PaperReadSeveral:
+    paperreads: List[PaperRead]
+
+
 @app.get("/")
 def root_handler():
     return {"name": "paper"}
 
 
-@app.get("/healthz")
+@app.get("/healthz", response_model=StatusResponse)
 def healthz_handler():
     return {"status": "ok", "message": "it works"}
 
@@ -93,7 +102,7 @@ def topz_handler():
     return {"resource": "busy"}
 
 
-@app.post("/paper")
+@app.post("/paper", response_model=PaperRead)
 def create_paper_handler(paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
@@ -116,6 +125,7 @@ def create_paper_handler(paper: PaperCreateUpdate):
 
 
 @app.get("/paper")
+# @app.get("/paper", response_model=PaperReadSeveral)
 def read_papers_handler(private: bool = False, title: str = ""):
     query = {"is_public": True}
     if private:
@@ -134,7 +144,7 @@ def read_papers_handler(private: bool = False, title: str = ""):
     return list(db["paper"].find(query, {'_id': 0}))
 
 
-@app.get("/paper/{paper_uuid}")
+@app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
     entry = db["paper"].find_one(
         {"uuid": paper_uuid, "is_public": True}, {'_id': 0})
@@ -144,12 +154,12 @@ def read_paper_handler(paper_uuid: UUID):
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.post("/paper/{paper_uuid}/upload")
+@app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
 async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
-            raise HTTPException(status_code=400, detail="Invalid Content-Type")
-
+            raise HTTPException(status_code=400,
+                                detail="Invalid Content-Type")
         # print("file number:", file.file.fileno())
         exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
         if not exist:
@@ -169,7 +179,12 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
         raise HTTPException(status_code=503, detail=str(e.message))
 
 
-@app.get("/paper/{paper_uuid}/download")
+@app.get("/paper/{paper_uuid}/download", responses={
+    200: {
+        "content": {"application/pdf": {}},
+        "description": "Return the PDF file",
+    }
+})
 async def download_paper_handler(paper_uuid: UUID):
     try:
         response = minio_client.get_object(
@@ -181,10 +196,11 @@ async def download_paper_handler(paper_uuid: UUID):
         print("Download exception: ", e)
         _status_code = 404 if e.code in (
             "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        raise HTTPException(status_code=_status_code, detail=str(e.message))
+        raise HTTPException(status_code=_status_code,
+                            detail=str(e.message))
 
 
-@app.put("/paper/{paper_uuid}")
+@ app.put("/paper/{paper_uuid}", response_model=PaperRead)
 def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
