@@ -83,8 +83,8 @@ class PaperRead(BaseModel):
     # todo) reference_id: List[int]
 
 
-class PaperReadSeveral:
-    paperreads: List[PaperRead]
+class PaperReadSeveral(BaseModel):
+    papers: List[PaperRead]
 
 
 @app.get("/")
@@ -141,10 +141,12 @@ def read_papers_handler(private: bool = False, title: str = ""):
                 "$regex": title
             }
 
-    return list(db["paper"].find(query, {'_id': 0}))
+    found_papers = db["paper"].find(query, {'_id': 0})
+    read_papers = list(map(lambda x: PaperRead(**x), found_papers))
+    return PaperReadSeveral(papers=read_papers)
 
 
-@app.get("/paper/{paper_uuid}", response_model=PaperRead)
+@ app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
     entry = db["paper"].find_one(
         {"uuid": paper_uuid, "is_public": True}, {'_id': 0})
@@ -154,7 +156,7 @@ def read_paper_handler(paper_uuid: UUID):
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
+@ app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
 async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
@@ -200,7 +202,7 @@ async def download_paper_handler(paper_uuid: UUID):
                             detail=str(e.message))
 
 
-@ app.put("/paper/{paper_uuid}", response_model=PaperRead)
+@app.put("/paper/{paper_uuid}", response_model=PaperRead)
 def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
