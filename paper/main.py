@@ -50,6 +50,14 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 app = FastAPI()
 
 
+class ServiceHello(BaseModel):
+    name: str
+
+
+class ServiceHealth(BaseModel):
+    resouce: str
+
+
 class StatusResponse(BaseModel):
     status: Literal["ok", "error"]
     message: Optional[str] = ""
@@ -87,19 +95,19 @@ class PaperReadSeveral(BaseModel):
     papers: List[PaperRead]
 
 
-@app.get("/")
+@app.get("/", response_model=ServiceHello)
 def root_handler():
-    return {"name": "paper"}
+    return ServiceHello(name="paper")
 
 
 @app.get("/healthz", response_model=StatusResponse)
 def healthz_handler():
-    return {"status": "ok", "message": "it works"}
+    return StatusResponse(status="ok", message="it works")
 
 
-@app.get("/topz")
+@app.get("/topz", response_model=ServiceHealth)
 def topz_handler():
-    return {"resource": "busy"}
+    return ServiceHealth(resource="busy")
 
 
 @app.post("/paper", response_model=PaperRead)
@@ -124,8 +132,7 @@ def create_paper_handler(paper: PaperCreateUpdate):
     return PaperRead(**my_paper)
 
 
-@app.get("/paper")
-# @app.get("/paper", response_model=PaperReadSeveral)
+@app.get("/paper", response_model=PaperReadSeveral)
 def read_papers_handler(private: bool = False, title: str = ""):
     query = {"is_public": True}
     if private:
@@ -146,7 +153,7 @@ def read_papers_handler(private: bool = False, title: str = ""):
     return PaperReadSeveral(papers=read_papers)
 
 
-@ app.get("/paper/{paper_uuid}", response_model=PaperRead)
+@app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
     entry = db["paper"].find_one(
         {"uuid": paper_uuid, "is_public": True}, {'_id': 0})
@@ -156,7 +163,7 @@ def read_paper_handler(paper_uuid: UUID):
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@ app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
+@app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
 async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
@@ -173,7 +180,7 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
             length=-1,
             part_size=10 * 1024 * 1024,
             content_type="application/pdf")
-        return {"status": "ok"}
+        return StatusResponse(**{"status": "ok"})
         response.close()
         response.release_conn()
     except S3Error as e:
