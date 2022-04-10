@@ -7,10 +7,10 @@ from fastapi import FastAPI, Request, HTTPException, Form, File, UploadFile
 from fastapi.templating import Jinja2Templates
 import aiohttp
 
-SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-dind")
-SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "4100")
-SVC_AUTHOR_HOST = os.getenv("SERVICE_AUTHOR_HOST", "author-dind")
-SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "4200")
+SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
+SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")
+SVC_AUTHOR_HOST = os.getenv("SERVICE_AUTHOR_HOST", "author-app")
+SVC_AUTHOR_PORT = os.getenv("SERVICE_AUTHOR_PORT", "8000")
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -54,7 +54,7 @@ async def read_paper_list_handler(request: Request):
             raise HTTPException(status_code=503, detail="Internal Error")
 
     paper_details = []
-    for rp in res_paper:
+    for rp in res_paper['papers']:
         paper_details.append({
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
