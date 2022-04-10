@@ -64,7 +64,7 @@ async def top_handler(request: Request, title: str = ""):
         f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
     async with aiohttp.ClientSession() as session:
         json_raw = await fetch_all(session, urls)
-    res_paper = json_raw[0]
+    res_paper = json_raw[0]['papers']
     res_author = json_raw[1]
 
     paper_details = []
@@ -163,7 +163,7 @@ async def author_handler(author_uuid: UUID, request: Request):
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}")
     async with aiohttp.ClientSession() as session:
         json_res = await fetch_all(session, urls)
-    res_paper = json_res[0]
+    res_paper = json_res[0]['papers']
     res_author = json_res[1]
     res_author_me = json_res[2]
 
