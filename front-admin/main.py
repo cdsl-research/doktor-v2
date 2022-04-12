@@ -2,6 +2,7 @@ import asyncio
 import io
 import os
 from typing import List, Optional
+from uuid import UUID
 
 from fastapi import FastAPI, Request, HTTPException, Form, File, UploadFile
 from fastapi.templating import Jinja2Templates
@@ -162,7 +163,45 @@ async def add_paper_handler(request: Request,
     # return templates.TemplateResponse("paper-add.html", {"request": request})
 
 
-@app.get("/author")
+@app.get("/paper/{paper_uuid}/edit")
+async def update_paper_handler(paper_uuid: UUID, request: Request):
+    urls = (f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
+            f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}")
+    async with aiohttp.ClientSession() as session:
+        try:
+            res_json = await fetch_all(session, urls)
+        except BaseException:
+            raise HTTPException(status_code=503, detail="Internal Error")
+    res_author = res_json[0]
+    res_paper = res_json[1]
+
+    found_author = []
+    for author_uuid in res_paper.get("author_uuid"):
+        candidates = filter(lambda x: author_uuid == x.get("uuid"), res_author)
+        candidates_lst = list(candidates)
+        if len(candidates_lst) > 0:
+            author = candidates_lst[0]
+            display_name = author.get('last_name_ja') + " " + \
+                author.get('first_name_ja')
+            found_author.append(
+                {"label": display_name, "uuid": author.get("uuid")})
+
+    if len(found_author) != 3:
+        additional_item = 3 - len(found_author)
+        for _ in range(additional_item):
+            found_author.append("")
+
+    return templates.TemplateResponse("paper-edit.html", {
+        "request": request,
+        "paper": res_paper,
+        "authors": res_author,
+        "default_authors": found_author
+    })
+    print(found_author)
+    print(res_paper)
+
+
+@ app.get("/author")
 async def read_author_list_handler(request: Request):
     url = f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author"
     async with aiohttp.ClientSession() as session:
@@ -192,12 +231,12 @@ async def read_author_list_handler(request: Request):
     })
 
 
-@app.get("/author/add")
+@ app.get("/author/add")
 def add_author_handler(request: Request):
     return templates.TemplateResponse("author-add.html", {"request": request})
 
 
-@app.post("/author/add")
+@ app.post("/author/add")
 async def add_author_exec_handler(request: Request,
                                   first_name_ja: str = Form(...),
                                   middle_name_ja: Optional[str] = Form(None),
