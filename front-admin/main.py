@@ -197,8 +197,6 @@ async def update_paper_handler(paper_uuid: UUID, request: Request):
         "authors": res_author,
         "default_authors": found_author
     })
-    print(found_author)
-    print(res_paper)
 
 
 @ app.get("/author")
