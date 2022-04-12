@@ -31,7 +31,7 @@
             {% endfor %}
             <tr>
                 <th><label for="keywords">キーワード<br>(カンマ区切り)</label></th>
-                <td><input type="text" name="keywords" id="keywords" value="{{ paper.keywords }}"></td>
+                <td><input type="text" name="keywords" id="keywords" value="{{ paper.keywords | join(',') }}"></td>
             </tr>
             <tr>
                 <th><label for="label">ラベル</label></th>
