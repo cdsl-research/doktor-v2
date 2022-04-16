@@ -164,7 +164,7 @@ async def add_paper_handler(request: Request,
 
 
 @app.get("/paper/{paper_uuid}/edit")
-async def update_paper_handler(paper_uuid: UUID, request: Request):
+async def update_paper_exec_handler(paper_uuid: UUID, request: Request):
     urls = (f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
             f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}")
     async with aiohttp.ClientSession() as session:
@@ -199,7 +199,69 @@ async def update_paper_handler(paper_uuid: UUID, request: Request):
     })
 
 
-@ app.get("/author")
+@app.post("/paper/{paper_uuid}/edit")
+async def update_paper_handler(request: Request,
+                               paper_uuid: UUID,
+                               title: str = Form(...),
+                               author1: str = Form(...),
+                               author2: Optional[str] = Form(None),
+                               author3: Optional[str] = Form(None),
+                               keywords: Optional[List[str]] = Form([]),
+                               label: Optional[str] = Form(""),
+                               publish: bool = Form(True),
+                               pdffile: UploadFile = File(...)
+                               ):
+    urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
+            f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/upload")
+    async with aiohttp.ClientSession() as session:
+        try:
+            res_json = await fetch_all(session, urls)
+        except BaseException:
+            raise HTTPException(status_code=503, detail="Internal Error")
+    res_author = res_json[0]
+    res_paper = res_json[1]
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            """ Update paper info """
+            url_meta = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}"
+            print("Req1 url:", url_meta)
+            req_body = {}
+            async with session.put(url_meta, json=req_body) as res_meta:
+                if res_meta.status != 200:
+                    print("Invalid status1:", res_meta.status)
+                    print("Response1:", res_meta.json)
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+
+                res_meta_detail = await res_meta.json()
+                if res_meta_detail.get("uuid"):
+                    paper_uuid = res_meta_detail.get("uuid")
+                else:
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+            """ Add paper pdf file """
+            url_file = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}"
+                        f"/paper/{paper_uuid}/upload")
+            file_content = pdffile.file.read()
+            payload = aiohttp.FormData()
+            payload.add_field('file', io.BytesIO(file_content),
+                              filename=f"{paper_uuid}.pdf",
+                              content_type='application/pdf')
+            print("Req2 url:", url_file)
+            async with session.post(url_file, data=payload) as res_body:
+                if res_body.status != 200:
+                    print("Invalid status2:", res_body.status)
+                    print("Response2:", res_body.json)
+                    raise HTTPException(status_code=503,
+                                        detail="Internal Error")
+                res_body_detail = res_body.json()
+                print("req2 response:", res_body_detail)
+        except Exception:
+            pass
+
+
+@app.get("/author")
 async def read_author_list_handler(request: Request):
     url = f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author"
     async with aiohttp.ClientSession() as session:
