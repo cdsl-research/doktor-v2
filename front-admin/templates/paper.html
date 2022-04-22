@@ -11,6 +11,7 @@
     <table>
         <thead>
             <tr>
+                <th>閲覧</th>
                 <th>タイトル</th>
                 <th>ラベル</th>
                 <th>公開日</th>
@@ -19,7 +20,8 @@
         <tbody>
             {% for paper in papers %}
             <tr>
-                <td>{{ paper.title }} </td>
+                <td><a href="/paper/{{ paper.uuid }}">■</a></td>
+                <td>{{ paper.title }}</td>
                 <td>{{ paper.label }}</td>
                 <td>{{ paper.created_at }}</td>
             </tr>
