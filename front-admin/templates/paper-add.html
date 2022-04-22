@@ -9,6 +9,12 @@
 <body>
     <h1>論文の追加</h1>
 
+    {% if message %}
+    <aside>
+        <pre>{{ message }}</pre>
+    </aside>
+    {% endif %}
+
     <form method="post" action="/paper/add" enctype="multipart/form-data">
         <table>
             <tr>

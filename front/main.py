@@ -2,6 +2,7 @@ import asyncio
 import os
 import re
 from datetime import datetime as dt
+from socket import timeout
 from uuid import UUID
 
 import aiohttp
@@ -17,6 +18,9 @@ SVC_THUMBNAIL_HOST = os.getenv("SERVICE_THUMBNAIL_HOST", "thumbnail-app")
 SVC_THUMBNAIL_PORT = os.getenv("SERVICE_THUMBNAIL_PORT", "8000")
 SVC_FULLTEXT_HOST = os.getenv("SERVICE_FULLTEXT_HOST", "fulltext-app")
 SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
+REQ_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", 5))
+
+TIMEOUT = aiohttp.ClientTimeout(total=REQ_TIMEOUT_SEC)
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -64,7 +68,7 @@ async def top_handler(request: Request, title: str = ""):
     urls = (
         f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
         f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_raw = await fetch_all(session, urls)
         except aiohttp.ClientResponseError as e:
@@ -111,7 +115,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
         f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}",
         f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}")
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_raw = await fetch_all(session, urls)
         except aiohttp.ClientResponseError as e:
@@ -175,9 +179,9 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         })
 
 
-@ app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
+@ app.get("/paper/{paper_uuid}/download", response_class=Response)
 async def paper_download_handler(paper_uuid: UUID, request: Request):
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
         try:
             res_pdf = await fetch_file(session, url)
@@ -194,7 +198,7 @@ async def author_handler(author_uuid: UUID, request: Request):
     urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
             f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}")
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_res = await fetch_all(session, urls)
         except aiohttp.ClientResponseError as e:
@@ -248,7 +252,7 @@ async def author_handler(author_uuid: UUID, request: Request):
 
 @ app.get("/thumbnail/{paper_uuid}/{image_id}")
 async def thumbnail_handler(paper_uuid: UUID, image_id: str):
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
                f"/thumbnail/{paper_uuid}/{image_id}")
         try:
