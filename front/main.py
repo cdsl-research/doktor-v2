@@ -175,7 +175,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         })
 
 
-@ app.get("/paper/{paper_uuid}/download", response_class=HTMLResponse)
+@ app.get("/paper/{paper_uuid}/download", response_class=Response)
 async def paper_download_handler(paper_uuid: UUID, request: Request):
     async with aiohttp.ClientSession() as session:
         url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
