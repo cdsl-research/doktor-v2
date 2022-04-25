@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fulltext-elastic-deploy
+  namespace: fulltext
+  labels:
+    db: fulltext
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      db: fulltext
+  template:
+    metadata:
+      labels:
+        db: fulltext
+    spec:
+      containers:
+        - name: fulltext-elastic-container
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.1.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9200
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: xpack.security.enabled
+              value: "false"
+          volumeMounts:
+            - name: fulltext-elastic-volv
+              mountPath: /usr/share/kibana/data
+      volumes:
+        - name: fulltext-elastic-volv
+          persistentVolumeClaim:
+            claimName: fulltext-elastic-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fulltext-elastic-pvc
+  namespace: fulltext
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fulltext-elastic
+  namespace: fulltext
+spec:
+  type: ClusterIP
+  selector:
+    db: fulltext
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
