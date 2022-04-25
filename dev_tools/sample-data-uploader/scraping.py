@@ -44,6 +44,14 @@ def main():
             paper_detail_raw = re.search(r'<a [^>]+>(.*?)</a>', paper)
             if paper_detail_raw is None:
                 continue
+
+            # find: href="xxx"
+            paper_url = re.search(r'href="https://drive.google.com/file/d/([-\w]+)', paper_detail_raw.string)
+            if paper_url is None:
+                continue
+            paper_url_id = paper_url.groups()[0]
+
+            # internal <a> tag
             paper_detail = paper_detail_raw.groups()[0]
             # print("Raw:", paper_detail)
 
@@ -94,6 +102,7 @@ def main():
                     "title": title,
                     "paper_id": paper_id,
                     "datetime": _datetime,
+                    "paper_url_id": paper_url_id,
                 })
 
             except StopIteration:
