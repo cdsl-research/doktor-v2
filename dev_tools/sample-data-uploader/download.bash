@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-FILES=$(curl -s https://ja.tak-cslab.org/tech-report | ggrep -oP 'https://drive.google.com/[^\s]+sharing' | cut -d/ -f 6)
+FILES=$(curl -s https://ja.tak-cslab.org/tech-report | grep -oP 'https://drive.google.com/[^\s]+sharing' | cut -d/ -f 6)
 
 for f in $FILES
 do
