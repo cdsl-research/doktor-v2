@@ -38,7 +38,7 @@ def main():
         papers = re.findall(r'<li>.*?</li>', line)
         if len(papers) < 1:  # unmatched
             continue
-        
+
         for paper in papers:
             # find: <a>xxx</a>
             paper_detail_raw = re.search(r'<a [^>]+>(.*?)</a>', paper)
@@ -46,7 +46,9 @@ def main():
                 continue
 
             # find: href="xxx"
-            paper_url = re.search(r'href="https://drive.google.com/file/d/([-\w]+)', paper_detail_raw.string)
+            paper_url = re.search(
+                r'href="https://drive.google.com/file/d/([-\w]+)',
+                paper_detail_raw.string)
             if paper_url is None:
                 continue
             paper_url_id = paper_url.groups()[0]
@@ -58,7 +60,7 @@ def main():
             # split title, author, paper_id, datetime
             parts = re.split(r', |，|\&#\d+;|\"|”', paper_detail)
             itr_parts = iter(parts)
-            
+
             try:
                 # find: author
                 paper_authors = []
@@ -80,7 +82,7 @@ def main():
                             title = title[:-1]
                         break
                 # print(title)
-                
+
                 # find: paper_id
                 paper_id = ""
                 while True:
@@ -90,7 +92,7 @@ def main():
                         paper_id = t.strip()
                         break
                 # print(paper_id)
-                    
+
                 # find: datetime
                 _datetime = " ".join(itr_parts)
                 if _datetime.endswith("."):
@@ -106,17 +108,13 @@ def main():
                 })
 
             except StopIteration:
-                print("+"*10, "ERROR", paper_detail)
+                print("+" * 10, "ERROR", paper_detail)
                 continue
 
     # print(json.dumps(matched_papers, indent=4))
     with open("papers.json", mode='w') as f:
         json.dump(matched_papers, f, indent=4, ensure_ascii=False)
 
-        
-
-    
-    
 
 if __name__ == "__main__":
     main()
