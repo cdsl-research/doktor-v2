@@ -61,11 +61,15 @@ def _paper_add(
     paper_uuid = res["uuid"]
 
     """ 論文PDFの追加 """
-    pdffile = {'file': (
-        f"{paper_uuid}.pdf",
-        open(pdf_file_path, 'rb'),
-        "application/pdf"
-    )}
+    try:
+        pdffile = {'file': (
+            f"{paper_uuid}.pdf",
+            open(pdf_file_path, 'rb'),
+            "application/pdf"
+        )}
+    except Exception as e:
+        print("Fail to upload:", e)
+        return
     PAPER_FILE_UPLOAD_URL = f"{PAPER_URL}/paper/{paper_uuid}/upload"
     print("PAPER_FILE_UPLOAD_URL:", PAPER_FILE_UPLOAD_URL)
     req = requests.post(PAPER_FILE_UPLOAD_URL, files=pdffile)
@@ -74,7 +78,7 @@ def _paper_add(
 
 def author_add_wrapper():
     """ 著者の追加 """
-    with open("author.json") as f:
+    with open("authors.json") as f:
         author_list = json.load(f)
     for author in author_list:
         print("Req:", author)
@@ -94,32 +98,34 @@ def paper_add_wrapper():
     author_list = req.json()
     # print(author_list)
     author_uuid_table = {
-        (author["last_name_ja"], author["first_name_ja"]): author["uuid"]
+        author["last_name_ja"] + " " + author["first_name_ja"]: author["uuid"]
         for author in author_list
     }
 
-    with open('paper.csv', newline='') as csvfile:
-        spamreader = csv.reader(csvfile)
-        next(spamreader)
-        for row in spamreader:
-            # (lastname, firstname)
-            author1 = (row[0], row[1])
-            uuid1 = author_uuid_table.get(author1)
-            author2 = (row[2], row[3])
-            uuid2 = author_uuid_table.get(author2)
-            author3 = (row[4], row[5])
-            uuid3 = author_uuid_table.get(author3)
-            uuid_list = list(filter(None, [uuid1, uuid2, uuid3]))
-            _paper_add(
-                title=row[6],
-                label=row[7],
-                pdf_file_path=f"pdf_files/{row[7]}.pdf",
-                author_uuid_list=uuid_list
-            )
+    with open('papers.json') as f:
+        papers = json.load(f)
+    for paper in papers:
+        authors = paper['author']
+        author_uuids = [author_uuid_table.get(a) for a in authors]
+        if None in author_uuids:
+            print("Not found author:", authors, author_uuids)
+        title = paper['title']
+        paper_id = paper['paper_id']
+        _datetime = paper['datetime']
+        paper_url_id = paper['paper_url_id']
+        # print(authors, author_uuids)
+        # print(title, paper_id, _datetime, paper_url_id)
+
+        _paper_add(
+            title=title,
+            label=paper_id,
+            pdf_file_path=f"pdf_files/{paper_url_id}.pdf",
+            author_uuid_list=author_uuids
+        )
 
 
 def main():
-    author_add_wrapper()
+    # author_add_wrapper()
     paper_add_wrapper()
 
 
