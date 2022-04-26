@@ -13,11 +13,12 @@ import json
 },
 """
 
+
 def main():
     """ Open cached author list """
     with open("authors.json") as f:
         total_authors = json.load(f)
-    uniq_names = {a["last_name_ja"]+" "+a["first_name_ja"]
+    uniq_names = {a["last_name_ja"] + " " + a["first_name_ja"]
                   for a in total_authors}
     # print(uniq_names)
 
@@ -28,7 +29,7 @@ def main():
         with open(fname) as f:
             body = json.load(f)
         for author in body:
-            au = author["last_name_ja"]+" "+author["first_name_ja"]
+            au = author["last_name_ja"] + " " + author["first_name_ja"]
             if au in uniq_names:  # found author
                 pass
             else:  # not found author
