@@ -19,6 +19,7 @@ ELASTICSEARCH_HOST = os.getenv(
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
 
 es = Elasticsearch(f"http://{ELASTICSEARCH_HOST}")
+es.indices.create(index=ELASTICSEARCH_INDEX, ignore=400)
 
 
 """ FastAPI Setup """
