@@ -25,7 +25,7 @@ def main():
     write_buffer = []
     for author in authors:
         try:
-            first_name_ja, last_name_ja = author.split(' ')
+            last_name_ja, first_name_ja = author.split(' ')
         except Exception:
             print("Exception:", author)
         write_buffer.append({
