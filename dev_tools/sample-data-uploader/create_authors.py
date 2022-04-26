@@ -33,8 +33,11 @@ def main():
             "last_name_ja": last_name_ja,
         })
 
-    with open(f"_authors.{dt}.json", mode=w) as f:
-        json.dump(f, write_buffer)
+    import datetime
+    current = datetime.datetime.now()
+    dt = current.strftime("%Y%m%d")
+    with open(f"_authors.{dt}.json", mode='w') as f:
+        json.dump(write_buffer, f, indent=4, ensure_ascii=False)
         
 
 if __name__ == "__main__":
