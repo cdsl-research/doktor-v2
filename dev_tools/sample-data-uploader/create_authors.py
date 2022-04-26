@@ -10,18 +10,20 @@ import json
   "graduation": true
 },
 """
+
+
 def main():
     with open("papers.json") as f:
         papers = json.load(f)
     # for p in papers:
     #     print(p)
-    
+
     """ Create unique author list from papers.json """
     authors = set()
     for p in papers:
         authors = authors | set(p['author'])
     # print(authors)
-    
+
     write_buffer = []
     for author in authors:
         try:
@@ -38,8 +40,7 @@ def main():
     dt = current.strftime("%Y%m%d")
     with open(f"_authors.{dt}.json", mode='w') as f:
         json.dump(write_buffer, f, indent=4, ensure_ascii=False)
-        
+
 
 if __name__ == "__main__":
     main()
-
