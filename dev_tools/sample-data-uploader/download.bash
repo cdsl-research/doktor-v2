@@ -6,5 +6,5 @@ for f in $FILES
 do
     # pip install gdown
     gdown -O pdf_files/$f.pdf "https://drive.google.com/uc?id=$f"
-    sleep 3
+    sleep 300
 done
