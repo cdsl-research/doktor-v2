@@ -1,9 +1,12 @@
 import asyncio
 import os
 import re
+from dataclasses import dataclass
 from datetime import datetime as dt
 from socket import timeout
+from typing import List, Tuple
 from uuid import UUID
+from xmlrpc.client import Boolean
 
 import aiohttp
 from fastapi import FastAPI, HTTPException, Request
@@ -26,6 +29,12 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 
+@dataclass
+class FetchUrl:
+    url: str = ""
+    require: bool = False
+
+
 # 日付のフォーマットを修正
 def reformat_datetime(raw_str: str) -> str:
     _created = dt.strptime(raw_str, "%Y-%m-%dT%H:%M:%S.%f")
@@ -39,11 +48,37 @@ async def fetch_file(session, url):
         return await response.read()
 
 
+async def fetch2(session: aiohttp.ClientSession, url: str, require: bool):
+    try:
+        async with session.get(url) as response:
+            if response.status >= 300:
+                response.raise_for_status()
+            return await response.json()
+    except Exception as e:
+        if require:
+            raise e
+        else:
+            print("Fetch exception:", "url=", url)
+
+
 async def fetch(session, url):
-    async with session.get(url) as response:
-        if response.status != 200:
-            response.raise_for_status()
-        return await response.json()
+    try:
+        async with session.get(url) as response:
+            if response.status != 200:
+                response.raise_for_status()
+            return await response.json()
+    except Exception as e:
+        print("fetch:", e)
+
+
+async def fetch_all2(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
+    tasks = []
+    for url in urls:
+        task = asyncio.create_task(
+            fetch2(session=session, url=url.url, require=url.require))
+        tasks.append(task)
+    results = await asyncio.gather(*tasks)
+    return results
 
 
 async def fetch_all(session, urls):
@@ -111,13 +146,18 @@ async def top_handler(request: Request, title: str = ""):
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(paper_uuid: UUID, request: Request):
     urls = (
-        f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
-        f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
-        f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}",
-        f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}")
+        FetchUrl(
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True),
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}", require=True),
+        FetchUrl(
+            url=f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}", require=False),
+        FetchUrl(
+            url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}", require=False)
+    )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_raw = await fetch_all(session, urls)
+            json_raw = await fetch_all2(session=session, urls=urls)
         except aiohttp.ClientResponseError as e:
             print("Paper Single View Fetch Error:", e)
             if e.code == 404:
