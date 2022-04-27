@@ -101,11 +101,14 @@ async def top_handler(request: Request, title: str = ""):
             raise HTTPException(status_code=400, detail="Invalid title")
 
     urls = (
-        f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
-        f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author")
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}", require=True),
+        FetchUrl(
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True)
+    )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_raw = await fetch_all(session, urls)
+            json_raw = await fetch_all2(session, urls)
         except aiohttp.ClientResponseError as e:
             print("Top Error:", e)
             if e.code == 404:
