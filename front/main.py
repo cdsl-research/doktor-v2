@@ -6,7 +6,6 @@ from datetime import datetime as dt
 from socket import timeout
 from typing import List, Tuple
 from uuid import UUID
-from xmlrpc.client import Boolean
 
 import aiohttp
 from fastapi import FastAPI, HTTPException, Request
@@ -90,7 +89,7 @@ async def fetch_all(session, urls):
     return results
 
 
-@app.get("/", response_class=HTMLResponse)
+@ app.get("/", response_class=HTMLResponse)
 async def top_handler(request: Request, title: str = ""):
     striped_title = ""
     if title:
@@ -146,7 +145,7 @@ async def top_handler(request: Request, title: str = ""):
     })
 
 
-@app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
+@ app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(paper_uuid: UUID, request: Request):
     urls = (
         FetchUrl(
@@ -238,12 +237,15 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
 
 @ app.get("/author/{author_uuid}", response_class=HTMLResponse)
 async def author_handler(author_uuid: UUID, request: Request):
-    urls = (f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
-            f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
-            f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}")
+    urls = (FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+            FetchUrl(
+        url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True),
+        FetchUrl(
+        url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}", require=True)
+    )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_res = await fetch_all(session, urls)
+            json_res = await fetch_all2(session, urls)
         except aiohttp.ClientResponseError as e:
             print("Author Single View Error:", e)
             if e.code == 404:
