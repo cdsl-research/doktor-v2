@@ -101,10 +101,11 @@ async def top_handler(request: Request, title: str = ""):
 
     urls = (
         FetchUrl(
-            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}", require=True),
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
+            require=True),
         FetchUrl(
-            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True)
-    )
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
+            require=True))
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_raw = await fetch_all2(session, urls)
@@ -149,14 +150,17 @@ async def top_handler(request: Request, title: str = ""):
 async def paper_handler(paper_uuid: UUID, request: Request):
     urls = (
         FetchUrl(
-            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True),
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
+            require=True),
         FetchUrl(
-            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}", require=True),
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
+            require=True),
         FetchUrl(
-            url=f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}", require=False),
+            url=f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}",
+            require=False),
         FetchUrl(
-            url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}", require=False)
-    )
+            url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}",
+            require=False))
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_raw = await fetch_all2(session=session, urls=urls)
@@ -239,12 +243,14 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
 async def author_handler(author_uuid: UUID, request: Request):
     urls = (
         FetchUrl(
-            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
+            require=True),
         FetchUrl(
-            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True),
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
+            require=True),
         FetchUrl(
-            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}", require=True)
-    )
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}",
+            require=True))
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_res = await fetch_all2(session, urls)
