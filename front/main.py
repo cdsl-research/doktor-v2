@@ -237,11 +237,13 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
 
 @ app.get("/author/{author_uuid}", response_class=HTMLResponse)
 async def author_handler(author_uuid: UUID, request: Request):
-    urls = (FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
-            FetchUrl(
-        url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True),
+    urls = (
         FetchUrl(
-        url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}", require=True)
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True),
+        FetchUrl(
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author/{author_uuid}", require=True)
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
