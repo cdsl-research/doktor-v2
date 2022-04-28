@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -71,22 +72,29 @@ async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def top_handler(request: Request, title: str = ""):
-    striped_title = ""
-    if title:
+async def top_handler(request: Request, title: str = "", keyword: str = ""):
+    striped_keyword = ""
+    if keyword:
         # スペースを削除
-        striped_title = title.strip().replace("　", "")
-        validate = re.match('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', striped_title)
-        if validate is None:
-            raise HTTPException(status_code=400, detail="Invalid title")
+        striped_keyword = keyword.strip().replace("　", "")
+        validate_word = re.match('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', striped_keyword)
+        if validate_word is None:
+            raise HTTPException(status_code=400, detail="Invalid keyword")
 
     urls = (
+        # 論文タイトルの検索
         FetchUrl(
-            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper?title={striped_title}",
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
             require=True),
+        # 著者の一覧
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
-            require=True))
+            require=True),
+        # 全文の検索
+        FetchUrl(
+            url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext?keyword={striped_keyword}",
+            require=False),
+    )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_raw = await fetch_all(session, urls)
@@ -98,9 +106,26 @@ async def top_handler(request: Request, title: str = ""):
 
     res_paper = json_raw[0]['papers']
     res_author = json_raw[1]
+    res_fulltext = json_raw[2]
+
+    # 論文タイトルの検索
+    found_papers = []
+    for rp in res_paper:
+        if keyword in rp['title']:
+            found_papers.append(rp)
+    # print(found_papers)
+
+    # 全文の検索
+    if res_fulltext:
+        for rf in res_fulltext:
+            found_ = list(
+                filter(lambda x: rf['paper_uuid'] == x['uuid'], res_paper))
+            found_papers += found_
+        # print(found_papers)
+    # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
     paper_details = []
-    for rp in res_paper:  # 論文を選択
+    for rp in found_papers:  # 論文を選択
         # 論文に対応する著者名を検索
         found_author = []
         for uuid in rp.get("author_uuid"):
@@ -123,7 +148,7 @@ async def top_handler(request: Request, title: str = ""):
     return templates.TemplateResponse("top.html", {
         "request": request,
         "papers": paper_details,
-        "search_title": striped_title
+        "search_keyword": striped_keyword
     })
 
 
