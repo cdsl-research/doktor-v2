@@ -1,7 +1,7 @@
 import os
 import sys
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
