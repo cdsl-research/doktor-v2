@@ -4,6 +4,7 @@ import socket
 import sys
 import time
 from uuid import UUID
+from typing import Literal, Optional
 
 import fitz
 import requests
