@@ -230,7 +230,9 @@ def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
 
 
 @app.delete("/reset", response_model=StatusResponse)
-def delete_paper_file_handler():
+def delete_paper_handler():
+    res = db["paper"].delete_many({})
+    print(res.deleted_count, " documents deleted.")
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
         minio_client.list_objects(
