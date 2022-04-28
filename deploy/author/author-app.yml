@@ -25,7 +25,7 @@ spec:
             - containerPort: 8000
           env:
             - name: MONGO_HOST
-              value: author-mongo.author.svc.cluster.local
+              value: author-mongo.author
 ---
 apiVersion: v1
 kind: Service
