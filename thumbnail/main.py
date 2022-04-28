@@ -138,7 +138,7 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
         raise HTTPException(status_code=res_status, detail=res_message)
 
 
-@app.delete("/thumbnail", response_model=StatusResponse)
+@app.delete("/reset", response_model=StatusResponse)
 def delete_thumbnail_handler():
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),

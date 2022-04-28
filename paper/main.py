@@ -229,7 +229,7 @@ def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
     return PaperRead(**my_paper)
 
 
-@app.delete("/paper/file", response_model=StatusResponse)
+@app.delete("/reset", response_model=StatusResponse)
 def delete_paper_file_handler():
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
