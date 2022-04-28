@@ -50,6 +50,7 @@ jobs:
           tags: ghcr.io/cdsl-research/${{ matrix.target }}:${{ env.DOCKER_TAG }}
 
   k8s-config-update:
+    needs: build-and-push
     runs-on: ubuntu-20.04
     if: ${{ github.event.pusher.name != 'github-actions' }}
     steps:
