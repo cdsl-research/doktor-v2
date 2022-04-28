@@ -7,6 +7,7 @@ from typing import List
 
 AUTHOR_URL = os.getenv("AUTHOR_ENDPOINT", "http://localhost:4200")
 PAPER_URL = os.getenv("PAPER_ENDPOINT", "http://localhost:4100")
+THUMBNAIL_URL = os.getenv("THUMBNAIL_ENDPOINT", "http://localhost:4400")
 
 
 def _author_add(
@@ -122,6 +123,18 @@ def paper_add_wrapper():
             pdf_file_path=f"pdf_files/{paper_url_id}.pdf",
             author_uuid_list=author_uuids
         )
+
+
+def thumbnail_add():
+    req = requests.get(f"{PAPER_URL}/paper")
+    assert req.status_code == 200
+    res = req.json()
+    for paper in res['papers']:
+        paper_uuid = paper['uuid']
+        req2 = requests.post(
+            f"{THUMBNAIL_URL}/thumbnail/{paper_uuid}", data={})
+        print(req2)
+        assert req2.status_code == 200
 
 
 def main():
