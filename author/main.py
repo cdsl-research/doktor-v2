@@ -102,7 +102,7 @@ def read_author_handler(author_uuid: UUID):
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.put("/author/{author_uuid}", response_mode=AuthorRead)
+@app.put("/author/{author_uuid}", response_model=AuthorRead)
 def update_author_handler(author_uuid: UUID, author: AuthorCreateUpdate):
     json_author = jsonable_encoder(author)
     my_author = {
