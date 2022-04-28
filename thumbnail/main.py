@@ -10,6 +10,8 @@ import requests
 import urllib3
 from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
+from minio.deleteobjects import DeleteObject
+from pydantic import BaseModel
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -34,6 +36,19 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 
 """ FastAPI Setup """
 app = FastAPI()
+
+
+class ServiceHello(BaseModel):
+    name: str
+
+
+class ServiceHealth(BaseModel):
+    resouce: str
+
+
+class StatusResponse(BaseModel):
+    status: Literal["ok", "error"]
+    message: Optional[str] = ""
 
 
 @app.get("/")
@@ -121,6 +136,19 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
         res_message = "Internal Error"
         print("image fetch error:", e)
         raise HTTPException(status_code=res_status, detail=res_message)
+
+
+@app.delete("/reset", response_model=StatusResponse)
+def delete_thumbnail_handler():
+    delete_object_list = map(
+        lambda x: DeleteObject(x.object_name),
+        minio_client.list_objects(
+            MINIO_BUCKET_NAME, recursive=True),
+    )
+    errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
+    for error in errors:
+        print("error occured when deleting object", error)
+    return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":

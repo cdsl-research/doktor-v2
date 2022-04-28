@@ -3,19 +3,19 @@ import re
 import socket
 import sys
 import time
-import urllib3
 from datetime import datetime
 from typing import List, Literal, Optional
 from uuid import UUID, uuid4
 
-from fastapi import FastAPI, HTTPException, File, UploadFile
+import urllib3
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
+from minio import Minio, S3Error
+from minio.deleteobjects import DeleteObject
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
-from minio import Minio, S3Error
-
 
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
@@ -227,6 +227,19 @@ def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
         "updated_at": datetime.now()
     }
     return PaperRead(**my_paper)
+
+
+@app.delete("/reset", response_model=StatusResponse)
+def delete_paper_file_handler():
+    delete_object_list = map(
+        lambda x: DeleteObject(x.object_name),
+        minio_client.list_objects(
+            MINIO_BUCKET_NAME, recursive=True),
+    )
+    errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
+    for error in errors:
+        print("error occured when deleting object", error)
+    return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":
