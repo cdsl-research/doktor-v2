@@ -161,6 +161,12 @@ async def add_paper_exec_handler(request: Request,
                 res_file_detail = res_file.json()
                 print("Response on file:", res_file_detail)
 
+        except Exception as e:
+            print("HTTP Request failed:", e)
+            raise HTTPException(status_code=503, detail="Internal Error")
+
+    async with aiohttp.ClientSession() as session:
+        try:
             """ Add fulltext """
             url_text = (f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}"
                         f"/fulltext/{paper_uuid}")
@@ -173,18 +179,17 @@ async def add_paper_exec_handler(request: Request,
                 res_text_detail = res_text.json()
                 print("Response on text:", res_text_detail)
 
-            """ Add thumbnail """
-            url_thumb = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
-                         f"/thumbnail/{paper_uuid}")
-            print("Request url for thumbnail:", url_thumb)
-            async with session.post(url_thumb) as res_thumb:
-                if res_thumb.status != 200:
-                    print("Invalid status on text:", res_thumb.status)
-                    raise HTTPException(status_code=503,
-                                        detail="Internal Error")
-                res_thumb = res_thumb.json()
-                print("Response on thumbnail:", res_thumb)
-
+            # """ Add thumbnail """
+            # url_thumb = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
+            #              f"/thumbnail/{paper_uuid}")
+            # print("Request url for thumbnail:", url_thumb)
+            # async with session.post(url_thumb) as res_thumb:
+            #     if res_thumb.status != 200:
+            #         print("Invalid status on text:", res_thumb.status)
+            #         raise HTTPException(status_code=503,
+            #                             detail="Internal Error")
+            #     res_thumb = res_thumb.json()
+            #     print("Response on thumbnail:", res_thumb)
         except Exception as e:
             print("HTTP Request failed:", e)
             raise HTTPException(status_code=503, detail="Internal Error")

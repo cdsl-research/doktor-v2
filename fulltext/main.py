@@ -18,6 +18,14 @@ ELASTICSEARCH_HOST = os.getenv(
     "ELASTICSEARCH_HOST", "fulltext-elastic:9200")
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
 
+for _ in range(120):
+    try:
+        res = socket.getaddrinfo(ELASTICSEARCH_HOST, None)
+        break
+    except Exception as e:
+        print("Retry resolve host:", e)
+        time.sleep(1)
+
 es = Elasticsearch(f"http://{ELASTICSEARCH_HOST}")
 es.indices.create(index=ELASTICSEARCH_INDEX, ignore=400)
 
