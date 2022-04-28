@@ -47,7 +47,7 @@ async def fetch_file(session, url):
         return await response.read()
 
 
-async def fetch2(session: aiohttp.ClientSession, url: str, require: bool):
+async def fetch(session: aiohttp.ClientSession, url: str, require: bool):
     try:
         async with session.get(url) as response:
             if response.status >= 300:
@@ -60,36 +60,17 @@ async def fetch2(session: aiohttp.ClientSession, url: str, require: bool):
             print("Fetch exception:", "url=", url)
 
 
-async def fetch(session, url):
-    try:
-        async with session.get(url) as response:
-            if response.status != 200:
-                response.raise_for_status()
-            return await response.json()
-    except Exception as e:
-        print("fetch:", e)
-
-
-async def fetch_all2(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
+async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
     tasks = []
     for url in urls:
         task = asyncio.create_task(
-            fetch2(session=session, url=url.url, require=url.require))
+            fetch(session=session, url=url.url, require=url.require))
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
 
 
-async def fetch_all(session, urls):
-    tasks = []
-    for url in urls:
-        task = asyncio.create_task(fetch(session, url))
-        tasks.append(task)
-    results = await asyncio.gather(*tasks)
-    return results
-
-
-@ app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def top_handler(request: Request, title: str = ""):
     striped_title = ""
     if title:
@@ -108,7 +89,7 @@ async def top_handler(request: Request, title: str = ""):
             require=True))
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_raw = await fetch_all2(session, urls)
+            json_raw = await fetch_all(session, urls)
         except aiohttp.ClientResponseError as e:
             print("Top Error:", e)
             if e.code == 404:
@@ -146,7 +127,7 @@ async def top_handler(request: Request, title: str = ""):
     })
 
 
-@ app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
+@app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(paper_uuid: UUID, request: Request):
     urls = (
         FetchUrl(
@@ -163,7 +144,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
             require=False))
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_raw = await fetch_all2(session=session, urls=urls)
+            json_raw = await fetch_all(session=session, urls=urls)
         except aiohttp.ClientResponseError as e:
             print("Paper Single View Fetch Error:", e)
             if e.code == 404:
@@ -225,7 +206,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         })
 
 
-@ app.get("/paper/{paper_uuid}/download", response_class=Response)
+@app.get("/paper/{paper_uuid}/download", response_class=Response)
 async def paper_download_handler(paper_uuid: UUID, request: Request):
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
@@ -239,7 +220,7 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
     return Response(content=res_pdf, media_type="application/pdf")
 
 
-@ app.get("/author/{author_uuid}", response_class=HTMLResponse)
+@app.get("/author/{author_uuid}", response_class=HTMLResponse)
 async def author_handler(author_uuid: UUID, request: Request):
     urls = (
         FetchUrl(
@@ -253,7 +234,7 @@ async def author_handler(author_uuid: UUID, request: Request):
             require=True))
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_res = await fetch_all2(session, urls)
+            json_res = await fetch_all(session, urls)
         except aiohttp.ClientResponseError as e:
             print("Author Single View Error:", e)
             if e.code == 404:
@@ -303,7 +284,7 @@ async def author_handler(author_uuid: UUID, request: Request):
     })
 
 
-@ app.get("/thumbnail/{paper_uuid}/{image_id}")
+@app.get("/thumbnail/{paper_uuid}/{image_id}")
 async def thumbnail_handler(paper_uuid: UUID, image_id: str):
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
