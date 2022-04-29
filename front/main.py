@@ -111,7 +111,7 @@ async def top_handler(request: Request, title: str = "", keyword: str = ""):
     # 論文タイトルの検索
     found_papers = []
     for rp in res_paper:
-        if keyword in rp['title']:
+        if striped_keyword in rp['title']:
             found_papers.append(rp)
     # print(found_papers)
 
