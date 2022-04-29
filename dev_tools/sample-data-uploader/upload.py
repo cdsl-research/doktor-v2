@@ -10,6 +10,7 @@ PAPER_URL = os.getenv("PAPER_ENDPOINT", "http://localhost:4100")
 THUMBNAIL_URL = os.getenv("THUMBNAIL_ENDPOINT", "http://localhost:4400")
 FULLTEXT_URL = os.getenv("FULLTEXT_ENDPOINT", "http://localhost:4500")
 
+
 def _author_add(
     first_name_ja: str,
     last_name_ja: str,
