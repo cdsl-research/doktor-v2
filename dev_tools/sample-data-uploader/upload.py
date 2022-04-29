@@ -8,7 +8,7 @@ from typing import List
 AUTHOR_URL = os.getenv("AUTHOR_ENDPOINT", "http://localhost:4200")
 PAPER_URL = os.getenv("PAPER_ENDPOINT", "http://localhost:4100")
 THUMBNAIL_URL = os.getenv("THUMBNAIL_ENDPOINT", "http://localhost:4400")
-
+FULLTEXT_URL = os.getenv("FULLTEXT_ENDPOINT", "http://localhost:4500")
 
 def _author_add(
     first_name_ja: str,
@@ -137,9 +137,23 @@ def thumbnail_add():
         assert req2.status_code == 200
 
 
+def fulltext_add():
+    req = requests.get(f"{PAPER_URL}/paper")
+    assert req.status_code == 200
+    res = req.json()
+    for paper in res['papers']:
+        paper_uuid = paper['uuid']
+        req2 = requests.post(
+            f"{FULLTEXT_URL}/fulltext/{paper_uuid}", data={})
+        print(req2)
+        assert req2.status_code == 200
+
+
 def main():
     # author_add_wrapper()
-    paper_add_wrapper()
+    # paper_add_wrapper()
+    # thumbnail_add()
+    fulltext_add()
 
 
 if __name__ == "__main__":
