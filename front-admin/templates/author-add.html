@@ -1,54 +1,59 @@
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>著者の追加</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
 </head>
-<body>
-<h1>著者の追加</h1>
 
-<form method="post" action="/author/add">
-    <table>
-        <tr>
-            <th><label for="lname-ja">姓(日本語)</label></th>
-            <td><input type="text" name="last_name_ja" id="lname-ja"></td>
-        </tr>
-        <tr>
-            <th><label for="mname-ja">ミドルネーム(日本語)</label></th>
-            <td><input type="text" name="middle_name_ja" id="mname-ja"></td>
-        </tr>
-        <tr>
-            <th><label for="fname-ja">名(日本語)</label></th>
-            <td><input type="text" name="first_name_ja" id="fname-ja"></td>
-        </tr>
-        <tr>
-            <th><label for="lname-en">姓(英語)</label></th>
-            <td><input type="text" name="last_name_en" id="lname-en"></td>
-        </tr>
-        <tr>
-            <th><label for="mname-en">ミドルネーム(英語)</label></th>
-            <td><input type="text" name="middle_name_en" id="mname-en"></td>
-        </tr>
-        <tr>
-            <th><label for="fname-en">名(英語)</label></th>
-            <td><input type="text" name="first_name_en" id="fname-en"></td>
-        </tr>
-        <tr>
-            <th><label for="year">参加年(半角英数)</label></th>
-            <td><input type="number" name="joined_year" id="year"></td>
-        </tr>
-        <tr>
-            <th>所属の有無</th>
-            <td>
-                <input type="radio" name="graduation" value="0" id="grad" checked="checked"><label for="grad">所属中</label>
-                <input type="radio" name="graduation" value="1" id="ungrad"><label for="ungrad">卒業済み</label>
-            </td>
-        </tr>
-        <tr>
-            <th></th>
-            <td><button type="submit" style="width: 100%;">送信</button></td>
-        </tr>
-    </table>
-</form>
+<body>
+    <h1>著者の追加</h1>
+
+    <form method="post" action="/author/add">
+        <table>
+            <tr>
+                <th><label for="lname-ja">姓(日本語)</label></th>
+                <td><input type="text" name="last_name_ja" id="lname-ja"></td>
+            </tr>
+            <tr>
+                <th><label for="mname-ja">ミドルネーム(日本語)</label></th>
+                <td><input type="text" name="middle_name_ja" id="mname-ja"></td>
+            </tr>
+            <tr>
+                <th><label for="fname-ja">名(日本語)</label></th>
+                <td><input type="text" name="first_name_ja" id="fname-ja"></td>
+            </tr>
+            <tr>
+                <th><label for="lname-en">姓(英語)</label></th>
+                <td><input type="text" name="last_name_en" id="lname-en"></td>
+            </tr>
+            <tr>
+                <th><label for="mname-en">ミドルネーム(英語)</label></th>
+                <td><input type="text" name="middle_name_en" id="mname-en"></td>
+            </tr>
+            <tr>
+                <th><label for="fname-en">名(英語)</label></th>
+                <td><input type="text" name="first_name_en" id="fname-en"></td>
+            </tr>
+            <tr>
+                <th><label for="year">参加年(半角英数)</label></th>
+                <td><input type="number" name="joined_year" id="year"></td>
+            </tr>
+            <tr>
+                <th>所属の有無</th>
+                <td>
+                    <input type="radio" name="graduation" value="0" id="grad" checked="checked"><label
+                        for="grad">所属中</label>
+                    <input type="radio" name="graduation" value="1" id="ungrad"><label for="ungrad">卒業済み</label>
+                </td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><button type="submit" style="width: 100%;">送信</button></td>
+            </tr>
+        </table>
+    </form>
 
 </body>
+
 </html>

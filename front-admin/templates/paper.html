@@ -1,27 +1,33 @@
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>論文の管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
 </head>
+
 <body>
-<h1>論文の管理</h1>
-<table>
-    <thead>
-    <tr>
-        <th>タイトル</th>
-        <th>ラベル</th>
-        <th>公開日</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for paper in papers %}
-    <tr>
-        <td>{{ paper.title }} </td>
-        <td>{{ paper.label }}</td>
-        <td>{{ paper.created_at }}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+    <h1>論文の管理</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>閲覧</th>
+                <th>タイトル</th>
+                <th>ラベル</th>
+                <th>公開日</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paper in papers %}
+            <tr>
+                <td><a href="/paper/{{ paper.uuid }}">■</a></td>
+                <td>{{ paper.title }}</td>
+                <td>{{ paper.label }}</td>
+                <td>{{ paper.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
+
 </html>

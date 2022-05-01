@@ -1,23 +1,30 @@
 version: "3.9"
 services:
-  app:
+  thumbnail-app:
     build: .
-    command: ["main:app", "--reload", "--host", "0.0.0.0"]
+    command: [ "main:app", "--reload", "--host", "0.0.0.0" ]
     restart: always
     volumes:
       - .:/work
     ports:
-      - "4100:8000"
-  minio:
+      - "4400:8000"
+    networks:
+      - frontend
+  thumbnail-minio:
     image: minio/minio:RELEASE.2021-09-03T03-56-13Z
-    command: server /data --console-address ":4191"
+    command: server /data --console-address ":4402"
     ports:
-      - 4190:9000
-      - 4191:4191
+      - 4402:4402
     environment:
       # username
       - MINIO_ACCESS_KEY=minio
       # password
       - MINIO_SECRET_KEY=minio123
     volumes:
-      - /tmp/minio/data:/data
+      - ./minio_data:/data
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true

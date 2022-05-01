@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: front-app-container
-          image: ghcr.io/cdsl-research/front:master-f452cdf
+          image: ghcr.io/cdsl-research/front:master-eb7ad4a
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
@@ -31,6 +31,14 @@ spec:
             - name: SERVICE_AUTHOR_HOST
               value: author-app.author
             - name: SERVICE_AUTHOR_PORT
+              value: "4000"
+            - name: SERVICE_THUMBNAIL_HOST
+              value: thumbnail-app.thumbnail
+            - name: SERVICE_THUMBNAIL_PORT
+              value: "4000"
+            - name: SERVICE_FULLTEXT_HOST
+              value: fulltext-app.fulltext
+            - name: SERVICE_FULLTEXT_PORT
               value: "4000"
 ---
 apiVersion: v1

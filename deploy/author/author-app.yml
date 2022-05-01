@@ -19,13 +19,13 @@ spec:
     spec:
       containers:
         - name: author-app-container
-          image: ghcr.io/cdsl-research/author:master-f452cdf
+          image: ghcr.io/cdsl-research/author:master-eb7ad4a
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
           env:
             - name: MONGO_HOST
-              value: author-mongo.author.svc.cluster.local
+              value: author-mongo.author
 ---
 apiVersion: v1
 kind: Service

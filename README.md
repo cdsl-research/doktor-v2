@@ -1,10 +1,34 @@
 # doktor-v2
 
-This is doktor v2.
+マイクロサービスアーキテクチャで設計された論文検索サイトです．
 
-## Architecture
+## アーキテクチャ
 
-<img src="doktor-v2-architecture.png" width="600" alt="doktor-v2 architecture">
+Kubernetesクラスタ上にデプロイする設計です．サービスメッシュにはIstioを利用しています．
+
+<img src="doktor-v2.png" width="600" alt="doktor-v2 architecture">
+
+## 開発者向け
+
+開発にJOINする場合は，[Developer Guide](./DEVELOP_GUIDE.md)を参照ください．
+
+個々のサービスはコンテナ化されています．それぞれのサービスのAPIドキュメントは以下から参照できます．
+
+https://cdsl-research.github.io/doktor-v2/
+
+## ブランチポリシー
+
+- `master`
+  - Latest and Stable release
+  - 開発したコードはここへマージ
+- `staging`
+  - Staging release (equal to staging environment)
+  - 手元（ローカル）で動作検証を行った後にPull Requestをmasterからstagingへ作成
+  - http://doktor-prod1:30200/
+- `production`
+  - Production release (equal to production environment)
+  - stagingで動作検証を行った後にPull Requestをmasterからproductionへ作成
+  - https://doktor.tak-cslab.org/
 
 ## Directory Structure
 
@@ -25,43 +49,3 @@ This is doktor v2.
 - `textize` 論文からテキストに書き起こすサービス
 - `thumbnail` 論文に含まれる画像を管理するサービス
 
-## Development Guide
-
-### サービス全体
-
-docker-composeでDocker in Dockerを起動する．
-
-プロジェクトルートで以下を実行する．
-
-```
-docker-compose up
-```
-
-個々のサービスの`docker-compose`を実行する方法（以下はpaperの場合）
-
-```
-docker-compose exec paper-compose docker-compose ps
-```
-
-個々のサービスの`docker`を実行する方法（以下はpaperの場合）
-
-```
-docker-compose exec paper-dind docker ps
-```
-
-### 個別サービス
-
-それぞれのディレクトリに移動して，以下を実行する．
-
-```
-docker-compose up --build
-```
-
-## Setup for Local Development
-
-以下のパッケージをインストールする．
-
-- Docker for Desktop
-- docker-compose
-- GNU Make
-- Python 3.9 or later
