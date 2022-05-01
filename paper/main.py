@@ -3,25 +3,25 @@ import re
 import socket
 import sys
 import time
-import urllib3
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 from uuid import UUID, uuid4
 
-from fastapi import FastAPI, HTTPException, File, UploadFile
+import urllib3
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
+from minio import Minio, S3Error
+from minio.deleteobjects import DeleteObject
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
-from minio import Minio, S3Error
-
 
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
-MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
+MONGO_HOST = os.getenv("MONGO_HOST", "paper-mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
 mongo_client = MongoClient(MONGO_CONNECTION_STRING)
@@ -31,7 +31,7 @@ db = mongo_client[MONGO_DBNAME]
 """ Minio Setup"""
 MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
 MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
-MINIO_HOST = os.getenv("MINIO_HOST", "minio:9000")
+MINIO_HOST = os.getenv("MINIO_HOST", "paper-minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
 
 try:
@@ -48,6 +48,19 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 
 """ FastAPI Setup """
 app = FastAPI()
+
+
+class ServiceHello(BaseModel):
+    name: str
+
+
+class ServiceHealth(BaseModel):
+    resouce: str
+
+
+class StatusResponse(BaseModel):
+    status: Literal["ok", "error"]
+    message: Optional[str] = ""
 
 
 class PaperCreateUpdate(BaseModel):
@@ -78,22 +91,26 @@ class PaperRead(BaseModel):
     # todo) reference_id: List[int]
 
 
-@app.get("/")
+class PaperReadSeveral(BaseModel):
+    papers: List[PaperRead]
+
+
+@app.get("/", response_model=ServiceHello)
 def root_handler():
-    return {"name": "paper"}
+    return ServiceHello(name="paper")
 
 
-@app.get("/healthz")
+@app.get("/healthz", response_model=StatusResponse)
 def healthz_handler():
-    return {"status": "ok", "message": "it works"}
+    return StatusResponse(status="ok", message="it works")
 
 
-@app.get("/topz")
+@app.get("/topz", response_model=ServiceHealth)
 def topz_handler():
-    return {"resource": "busy"}
+    return ServiceHealth(resource="busy")
 
 
-@app.post("/paper")
+@app.post("/paper", response_model=PaperRead)
 def create_paper_handler(paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
@@ -115,7 +132,7 @@ def create_paper_handler(paper: PaperCreateUpdate):
     return PaperRead(**my_paper)
 
 
-@app.get("/paper")
+@app.get("/paper", response_model=PaperReadSeveral)
 def read_papers_handler(private: bool = False, title: str = ""):
     query = {"is_public": True}
     if private:
@@ -131,10 +148,12 @@ def read_papers_handler(private: bool = False, title: str = ""):
                 "$regex": title
             }
 
-    return list(db["paper"].find(query, {'_id': 0}))
+    found_papers = db["paper"].find(query, {'_id': 0})
+    read_papers = list(map(lambda x: PaperRead(**x), found_papers))
+    return PaperReadSeveral(papers=read_papers)
 
 
-@app.get("/paper/{paper_uuid}")
+@app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
     entry = db["paper"].find_one(
         {"uuid": paper_uuid, "is_public": True}, {'_id': 0})
@@ -144,12 +163,12 @@ def read_paper_handler(paper_uuid: UUID):
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.post("/paper/{paper_uuid}/upload")
+@app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
 async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
-            raise HTTPException(status_code=400, detail="Invalid Content-Type")
-
+            raise HTTPException(status_code=400,
+                                detail="Invalid Content-Type")
         # print("file number:", file.file.fileno())
         exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
         if not exist:
@@ -161,7 +180,7 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
             length=-1,
             part_size=10 * 1024 * 1024,
             content_type="application/pdf")
-        return {"status": "ok"}
+        return StatusResponse(**{"status": "ok"})
         response.close()
         response.release_conn()
     except S3Error as e:
@@ -169,7 +188,12 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
         raise HTTPException(status_code=503, detail=str(e.message))
 
 
-@app.get("/paper/{paper_uuid}/download")
+@app.get("/paper/{paper_uuid}/download", responses={
+    200: {
+        "content": {"application/pdf": {}},
+        "description": "Return the PDF file",
+    }
+})
 async def download_paper_handler(paper_uuid: UUID):
     try:
         response = minio_client.get_object(
@@ -181,10 +205,11 @@ async def download_paper_handler(paper_uuid: UUID):
         print("Download exception: ", e)
         _status_code = 404 if e.code in (
             "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        raise HTTPException(status_code=_status_code, detail=str(e.message))
+        raise HTTPException(status_code=_status_code,
+                            detail=str(e.message))
 
 
-@app.put("/paper/{paper_uuid}")
+@app.put("/paper/{paper_uuid}", response_model=PaperRead)
 def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
     json_paper = jsonable_encoder(paper)
     my_paper = {
@@ -202,6 +227,21 @@ def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
         "updated_at": datetime.now()
     }
     return PaperRead(**my_paper)
+
+
+@app.delete("/reset", response_model=StatusResponse)
+def delete_paper_handler():
+    res = db["paper"].delete_many({})
+    print(res.deleted_count, " documents deleted.")
+    delete_object_list = map(
+        lambda x: DeleteObject(x.object_name),
+        minio_client.list_objects(
+            MINIO_BUCKET_NAME, recursive=True),
+    )
+    errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
+    for error in errors:
+        print("error occured when deleting object", error)
+    return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":

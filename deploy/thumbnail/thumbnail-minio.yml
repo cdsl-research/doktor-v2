@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thumbnail-minio-deploy
+  namespace: thumbnail
+  labels:
+    minio: thumbnail
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      minio: thumbnail
+  template:
+    metadata:
+      labels:
+        minio: thumbnail
+    spec:
+      containers:
+        - name: thumbnail-minio-container
+          image: minio/minio:RELEASE.2021-09-03T03-56-13Z
+          imagePullPolicy: IfNotPresent
+          command: ["minio", "server"]
+          args: ["/data", "--console-address", ":9100"]
+          ports:
+            - name: minio-api
+              containerPort: 9000
+            - name: minio-dashboard
+              containerPort: 9100
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: minio
+            - name: MINIO_SECRET_KEY
+              value: minio123
+          volumeMounts:
+            - name: thumbnail-minio-volv
+              mountPath: /data
+          livenessProbe:
+            exec:
+              command:
+                - ls
+                - /data/lost+found
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 4
+      volumes:
+        - name: thumbnail-minio-volv
+          persistentVolumeClaim:
+            claimName: thumbnail-minio-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: thumbnail-minio-pvc
+  namespace: thumbnail
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: thumbnail-minio
+  namespace: thumbnail
+spec:
+  type: ClusterIP
+  selector:
+    minio: thumbnail
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: thumbnail-minio-dashboard
+  namespace: thumbnail
+spec:
+  type: NodePort
+  selector:
+    minio: thumbnail
+  ports:
+    - protocol: TCP
+      port: 9100
+      targetPort: 9100

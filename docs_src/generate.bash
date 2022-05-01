@@ -11,6 +11,7 @@ do
     <li><a href='$SERVICE_NAME.html'>$SERVICE_NAME</a></li>"
 done
 
+rm ../docs/index.html
 cat <<EOF | tee ../docs/index.html
 <!doctype html>
 <html lang="ja">

@@ -3,17 +3,12 @@ version: "3.3"
 services:
   front:
     build: .
-    command: ["main:app", "--reload", "--host", "0.0.0.0"]
+    command: [ "main:app", "--reload", "--host", "0.0.0.0" ]
     restart: always
     volumes:
       - .:/work
     ports:
       - "4000:8000"
-    environment:
-      - SERVICE_PAPER_HOST=paper-app
-      - SERVICE_PAPER_PORT=8000
-      - SERVICE_AUTHOR_HOST=author-app
-      - SERVICE_AUTHOR_PORT=8000
     networks:
       - frontend
 

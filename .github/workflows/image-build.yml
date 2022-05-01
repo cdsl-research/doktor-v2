@@ -1,4 +1,4 @@
-name: Build container images
+name: Build container image/K8s config update
 on:
   push:
     branches:
@@ -12,7 +12,16 @@ jobs:
       packages: write
     strategy:
       matrix:
-        target: ["author", "front-admin", "front", "paper"]
+        target:
+          [
+            "author",
+            "front-admin",
+            "front",
+            "paper",
+            "fulltext",
+            "thumbnail",
+            "stats",
+          ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -39,3 +48,26 @@ jobs:
           context: ./${{ matrix.target }}
           push: true
           tags: ghcr.io/cdsl-research/${{ matrix.target }}:${{ env.DOCKER_TAG }}
+
+  k8s-config-update:
+    needs: build-and-push
+    runs-on: ubuntu-20.04
+    if: ${{ github.event.pusher.name != 'github-actions' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Update k8s config
+        run: |
+          COMMITID=$(git rev-parse --short ${{ github.sha }})
+          find deploy -type f -exec sed -i "s/:master-.*/:master-$COMMITID/g" \{\} \;
+      - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
+        with:
+          # The arguments for the `git add` command (see the paragraph below for more info)
+          add: "deploy/"
+          # Determines the way the action fills missing author name and email. Three options are available:
+          # - github_actor -> UserName <UserName@users.noreply.github.com>
+          # - user_info -> Your Display Name <your-actual@email.com>
+          # - github_actions -> github-actions <email associated with the github logo>
+          default_author: github_actions
+          # The message for the commit.
+          message: "Update k8s config for new image"

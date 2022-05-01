@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fulltext-app-deploy
+  namespace: fulltext
+  labels:
+    app: fulltext
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fulltext
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: ""
+      labels:
+        app: fulltext
+    spec:
+      containers:
+        - name: fulltext-app-container
+          image: ghcr.io/cdsl-research/fulltext:master-8434108
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ELASTICSEARCH_HOST
+              value: "fulltext-elastic.fulltext:9200"
+            - name: ELASTICSEARCH_INDEX
+              value: fulltext
+            - name: PAPER_SVC_HOST
+              value: "paper-app.paper:4000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fulltext-app
+  namespace: fulltext
+spec:
+  type: NodePort
+  selector:
+    app: fulltext
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 8000

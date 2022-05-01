@@ -1,0 +1,35 @@
+name: Build docs
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-docs:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+          cache: "pip"
+      - name: Generate docs from FastAPI
+        run: |
+          find . -type f -name requirements.txt -exec pip install -r {} \;
+          python docs_src/generate_openapi_json.py
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+          cache: "npm"
+          cache-dependency-path: docs_src/package-lock.json
+      - name: Build docs and index
+        run: |
+          cd docs_src/
+          npm install
+          bash generate.bash
+          cd ..
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs

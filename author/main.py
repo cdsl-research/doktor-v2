@@ -1,7 +1,7 @@
 import os
 import sys
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
@@ -20,6 +20,11 @@ client = MongoClient(MONGO_CONNECTION_STRING)
 db = client[MONGO_DBNAME]
 
 app = FastAPI()
+
+
+class StatusResponse(BaseModel):
+    status: Literal["ok", "error"]
+    message: Optional[str] = ""
 
 
 class AuthorCreateUpdate(BaseModel):
@@ -49,7 +54,7 @@ class AuthorRead(BaseModel):
 
 @app.get("/")
 def root_handler():
-    return {"Hello": "World"}
+    return {"name": "author"}
 
 
 @app.get("/healthz")
@@ -97,7 +102,7 @@ def read_author_handler(author_uuid: UUID):
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.put("/author/{author_uuid}")
+@app.put("/author/{author_uuid}", response_model=AuthorRead)
 def update_author_handler(author_uuid: UUID, author: AuthorCreateUpdate):
     json_author = jsonable_encoder(author)
     my_author = {
@@ -114,6 +119,13 @@ def update_author_handler(author_uuid: UUID, author: AuthorCreateUpdate):
         "updated_at": datetime.now()
     }
     return AuthorRead(**my_author)
+
+
+@app.delete("/reset", response_model=StatusResponse)
+def delete_author_handler():
+    res = db["author"].delete_many({})
+    print(res.deleted_count, " documents deleted.")
+    return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":
