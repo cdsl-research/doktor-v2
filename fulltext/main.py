@@ -1,14 +1,15 @@
-from curses import raw
 import os
 import socket
 import time
-from typing import List
+from curses import raw
+from typing import List, Literal, Optional
 from uuid import UUID
 
-from elasticsearch import Elasticsearch
 import fitz
 import requests
-from fastapi import FastAPI, HTTPException
+from elasticsearch import Elasticsearch
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Response
+from pydantic import BaseModel
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -18,9 +19,10 @@ ELASTICSEARCH_HOST = os.getenv(
     "ELASTICSEARCH_HOST", "fulltext-elastic:9200")
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
 
-for _ in range(120):
+while True:
     try:
-        res = socket.getaddrinfo(ELASTICSEARCH_HOST, None)
+        _host = ELASTICSEARCH_HOST.split(":")[0]
+        res = socket.getaddrinfo(_host, None)
         break
     except Exception as e:
         print("Retry resolve host:", e)
@@ -34,14 +36,27 @@ es.indices.create(index=ELASTICSEARCH_INDEX, ignore=400)
 app = FastAPI()
 
 
-@app.get("/")
+class ServiceHello(BaseModel):
+    name: str
+
+
+class StatusResponse(BaseModel):
+    status: Literal["ok", "error"]
+    message: Optional[str] = ""
+
+
+@app.get("/", response_model=ServiceHello)
 def root_handler():
     return {"name": "fulltext"}
 
 
-@app.get("/healthz")
-def healthz_handler():
-    return {"status": "ok", "message": "it works"}
+@app.get("/healthz", response_model=StatusResponse)
+def healthz_handler(response: Response):
+    if es.ping():
+        return StatusResponse(status="ok", message="it works")
+    else:
+        response.status_code = 503
+        return StatusResponse(status="error", message="waiting for elasticsearch")
 
 
 @app.get("/topz")
@@ -56,7 +71,8 @@ def create_fulltext_handler(paper_uuid: UUID):
         file_url = f"http://{PAPER_SVC_HOST}/paper/{paper_uuid}/download"
         print("Fetch url:", file_url)
         pdf_data = requests.get(file_url)
-    except Exception:
+    except Exception as e:
+        print("Fail to download:", e)
         raise HTTPException(status_code=400,
                             detail="Cloud not downloads the file.")
 
@@ -70,16 +86,17 @@ def create_fulltext_handler(paper_uuid: UUID):
                 'page_number': i,
                 'text': formated_text
             }
+            print("Insert record:", record)
             try:
-                res = es.index(index=ELASTICSEARCH_INDEX, document=record)
-                print(res)
+                es.index(index=ELASTICSEARCH_INDEX, document=record)
+                # print(res)
             except Exception as e:
-                print(e)
+                print("Fail to create record:", e)
     return {"status": "ok"}
 
 
 @app.get("/fulltext/{paper_uuid}")
-def read_fulltext_handler(paper_uuid: UUID):
+def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
     payload = {
         "query": {
             "match": {
@@ -89,10 +106,13 @@ def read_fulltext_handler(paper_uuid: UUID):
             }
         }
     }
+    print("Elasticsearch Query:", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
-    # records_count = res["hits"]["total"]["value"]
+    records_count = int(res["hits"]["total"]["value"])
+    if records_count == 0:
+        print("Matched 0 records:")
+        background_tasks.add_task(create_fulltext_handler, paper_uuid)
     records_list = list(map(lambda x: x["_source"], res["hits"]["hits"]))
-    # print(records_list)
     return records_list
 
 
@@ -114,13 +134,5 @@ def reads_fulltext_handler(keyword: str = ""):
 
 
 if __name__ == "__main__":
-    for _ in range(120):
-        try:
-            res = socket.getaddrinfo(ELASTICSEARCH_HOST, None)
-            break
-        except Exception as e:
-            print("Retry resolve host:", e)
-            time.sleep(1)
-
     import uvicorn
     uvicorn.run(app, host="0.0.0.0")
