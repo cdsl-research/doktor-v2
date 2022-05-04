@@ -1,20 +1,18 @@
 {% include '_header.html' %}
 
-<h1>doktor</h1>
-<p>このサイトでは，<a href="https://ja.tak-cslab.org/">クラウド・分散システム研究室</a>で作成されたテクニカルレポートを公開しています．</p>
-
-<h2>{{ paper.title }}</h2>
-
-<ul>
-    <li>タイトル: {{ paper.title }}</li>
-    <li>著者:
+<main>
+    <h2>{{ paper.title }}</h2>
+    <section>
         <ul>
-            {% for author in paper.author %}
-            <li><a href="/author/{{ author.uuid }}">{{ author.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </li>
-    <!--
+            <li>タイトル: {{ paper.title }}</li>
+            <li>著者:
+                <ul>
+                    {% for author in paper.author %}
+                    <li><a href="/author/{{ author.uuid }}">{{ author.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+            <!--
     <li>キーワード:
         <ul>
             {% for keyword in paper.keywords %}
@@ -23,23 +21,25 @@
         </ul>
     </li>
     -->
-    <li>ラベル: {{ paper.label }}</li>
-    <li>公開日: {{ paper.created_at }}</li>
-    <li>更新日: {{ paper.updated_at }}</li>
-</ul>
+            <li>ラベル: {{ paper.label }}</li>
+            <li>公開日: {{ paper.created_at }}</li>
+            <li>更新日: {{ paper.updated_at }}</li>
+        </ul>
+    </section>
 
-<a href="{{ paper.uuid }}/download">ダウンロード</a>
+    <section>
+        <a href="{{ paper.uuid }}/download"><button>ダウンロード(PDF形式)</button></a>
+    </section>
 
-<br>
+    <section>
+        <cite>{{ abstract }}あああああ</cite>
+    </section>
 
-<cite>{{ abstract }}</cite>
+    <section>
+        {% for img_url in image_urls %}
+        <img src="{{ img_url }}" width="300">
+        {% endfor %}
+    </section>
+</main>
 
-<br>
-
-{% for img_url in image_urls %}
-<img src="{{ img_url }}" width="300">
-{% endfor %}
-
-</body>
-
-</html>
+{% include '_footer.html' %}
