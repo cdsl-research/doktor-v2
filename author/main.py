@@ -102,8 +102,14 @@ def create_author_handler(author: AuthorCreateUpdate):
 
 
 @app.get("/author")
-def read_authors_handler():
-    return list(db["author"].find({}, {'_id': 0}))
+def read_authors_handler(name: str = ""):
+    target_fields = ["first_name_ja", "middle_name_ja",
+                     "last_name_ja", "first_name_en",
+                     "middle_name_en", "last_name_en"]
+    or_conditions = [{tf: {"$regex": name}} for tf in target_fields]
+    query = {"$or": or_conditions}
+    print("Mongo Query:", query)
+    return list(db["author"].find(query, {'_id': 0}))
 
 
 # @app.get("/author", response_model=AuthorReadSeveral)
