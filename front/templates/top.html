@@ -1,11 +1,6 @@
 {% include '_header.html' %}
 
 <main>
-    <form method="get" action="/">
-        <input type="text" name="keyword" id="keyword" value="{{ search_keyword }}" placeholder="著者名/タイトル/キーワード">
-        <button type="submit">検索</button>
-    </form>
-
     {% if authors %}
     <h2>著者:</h2>
     {% for author in authors %}
