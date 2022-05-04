@@ -72,7 +72,7 @@ async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def top_handler(request: Request, title: str = "", keyword: str = ""):
+async def top_handler(request: Request, keyword: str = ""):
     striped_keyword = ""
     if keyword:
         # スペースを削除
@@ -94,6 +94,10 @@ async def top_handler(request: Request, title: str = "", keyword: str = ""):
         FetchUrl(
             url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext?keyword={striped_keyword}",
             require=False),
+        # 著者名の検索
+        FetchUrl(
+            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author?name={striped_keyword}",
+            require=False),
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
@@ -107,6 +111,7 @@ async def top_handler(request: Request, title: str = "", keyword: str = ""):
     res_paper = json_raw[0]['papers']
     res_author = json_raw[1]
     res_fulltext = json_raw[2]
+    res_author_search = json_raw[3]
 
     # 論文タイトルの検索
     found_papers = []
@@ -147,9 +152,21 @@ async def top_handler(request: Request, title: str = "", keyword: str = ""):
             "created_at": reformat_datetime(rp.get("created_at"))
         })
 
+    # 著者名の検索
+    author_details = []
+    if keyword:
+        for author in res_author_search:
+            display_name = author.get('last_name_ja') + " " + \
+                author.get('first_name_ja')
+            author_details.append({
+                "name": display_name,
+                "uuid": author["uuid"]
+            })
+
     return templates.TemplateResponse("top.html", {
         "request": request,
         "papers": paper_details,
+        "authors": author_details,
         "search_keyword": striped_keyword
     })
 
