@@ -56,7 +56,9 @@ def healthz_handler(response: Response):
         return StatusResponse(status="ok", message="it works")
     else:
         response.status_code = 503
-        return StatusResponse(status="error", message="waiting for elasticsearch")
+        return StatusResponse(
+            status="error",
+            message="waiting for elasticsearch")
 
 
 @app.get("/topz")
