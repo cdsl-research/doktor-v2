@@ -128,6 +128,7 @@ def reads_fulltext_handler(keyword: str = ""):
             }
         }
     }
+    print("Elasticsearch Query:", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
     records_list = list(map(lambda x: x["_source"], res["hits"]["hits"]))
     return records_list
