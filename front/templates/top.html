@@ -1,25 +1,22 @@
 {% include '_header.html' %}
 
-<h1>doktor</h1>
-<p>このサイトでは，<a href="https://ja.tak-cslab.org/">クラウド・分散システム研究室</a>で作成されたテクニカルレポートを公開しています．</p>
-
-<form method="get" action="/">
-    <input type="text" name="keyword" id="keyword" value="{{ search_keyword }}" placeholder="著者名/タイトル/キーワード">
-    <button type="submit">検索</button>
-</form>
-
-{% if search_title %}
-<a href="/">戻る</a>
-{% endif %}
-
-<ul>
-    {% for paper in papers %}
-    <li><a href="/paper/{{ paper.uuid }}">
-            {% for author in paper.author %} {{ author }}, {% endfor %}
-            "{{ paper.title }}", {{ paper.label }}, {{ paper.created_at }}.
-        </a></li>
+<main>
+    {% if authors %}
+    <h2>著者:</h2>
+    {% for author in authors %}
+    <li><a href="/author/{{ author.uuid }}">{{ author.name }}</a></li>
     {% endfor %}
-</ul>
-</body>
+    <h2>論文:</h2>
+    {% endif %}
 
-</html>
+    <ul>
+        {% for paper in papers %}
+        <li><a href="/paper/{{ paper.uuid }}">
+                {% for author in paper.author %} {{ author }}, {% endfor %}
+                "{{ paper.title }}", {{ paper.label }}, {{ paper.created_at }}.
+            </a></li>
+        {% endfor %}
+    </ul>
+</main>
+
+{% include '_footer.html' %}

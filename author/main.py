@@ -1,7 +1,8 @@
+from email import message
 import os
 import sys
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
@@ -20,6 +21,14 @@ client = MongoClient(MONGO_CONNECTION_STRING)
 db = client[MONGO_DBNAME]
 
 app = FastAPI()
+
+
+class ServiceHello(BaseModel):
+    name: str
+
+
+class ServiceHealth(BaseModel):
+    resouce: str
 
 
 class StatusResponse(BaseModel):
@@ -52,22 +61,26 @@ class AuthorRead(BaseModel):
     updated_at: datetime
 
 
-@app.get("/")
+class AuthorReadSeveral(BaseModel):
+    authors: List[AuthorRead]
+
+
+@app.get("/", response_model=ServiceHello)
 def root_handler():
-    return {"name": "author"}
+    return ServiceHello(name="author")
 
 
-@app.get("/healthz")
+@app.get("/healthz", response_model=StatusResponse)
 def healthz_handler():
-    return {"status": "ok", "message": "it works"}
+    return StatusResponse(status="ok", message="it works")
 
 
-@app.get("/topz")
+@app.get("/topz", response_model=ServiceHealth)
 def topz_handler():
-    return {"resource": "busy"}
+    return ServiceHealth(resource="busy")
 
 
-@app.post("/author")
+@app.post("/author", response_model=AuthorRead)
 def create_author_handler(author: AuthorCreateUpdate):
     json_author = jsonable_encoder(author)
     my_author = {
@@ -89,36 +102,48 @@ def create_author_handler(author: AuthorCreateUpdate):
 
 
 @app.get("/author")
-def read_authors_handler():
-    return list(db["author"].find({}, {'_id': 0}))
+def read_authors_handler(name: str = ""):
+    target_fields = ["first_name_ja", "middle_name_ja",
+                     "last_name_ja", "first_name_en",
+                     "middle_name_en", "last_name_en"]
+    or_conditions = [{tf: {"$regex": name}} for tf in target_fields]
+    query = {"$or": or_conditions}
+    print("Mongo Query:", query)
+    return list(db["author"].find(query, {'_id': 0}))
 
 
-@app.get("/author/{author_uuid}")
+# @app.get("/author", response_model=AuthorReadSeveral)
+# def read_authors_handler():
+#     authors = list(db["author"].find({}, {'_id': 0}))
+#     return AuthorReadSeveral(authors=authors)
+
+
+@app.get("/author/{author_uuid}", response_model=AuthorRead)
 def read_author_handler(author_uuid: UUID):
     entry = db["author"].find_one({"uuid": author_uuid}, {'_id': 0})
     if entry:
-        return entry
+        return AuthorRead(**entry)
     else:
         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.put("/author/{author_uuid}", response_model=AuthorRead)
-def update_author_handler(author_uuid: UUID, author: AuthorCreateUpdate):
-    json_author = jsonable_encoder(author)
-    my_author = {
-        "uuid": author_uuid,
-        "first_name_ja": json_author.get("first_name_ja"),
-        "middle_name_ja": json_author.get("middle_name_ja"),
-        "last_name_ja": json_author.get("last_name_ja"),
-        "first_name_en": json_author.get("first_name_en"),
-        "middle_name_en": json_author.get("middle_name_en"),
-        "last_name_en": json_author.get("last_name_en"),
-        "joined_year": json_author.get("joined_year"),
-        "is_graduated": json_author.get("is_graduated"),
-        "created_at": datetime.now(),  # todo: get stored data
-        "updated_at": datetime.now()
-    }
-    return AuthorRead(**my_author)
+# @app.put("/author/{author_uuid}", response_model=AuthorRead)
+# def update_author_handler(author_uuid: UUID, author: AuthorCreateUpdate):
+#     json_author = jsonable_encoder(author)
+#     my_author = {
+#         "uuid": author_uuid,
+#         "first_name_ja": json_author.get("first_name_ja"),
+#         "middle_name_ja": json_author.get("middle_name_ja"),
+#         "last_name_ja": json_author.get("last_name_ja"),
+#         "first_name_en": json_author.get("first_name_en"),
+#         "middle_name_en": json_author.get("middle_name_en"),
+#         "last_name_en": json_author.get("last_name_en"),
+#         "joined_year": json_author.get("joined_year"),
+#         "is_graduated": json_author.get("is_graduated"),
+#         "created_at": datetime.now(),  # todo: get stored data
+#         "updated_at": datetime.now()
+#     }
+#     return AuthorRead(**my_author)
 
 
 @app.delete("/reset", response_model=StatusResponse)
