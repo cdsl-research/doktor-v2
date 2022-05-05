@@ -19,10 +19,11 @@ spec:
     spec:
       containers:
         - name: front-app-container
-          image: ghcr.io/cdsl-research/front:master-9c84d84
+          image: ghcr.io/cdsl-research/front:master-60673f5
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8000
+            - name: health-port
+              containerPort: 8000
           env:
             - name: SERVICE_PAPER_HOST
               value: paper-app.paper
@@ -40,6 +41,18 @@ spec:
               value: fulltext-app.fulltext
             - name: SERVICE_FULLTEXT_PORT
               value: "4000"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: health-port
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: health-port
+            periodSeconds: 5
+            timeoutSeconds: 3
 ---
 apiVersion: v1
 kind: Service
