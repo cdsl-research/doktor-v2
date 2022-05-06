@@ -2,8 +2,18 @@ import json
 import os
 import re
 import sys
-
+from datetime import datetime as dt
 import requests
+
+
+def parse_datetime(raw_datetime: str) -> dt:
+    raw_datetime = raw_datetime.replace(".", "").strip()
+    _month, _day, _year = raw_datetime.split()
+    _month = _month[:3]  # June -> Jun
+    _day = _day.zfill(2)  # 3 -> 03
+    datetime_obj = dt.strptime(
+        f"{_month} {_day} {_year} +0900", "%b %d %Y %z")
+    return datetime_obj
 
 
 def main():
@@ -62,7 +72,7 @@ def main():
             itr_parts = iter(parts)
 
             try:
-                # find: author
+                """ find: author """
                 paper_authors = []
                 while True:
                     author = next(itr_parts)
@@ -71,7 +81,7 @@ def main():
                     paper_authors.append(author.strip())
                 # print(paper_authors)
 
-                # find: title
+                """ find: title """
                 title = ""
                 while True:
                     t = next(itr_parts)
@@ -83,7 +93,7 @@ def main():
                         break
                 # print(title)
 
-                # find: paper_id
+                """ find: paper_id """
                 paper_id = ""
                 while True:
                     t = next(itr_parts)
@@ -93,18 +103,33 @@ def main():
                         break
                 # print(paper_id)
 
-                # find: datetime
-                _datetime = " ".join(itr_parts)
-                if _datetime.endswith("."):
-                    _datetime = _datetime[:-1]
-                # print(_datetime)
+                """ find: datetime """
+                _dt = " ".join(itr_parts)
+                if _dt.endswith("."):
+                    _dt = _dt[:-1]
+                matched_dt_str = re.findall(r'\w{3,5}\.? \d{1,2} \d{4}', _dt)
+                if len(matched_dt_str) > 2:
+                    print("+" * 10, "Unexpected datetime:", matched_dt_str)
+                # print(matched_dt_str)
+
+                """ parse datetime string """
+                dt_created_at = parse_datetime(matched_dt_str[0])
+                created_at = dt_created_at.isoformat()
+                # print(created_at)
+
+                updated_at = ""
+                if len(matched_dt_str) == 2:
+                    dt_updated_at = parse_datetime(matched_dt_str[1])
+                    updated_at = dt_updated_at.isoformat()
 
                 matched_papers.append({
                     "author": paper_authors,
                     "title": title,
                     "paper_id": paper_id,
-                    "datetime": _datetime,
+                    "datetime": _dt,
                     "paper_url_id": paper_url_id,
+                    "created_at": created_at,
+                    "updated_at": updated_at,
                 })
 
             except StopIteration:
