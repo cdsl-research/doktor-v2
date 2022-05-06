@@ -4,7 +4,6 @@
     <h2>{{ paper.title }}</h2>
     <section>
         <ul>
-            <li>タイトル: {{ paper.title }}</li>
             <li>著者:
                 <ul>
                     {% for author in paper.author %}
@@ -12,15 +11,6 @@
                     {% endfor %}
                 </ul>
             </li>
-            <!--
-    <li>キーワード:
-        <ul>
-            {% for keyword in paper.keywords %}
-            <li>{{ keyword }}</li>
-            {% endfor %}
-        </ul>
-    </li>
-    -->
             <li>ラベル: {{ paper.label }}</li>
             <li>公開日: {{ paper.created_at }}</li>
             <li>更新日: {{ paper.updated_at }}</li>
