@@ -252,7 +252,7 @@ if __name__ == "__main__":
         print("MongoDB not available. ", e)
         sys.exit(-1)
 
-    for _ in range(120):
+    while True:
         try:
             res = socket.getaddrinfo(MINIO_HOST, None)
             break

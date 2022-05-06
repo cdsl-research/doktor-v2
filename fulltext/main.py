@@ -19,14 +19,6 @@ ELASTICSEARCH_HOST = os.getenv(
     "ELASTICSEARCH_HOST", "fulltext-elastic:9200")
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
 
-while True:
-    try:
-        _host = ELASTICSEARCH_HOST.split(":")[0]
-        res = socket.getaddrinfo(_host, None)
-        break
-    except Exception as e:
-        print("Retry resolve host:", e)
-        time.sleep(1)
 
 es = Elasticsearch(f"http://{ELASTICSEARCH_HOST}")
 es.indices.create(index=ELASTICSEARCH_INDEX, ignore=400)
@@ -137,5 +129,14 @@ def reads_fulltext_handler(keyword: str = ""):
 
 
 if __name__ == "__main__":
+    while True:
+        try:
+            _host = ELASTICSEARCH_HOST.split(":")[0]
+            res = socket.getaddrinfo(_host, None)
+            break
+        except Exception as e:
+            print("Retry resolve host:", e)
+            time.sleep(1)
+
     import uvicorn
     uvicorn.run(app, host="0.0.0.0")

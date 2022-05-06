@@ -153,7 +153,7 @@ def delete_thumbnail_handler():
 
 
 if __name__ == "__main__":
-    for _ in range(120):
+    while True:
         try:
             res = socket.getaddrinfo(MINIO_HOST, None)
             break
