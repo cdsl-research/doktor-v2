@@ -218,6 +218,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         thumbnail_list = map(lambda x: prefix + x, res_thumbnail['images'])
     except Exception:
         thumbnail_list = []
+
     paper_details = {
         "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
@@ -225,11 +226,9 @@ async def paper_handler(paper_uuid: UUID, request: Request):
             "name": author.get("last_name_ja") + author.get("first_name_ja"),
             "uuid": author.get("uuid")
         } for author in found_author],
-        "keywords": res_paper_me.get("keywords"),
         "label": res_paper_me.get("label"),
         "created_at": reformat_datetime(res_paper_me.get("created_at")),
         "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
-        "abstract": res_paper_me.get("abstract")
     }
 
     # 全文

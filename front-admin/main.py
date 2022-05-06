@@ -4,6 +4,7 @@ import os
 from asyncio.base_subprocess import ReadSubprocessPipeProto
 from typing import List, Optional
 from uuid import UUID
+from datetime import datetime
 
 import aiohttp
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
@@ -100,7 +101,6 @@ async def add_paper_exec_handler(request: Request,
                                  author1: str = Form(...),
                                  author2: Optional[str] = Form(None),
                                  author3: Optional[str] = Form(None),
-                                 keywords: Optional[List[str]] = Form([]),
                                  label: Optional[str] = Form(""),
                                  publish: bool = Form(True),
                                  pdffile: UploadFile = File(...)
@@ -112,15 +112,11 @@ async def add_paper_exec_handler(request: Request,
         author_list.append(author3)
     req_body = {
         "author_uuid": author_list,
-        "title": title,
-        "keywords": keywords,
-        "label": label,
-        "categories_id": [
-            0
-        ],
-        "abstract": "ここにabstractが入る．",
-        "url": "https://ja.tak-cslab.org/",
-        "thumbnail_url": "https://ja.tak-cslab.org/",
+        "title": title.stip(),
+        "label": label.stip(),
+        "is_public": publish,
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
         "is_public": publish
     }
 

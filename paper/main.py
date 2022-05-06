@@ -66,28 +66,20 @@ class StatusResponse(BaseModel):
 class PaperCreateUpdate(BaseModel):
     author_uuid: List[UUID]
     title: str
-    keywords: List[str]
     label: str
-    categories_id: List[int]
-    abstract: str
-    url: str
-    thumbnail_url: str
     is_public: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = datetime.now()
 
 
 class PaperRead(BaseModel):
     uuid: UUID
     author_uuid: List[UUID]
     title: str
-    keywords: List[str]
     label: str
-    categories_id: List[int]
-    abstract: str
-    url: str
-    thumbnail_url: str
     is_public: bool
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = datetime.now()
     # todo) reference_id: List[int]
 
 
@@ -117,15 +109,10 @@ def create_paper_handler(paper: PaperCreateUpdate):
         "uuid": uuid4(),
         "author_uuid": json_paper.get("author_uuid"),
         "title": json_paper.get("title"),
-        "keywords": json_paper.get("keywords"),
         "label": json_paper.get("label"),
-        "categories_id": json_paper.get("categories_id"),
-        "abstract": json_paper.get("abstract"),
-        "url": json_paper.get("url"),
-        "thumbnail_url": json_paper.get("thumbnail_url"),
         "is_public": json_paper.get("is_public"),
-        "created_at": datetime.now(),
-        "updated_at": datetime.now()
+        "created_at": json_paper.get("created_at"),
+        "updated_at": json_paper.get("updated_at"),
     }
     insert_id = db["paper"].insert_one(my_paper).inserted_id
     print("insert_id:", insert_id)
@@ -216,15 +203,10 @@ def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
         "uuid": paper_uuid,
         "author_uuid": json_paper.get("author_uuid"),
         "title": json_paper.get("title"),
-        "keywords": json_paper.get("keywords"),
         "label": json_paper.get("label"),
-        "categories_id": json_paper.get("categories_id"),
-        "abstract": json_paper.get("abstract"),
-        "url": json_paper.get("url"),
-        "thumbnail_url": json_paper.get("thumbnail_url"),
         "is_public": json_paper.get("is_public"),
-        "created_at": datetime.now(),  # todo: get stored data
-        "updated_at": datetime.now()
+        "created_at": json_paper.get("created_at"),
+        "updated_at": json_paper.get("updated_at"),
     }
     return PaperRead(**my_paper)
 
