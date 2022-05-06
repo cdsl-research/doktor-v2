@@ -4,9 +4,10 @@
     <h2>著者: {{ author.name }}</h2>
 
     <ul>
-        <!-- <li>在籍: {{ author.status }}</li> -->
         <li>配属年: {{ author.joined_year }}</li>
     </ul>
+
+    <h3>論文</h3>
 
     <ul>
         {% for paper in papers %}

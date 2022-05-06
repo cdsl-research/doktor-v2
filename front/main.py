@@ -236,7 +236,10 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     try:
         first_page = list(
             filter(lambda x: x['page_number'] == 0, res_fulltext))[0]
-        first_page_300 = first_page['text'][0:300]
+        first_page_text = first_page['text']
+        # 「概要：」が3文字分あるため+3
+        abstract_starts = first_page_text.find("概要：") + 3
+        first_page_300 = first_page_text[abstract_starts:abstract_starts+300]
     except Exception:
         first_page_300 = ""
 
