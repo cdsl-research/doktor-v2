@@ -40,7 +40,9 @@ def _paper_add(
     title: str,
     label: str,
     pdf_file_path: str,
-    author_uuid_list: List
+    author_uuid_list: List,
+    created_at: str,
+    updated_at: str
 ):
     """ 論文情報の追加 """
     PAPER_UPLOAD_URL = f"{PAPER_URL}/paper"
@@ -48,13 +50,10 @@ def _paper_add(
     payload = {
         "author_uuid": author_uuid_list,
         "title": title,
-        "keywords": [],
         "label": label,
-        "categories_id": [],
-        "abstract": "",
-        "url": "",
-        "thumbnail_url": "",
-        "is_public": True
+        "is_public": True,
+        "created_at": created_at,
+        "updated_at": updated_at
     }
     # print(payload)
     req = requests.post(PAPER_UPLOAD_URL, json=payload)
@@ -115,6 +114,9 @@ def paper_add_wrapper():
         paper_id = paper['paper_id']
         _datetime = paper['datetime']
         paper_url_id = paper['paper_url_id']
+        created_at = paper['created_at']
+        updated_at = paper['updated_at']
+
         # print(authors, author_uuids)
         # print(title, paper_id, _datetime, paper_url_id)
 
@@ -122,7 +124,9 @@ def paper_add_wrapper():
             title=title,
             label=paper_id,
             pdf_file_path=f"pdf_files/{paper_url_id}.pdf",
-            author_uuid_list=author_uuids
+            author_uuid_list=author_uuids,
+            created_at=created_at,
+            updated_at=updated_at,
         )
 
 
