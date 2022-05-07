@@ -37,7 +37,7 @@ class FetchUrl:
 
 # 日付のフォーマットを修正
 def reformat_datetime(raw_str: str) -> str:
-    _created = dt.strptime(raw_str, "%Y-%m-%dT%H:%M:%S.%f")
+    _created = dt.fromisoformat(raw_str)
     return _created.strftime("%b. %d, %Y")
 
 
