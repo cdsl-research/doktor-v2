@@ -47,16 +47,21 @@ def _paper_add(
     """ 論文情報の追加 """
     PAPER_UPLOAD_URL = f"{PAPER_URL}/paper"
     # todo: generate from openapi schema
+    suff = ""
+    if updated_at == "":
+        updated_at = created_at
+        suff = ".000Z"
     payload = {
         "author_uuid": author_uuid_list,
         "title": title,
         "label": label,
         "is_public": True,
-        "created_at": created_at,
-        "updated_at": updated_at
+        "created_at": created_at.split("+")[0]+".000Z",
+        "updated_at": updated_at.split("+")[0]+suff,
     }
-    # print(payload)
+    print(json.dumps(payload, indent=4, ensure_ascii=False))
     req = requests.post(PAPER_UPLOAD_URL, json=payload)
+    print(req)
     assert req.status_code == 200
     res = req.json()
     paper_uuid = res["uuid"]
@@ -139,6 +144,7 @@ def thumbnail_add():
         req2 = requests.post(
             f"{THUMBNAIL_URL}/thumbnail/{paper_uuid}", data={})
         print(req2)
+        print(paper['title'])
         assert req2.status_code == 200
 
 
@@ -151,14 +157,15 @@ def fulltext_add():
         req2 = requests.post(
             f"{FULLTEXT_URL}/fulltext/{paper_uuid}", data={})
         print(req2)
+        print(paper['title'])
         assert req2.status_code == 200
 
 
 def main():
     # author_add_wrapper()
     # paper_add_wrapper()
-    # thumbnail_add()
-    fulltext_add()
+    thumbnail_add()
+    # fulltext_add()
 
 
 if __name__ == "__main__":
