@@ -56,8 +56,8 @@ def _paper_add(
         "title": title,
         "label": label,
         "is_public": True,
-        "created_at": created_at.split("+")[0]+".000Z",
-        "updated_at": updated_at.split("+")[0]+suff,
+        "created_at": created_at.split("+")[0] + ".000Z",
+        "updated_at": updated_at.split("+")[0] + suff,
     }
     print(json.dumps(payload, indent=4, ensure_ascii=False))
     req = requests.post(PAPER_UPLOAD_URL, json=payload)
