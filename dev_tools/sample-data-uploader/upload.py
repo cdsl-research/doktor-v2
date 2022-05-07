@@ -116,7 +116,7 @@ def paper_add_wrapper():
         paper_url_id = paper['paper_url_id']
         created_at = paper['created_at']
         updated_at = paper['updated_at']
-        
+
         # print(authors, author_uuids)
         # print(title, paper_id, _datetime, paper_url_id)
 
