@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: front-admin-app-container
-          image: ghcr.io/cdsl-research/front-admin:master-b1d2103
+          image: ghcr.io/cdsl-research/front-admin:master-1eb5f19
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
