@@ -2,7 +2,7 @@ name: Format python code
 on:
   push:
     paths:
-      - '**.py'
+      - "**.py"
 jobs:
   autopep8:
     runs-on: ubuntu-20.04
