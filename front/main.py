@@ -1,11 +1,9 @@
 import asyncio
-import json
 import os
 import re
 from dataclasses import dataclass
 from datetime import datetime as dt
-from socket import timeout
-from typing import List, Tuple
+from typing import Tuple
 from uuid import UUID
 
 import aiohttp
