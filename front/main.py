@@ -8,8 +8,10 @@ from uuid import UUID
 
 import aiohttp
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
 SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")
@@ -39,6 +41,7 @@ def reformat_datetime(raw_str: str) -> str:
     return _created.strftime("%b. %d, %Y")
 
 
+# ファイル取得
 async def fetch_file(session, url):
     async with session.get(url) as response:
         if response.status != 200:
@@ -46,6 +49,7 @@ async def fetch_file(session, url):
         return await response.read()
 
 
+# マイクロサービス呼び出し: Worker
 async def fetch(session: aiohttp.ClientSession, url: str, require: bool):
     try:
         async with session.get(url) as response:
@@ -59,6 +63,8 @@ async def fetch(session: aiohttp.ClientSession, url: str, require: bool):
             print("Fetch exception:", "url=", url)
 
 
+# マイクロサービス呼び出し: Master
+# Masterから複数のWorkerを呼び出す．
 async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
     tasks = []
     for url in urls:
@@ -69,6 +75,30 @@ async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
     return results
 
 
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request, exc):
+    print("Error: ", exc.detail)
+    message = "システムの内部で問題が発生しました．"
+    if exc.status_code == 404:
+        message = "コンテンツが見つかりません．"
+    elif exc.status_code == 400:
+        message = "リクエストが不正です．"
+
+    return templates.TemplateResponse("error.html", {
+        "message": message,
+        "request": request
+    }, status_code=exc.status_code)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    print("Error: ", exc.detail)
+    templates.TemplateResponse("error.html", {
+        "message": "不正なリクエストです．",
+        "request": request
+    }, status_code=400)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def top_handler(request: Request, keyword: str = ""):
     striped_keyword = ""
@@ -77,7 +107,7 @@ async def top_handler(request: Request, keyword: str = ""):
         striped_keyword = keyword.strip().replace("　", "")
         validate_word = re.match('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', striped_keyword)
         if validate_word is None:
-            raise HTTPException(status_code=400, detail="Invalid keyword")
+            raise HTTPException(status_code=400, detail="不正なキーワードです．")
 
     urls = (
         # 論文タイトルの検索
@@ -101,9 +131,12 @@ async def top_handler(request: Request, keyword: str = ""):
         try:
             json_raw = await fetch_all(session, urls)
         except aiohttp.ClientResponseError as e:
-            print("Top Error:", e)
+            print("Top Error 1:", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
+            raise HTTPException(status_code=503)
+        except Exception as e:
+            print("Top Error 2:", e)
             raise HTTPException(status_code=503)
 
     res_paper = json_raw[0]['papers']
@@ -188,10 +221,14 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         try:
             json_raw = await fetch_all(session=session, urls=urls)
         except aiohttp.ClientResponseError as e:
-            print("Paper Single View Fetch Error:", e)
+            print("Paper Single View Fetch Error 1:", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
+        except Exception as e:
+            print("Paper Single View Fetch Error 2:", e)
+            raise HTTPException(status_code=503)
+
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
     res_thumbnail = json_raw[2]
@@ -257,10 +294,14 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
         try:
             res_pdf = await fetch_file(session, url)
         except aiohttp.ClientResponseError as e:
-            print("Paper Download Error:", e)
+            print("Paper Download Error 1:", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
+        except Exception as e:
+            print("Paper Download Error 2:", e)
+            raise HTTPException(status_code=503)
+
     return Response(content=res_pdf, media_type="application/pdf")
 
 
@@ -280,10 +321,14 @@ async def author_handler(author_uuid: UUID, request: Request):
         try:
             json_res = await fetch_all(session, urls)
         except aiohttp.ClientResponseError as e:
-            print("Author Single View Error:", e)
+            print("Author Single View Error 1:", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
+        except Exception as e:
+            print("Author Single View Error 2:", e)
+            raise HTTPException(status_code=503)
+
     res_paper = json_res[0]['papers']
     res_author = json_res[1]
     res_author_me = json_res[2]
@@ -336,8 +381,12 @@ async def thumbnail_handler(paper_uuid: UUID, image_id: str):
         try:
             res_img = await fetch_file(session, url)
         except aiohttp.ClientResponseError as e:
-            print("Thumbnail Download Error:", e)
+            print("Thumbnail Download Error 1:", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
+        except Exception as e:
+            print("Thumbnail Download Error 2:", e)
+            raise HTTPException(status_code=503)
+
     return Response(content=res_img, media_type="image/png")
