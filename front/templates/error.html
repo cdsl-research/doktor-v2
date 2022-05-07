@@ -1,0 +1,8 @@
+{% include '_header.html' %}
+
+<main>
+    <h2>エラー</h2>
+    <p>{{ message | default("システムの内部で問題が発生しました．", true) }}</p>
+</main>
+
+{% include '_footer.html' %}
