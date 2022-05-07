@@ -1,11 +1,9 @@
 import asyncio
-import json
 import os
 import re
 from dataclasses import dataclass
 from datetime import datetime as dt
-from socket import timeout
-from typing import List, Tuple
+from typing import Tuple
 from uuid import UUID
 
 import aiohttp
@@ -37,7 +35,7 @@ class FetchUrl:
 
 # 日付のフォーマットを修正
 def reformat_datetime(raw_str: str) -> str:
-    _created = dt.strptime(raw_str, "%Y-%m-%dT%H:%M:%S.%f")
+    _created = dt.fromisoformat(raw_str)
     return _created.strftime("%b. %d, %Y")
 
 
