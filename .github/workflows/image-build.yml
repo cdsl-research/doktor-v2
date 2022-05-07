@@ -85,5 +85,5 @@ jobs:
           title: Production Release
           body: This is an auto-generated PR with image-build
           labels: image-build pr
-          branch: production
-          base: master
+          branch: master
+          base: production
