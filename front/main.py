@@ -9,7 +9,7 @@ from uuid import UUID
 import aiohttp
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, FileResponse
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -383,7 +383,8 @@ async def thumbnail_handler(paper_uuid: UUID, image_id: str):
         except aiohttp.ClientResponseError as e:
             print("Thumbnail Download Error 1:", e)
             if e.code == 404:
-                raise HTTPException(status_code=404)
+                # raise HTTPException(status_code=404)
+                return FileResponse("assets/404.png")
             raise HTTPException(status_code=503)
         except Exception as e:
             print("Thumbnail Download Error 2:", e)
