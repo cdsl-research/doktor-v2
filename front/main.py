@@ -153,7 +153,7 @@ async def top_handler(request: Request, keyword: str = ""):
 
     # 全文の検索
     if res_fulltext:
-        for rf in res_fulltext['fulltext']:
+        for rf in res_fulltext['fulltexts']:
             found_ = list(
                 filter(lambda x: rf['paper_uuid'] == x['uuid'], res_paper))[0]
             if found_ in found_papers:
@@ -269,7 +269,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     # 全文
     try:
         first_page = list(
-            filter(lambda x: x['page_number'] == 0, res_fulltext['fulltext']))[0]
+            filter(lambda x: x['page_number'] == 0, res_fulltext['fulltexts']))[0]
         first_page_text = first_page['text']
         # 「概要：」が3文字分あるため+3
         abstract_starts = first_page_text.find("概要：") + 3
