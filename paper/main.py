@@ -196,19 +196,19 @@ async def download_paper_handler(paper_uuid: UUID):
                             detail=str(e.message))
 
 
-@app.put("/paper/{paper_uuid}", response_model=PaperRead)
-def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
-    json_paper = jsonable_encoder(paper)
-    my_paper = {
-        "uuid": paper_uuid,
-        "author_uuid": json_paper.get("author_uuid"),
-        "title": json_paper.get("title"),
-        "label": json_paper.get("label"),
-        "is_public": json_paper.get("is_public"),
-        "created_at": json_paper.get("created_at"),
-        "updated_at": json_paper.get("updated_at"),
-    }
-    return PaperRead(**my_paper)
+# @app.put("/paper/{paper_uuid}", response_model=PaperRead)
+# def update_paper_handler(paper_uuid: UUID, paper: PaperCreateUpdate):
+#     json_paper = jsonable_encoder(paper)
+#     my_paper = {
+#         "uuid": paper_uuid,
+#         "author_uuid": json_paper.get("author_uuid"),
+#         "title": json_paper.get("title"),
+#         "label": json_paper.get("label"),
+#         "is_public": json_paper.get("is_public"),
+#         "created_at": json_paper.get("created_at"),
+#         "updated_at": json_paper.get("updated_at"),
+#     }
+#     return PaperRead(**my_paper)
 
 
 @app.delete("/reset", response_model=StatusResponse)
