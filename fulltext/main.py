@@ -121,7 +121,8 @@ def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
     if records_count == 0:
         print("Matched 0 records:")
         background_tasks.add_task(create_fulltext_handler, paper_uuid)
-    records_list = list(map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"]))
+    records_list = list(map(lambda x: FulltextRead(
+        **x["_source"]), res["hits"]["hits"]))
     return FulltextReadSeveral(fulltexts=records_list)
 
 
@@ -139,7 +140,8 @@ def reads_fulltext_handler(keyword: str = ""):
     }
     print("Elasticsearch Query:", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
-    records_list = list(map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"]))
+    records_list = list(map(lambda x: FulltextRead(
+        **x["_source"]), res["hits"]["hits"]))
     return FulltextReadSeveral(fulltexts=records_list)
 
 
