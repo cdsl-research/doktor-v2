@@ -141,7 +141,7 @@ async def top_handler(request: Request, keyword: str = ""):
 
     res_paper = json_raw[0]['papers']
     res_author = json_raw[1]
-    res_fulltext = json_raw[2]
+    res_fulltext = json_raw[2]['fulltext']
     res_author_search = json_raw[3]
 
     # 論文タイトルの検索
@@ -232,7 +232,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
     res_thumbnail = json_raw[2]
-    res_fulltext = json_raw[3]
+    res_fulltext = json_raw[3]['fulltext']
 
     # 著者の取得
     found_author = []
