@@ -38,7 +38,7 @@ jobs:
 
       - name: Set image tag for master
         run: |
-          COMMITID=$(git rev-parse --short ${{ github.sha }})
+          COMMITID=$(git rev-parse --short ${{ github.sha }} | cut -c1-7)
           CUR_BRANCH=$(git symbolic-ref --short HEAD)
           echo "DOCKER_TAG=${CUR_BRANCH}-${COMMITID}" >> $GITHUB_ENV
 
