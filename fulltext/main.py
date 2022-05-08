@@ -2,6 +2,7 @@ import os
 import socket
 import time
 from curses import raw
+from turtle import st
 from typing import List, Literal, Optional
 from uuid import UUID
 
@@ -32,9 +33,23 @@ class ServiceHello(BaseModel):
     name: str
 
 
+class ServiceHealth(BaseModel):
+    resouce: str
+
+
 class StatusResponse(BaseModel):
     status: Literal["ok", "error"]
     message: Optional[str] = ""
+
+
+class FulltextRead(BaseModel):
+    paper_uuid: UUID
+    page_number: int
+    text: str
+
+
+class FulltextReadSeveral(BaseModel):
+    fulltexts: List[FulltextRead]
 
 
 @app.get("/", response_model=ServiceHello)
@@ -53,12 +68,12 @@ def healthz_handler(response: Response):
             message="waiting for elasticsearch")
 
 
-@app.get("/topz")
+@app.get("/topz", response_model=ServiceHealth)
 def topz_handler():
-    return {"resource": "busy"}
+    return ServiceHealth(resource="busy")
 
 
-@app.post("/fulltext/{paper_uuid}")
+@app.post("/fulltext/{paper_uuid}", response_model=StatusResponse)
 def create_fulltext_handler(paper_uuid: UUID):
     # ファイルの取得
     try:
@@ -86,10 +101,10 @@ def create_fulltext_handler(paper_uuid: UUID):
                 # print(res)
             except Exception as e:
                 print("Fail to create record:", e)
-    return {"status": "ok"}
+    return StatusResponse(status="ok", message="Created fulltext ")
 
 
-@app.get("/fulltext/{paper_uuid}")
+@app.get("/fulltext/{paper_uuid}", response_model=FulltextReadSeveral)
 def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
     payload = {
         "query": {
@@ -106,11 +121,11 @@ def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
     if records_count == 0:
         print("Matched 0 records:")
         background_tasks.add_task(create_fulltext_handler, paper_uuid)
-    records_list = list(map(lambda x: x["_source"], res["hits"]["hits"]))
-    return records_list
+    records_list = list(map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"]))
+    return FulltextReadSeveral(fulltexts=records_list)
 
 
-@app.get("/fulltext")
+@app.get("/fulltext", response_model=FulltextReadSeveral)
 def reads_fulltext_handler(keyword: str = ""):
     payload = {
         "query": {
@@ -124,8 +139,14 @@ def reads_fulltext_handler(keyword: str = ""):
     }
     print("Elasticsearch Query:", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
-    records_list = list(map(lambda x: x["_source"], res["hits"]["hits"]))
-    return records_list
+    records_list = list(map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"]))
+    return FulltextReadSeveral(fulltexts=records_list)
+
+
+@app.delete("/reset", response_model=StatusResponse)
+def delete_paper_handler():
+    es.indices.delete(index=ELASTICSEARCH_INDEX, ignore=[400, 404])
+    return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":
