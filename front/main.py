@@ -269,13 +269,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     # 全文
     try:
         first_page = list(
-<<<<<<< HEAD
             filter(lambda x: x['page_number'] == 0, res_fulltext['fulltexts']))[0]
-=======
-            filter(
-                lambda x: x['page_number'] == 0,
-                res_fulltext['fulltext']))[0]
->>>>>>> ccafe386726cc75457bb02bf8e749624c67492aa
         first_page_text = first_page['text']
         # 「概要：」が3文字分あるため+3
         abstract_starts = first_page_text.find("概要：") + 3
