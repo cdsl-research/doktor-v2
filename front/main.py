@@ -141,7 +141,7 @@ async def top_handler(request: Request, keyword: str = ""):
 
     res_paper = json_raw[0]['papers']
     res_author = json_raw[1]
-    res_fulltext = json_raw[2]['fulltext']
+    res_fulltext = json_raw[2]
     res_author_search = json_raw[3]
 
     # 論文タイトルの検索
@@ -153,7 +153,7 @@ async def top_handler(request: Request, keyword: str = ""):
 
     # 全文の検索
     if res_fulltext:
-        for rf in res_fulltext:
+        for rf in res_fulltext['fulltext']:
             found_ = list(
                 filter(lambda x: rf['paper_uuid'] == x['uuid'], res_paper))[0]
             if found_ in found_papers:
@@ -232,7 +232,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
     res_thumbnail = json_raw[2]
-    res_fulltext = json_raw[3]['fulltext']
+    res_fulltext = json_raw[3]
 
     # 著者の取得
     found_author = []
@@ -269,7 +269,9 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     # 全文
     try:
         first_page = list(
-            filter(lambda x: x['page_number'] == 0, res_fulltext))[0]
+            filter(
+                lambda x: x['page_number'] == 0,
+                res_fulltext['fulltext']))[0]
         first_page_text = first_page['text']
         # 「概要：」が3文字分あるため+3
         abstract_starts = first_page_text.find("概要：") + 3
