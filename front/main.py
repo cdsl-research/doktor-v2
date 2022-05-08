@@ -155,10 +155,12 @@ async def top_handler(request: Request, keyword: str = ""):
     if res_fulltext:
         for rf in res_fulltext['fulltexts']:
             found_ = list(
-                filter(lambda x: rf['paper_uuid'] == x['uuid'], res_paper))[0]
-            if found_ in found_papers:
+                filter(lambda x: rf['paper_uuid'] == x['uuid'], res_paper))
+            if len(found_) == 0:
                 continue
-            found_papers.append(found_)
+            if found_[0] in found_papers:
+                continue
+            found_papers.append(found_[0])
         # print(found_papers)
     # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
