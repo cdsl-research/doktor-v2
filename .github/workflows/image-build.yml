@@ -65,6 +65,6 @@ jobs:
           add: "deploy/"
           default_author: github_actions
           message: "Update k8s config for new image"
-      - uses: Create Pull Req
+      - name: Create Pull Req
         run: |
           gh pr create --base "production" --body "automated pull request" --title "Production Release"
