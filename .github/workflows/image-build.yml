@@ -68,3 +68,5 @@ jobs:
       - name: Create Pull Req
         run: |
           gh pr create --base "production" --body "automated pull request" --title "Production Release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
