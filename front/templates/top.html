@@ -10,11 +10,14 @@
     {% endif %}
 
     <ul>
-        {% for paper in papers %}
+        {% for year_month, year_month_papers in papers.items() %}
+        <h3>{{ year_month }}</h3>
+        {% for paper in year_month_papers %}
         <li><a href="/paper/{{ paper.uuid }}">
                 {% for author in paper.author %} {{ author }}, {% endfor %}
                 "{{ paper.title }}", {{ paper.label }}, {{ paper.created_at }}.
             </a></li>
+        {% endfor %}
         {% endfor %}
     </ul>
 </main>
