@@ -164,7 +164,7 @@ async def top_handler(request: Request, keyword: str = ""):
         # print(found_papers)
     # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
-    paper_details = []
+    paper_details = {}
     for rp in found_papers:  # 論文を選択
         # 論文に対応する著者名を検索
         found_author = []
@@ -177,13 +177,15 @@ async def top_handler(request: Request, keyword: str = ""):
                     author.get('first_name_ja')
                 found_author.append(display_name)
 
-        paper_details.append({
+        created_at = dt.fromisoformat(rp.get("created_at"))
+        year_month = created_at.strftime("%Y年%m月")
+        paper_details[year_month] = paper_details.get(year_month, []) + [{
             "uuid": rp.get("uuid", "#"),
             "title": rp.get("title", "No Title"),
             "author": found_author,
             "label": rp.get("label", "No Label"),
             "created_at": reformat_datetime(rp.get("created_at"))
-        })
+        }]
 
     # 著者名の検索
     author_details = []
