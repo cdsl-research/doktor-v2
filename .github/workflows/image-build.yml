@@ -62,12 +62,11 @@ jobs:
           find deploy -type f -exec sed -i "s/:master-.*/:master-$COMMITID/g" \{\} \;
       - uses: EndBug/add-and-commit@v7 # You can change this to use a specific version.
         with:
-          # The arguments for the `git add` command (see the paragraph below for more info)
           add: "deploy/"
-          # Determines the way the action fills missing author name and email. Three options are available:
-          # - github_actor -> UserName <UserName@users.noreply.github.com>
-          # - user_info -> Your Display Name <your-actual@email.com>
-          # - github_actions -> github-actions <email associated with the github logo>
           default_author: github_actions
-          # The message for the commit.
           message: "Update k8s config for new image"
+      - name: Create Pull Req
+        run: |
+          gh pr create --base "production" --body "automated pull request" --title "Production Release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
