@@ -1,43 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: thumbnail-app-deploy
-  namespace: thumbnail
+  name: stats-app-deploy
+  namespace: stats
   labels:
-    app: thumbnail
+    app: stats
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: thumbnail
+      app: stats
   template:
     metadata:
       annotations:
         sidecar.istio.io/status: ""
       labels:
-        app: thumbnail
+        app: stats
     spec:
       containers:
-        - name: thumbnail-app-container
-          image: ghcr.io/cdsl-research/thumbnail:master-601cbc8
+        - name: stats-app-container
+          image: ghcr.io/cdsl-research/stats:master-601cbc8
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
           env:
-            - name: MINIO_HOST
-              value: "thumbnail-minio.thumbnail:9000"
-            - name: PAPER_SVC_HOST
-              value: "paper-app.paper:4000"
+            - name: MONGO_HOST
+              value: stats-mongo.stats
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: thumbnail-app
-  namespace: thumbnail
+  name: stats-app
+  namespace: stats
 spec:
   type: NodePort
   selector:
-    app: thumbnail
+    app: stats
   ports:
     - protocol: TCP
       port: 4000

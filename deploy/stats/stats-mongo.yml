@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats-mongo-deploy
+  namespace: stats
+  labels:
+    db: stats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      db: stats
+  template:
+    metadata:
+      labels:
+        db: stats
+    spec:
+      containers:
+        - name: stats-mongo-container
+          image: mongo:5.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: example
+          volumeMounts:
+            - name: stats-mongo-volv
+              mountPath: /data/db
+          livenessProbe:
+            exec:
+              command:
+                - ls
+                - /data/db/lost+found
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 4
+      volumes:
+        - name: stats-mongo-volv
+          persistentVolumeClaim:
+            claimName: stats-mongo-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stats-mongo-pvc
+  namespace: stats
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stats-mongo
+  namespace: stats
+spec:
+  type: ClusterIP
+  selector:
+    db: stats
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
