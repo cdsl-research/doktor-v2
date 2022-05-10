@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats-app-deploy
+  namespace: stats
+  labels:
+    app: stats
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: stats
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: ""
+      labels:
+        app: stats
+    spec:
+      containers:
+        - name: stats-app-container
+          image: ghcr.io/cdsl-research/stats:master-0737603
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MONGO_HOST
+              value: stats-mongo.stats
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stats-app
+  namespace: stats
+spec:
+  type: NodePort
+  selector:
+    app: stats
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 8000
