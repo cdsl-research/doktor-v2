@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'deploy/**'
+      - 'dev_tools/**'
+      - 'docs_src/**'
+      - '.github/**'
 jobs:
   build-and-push:
     runs-on: ubuntu-20.04
