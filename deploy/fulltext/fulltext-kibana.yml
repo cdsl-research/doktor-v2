@@ -33,7 +33,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    db: fulltext
+    kibana: fulltext
   ports:
     - protocol: TCP
       port: 5601
