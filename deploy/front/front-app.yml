@@ -41,6 +41,10 @@ spec:
               value: fulltext-app.fulltext
             - name: SERVICE_FULLTEXT_PORT
               value: "4000"
+            - name: SERVICE_STATS_HOST
+              value: "stats-app.stats"
+            - name: SERVICE_STATS_PORT
+              value: "4000"
           livenessProbe:
             httpGet:
               path: /
