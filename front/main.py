@@ -1,15 +1,16 @@
 import asyncio
+import json
 import os
 import re
 from dataclasses import dataclass
-from datetime import datetime as dt
+from datetime import datetime, timezone, tzinfo
 from typing import Tuple
 from uuid import UUID
 
 import aiohttp
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import HTMLResponse, Response, FileResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -21,6 +22,8 @@ SVC_THUMBNAIL_HOST = os.getenv("SERVICE_THUMBNAIL_HOST", "thumbnail-app")
 SVC_THUMBNAIL_PORT = os.getenv("SERVICE_THUMBNAIL_PORT", "8000")
 SVC_FULLTEXT_HOST = os.getenv("SERVICE_FULLTEXT_HOST", "fulltext-app")
 SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
+SVC_STATS_HOST = os.getenv("SERVICE_STATS_HOST", "stats-app")
+SVC_STATS_PORT = os.getenv("SERVICE_STATS_PORT", "8000")
 REQ_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", 5))
 
 TIMEOUT = aiohttp.ClientTimeout(total=REQ_TIMEOUT_SEC)
@@ -37,20 +40,38 @@ class FetchUrl:
 
 # 日付のフォーマットを修正
 def reformat_datetime(raw_str: str) -> str:
-    _created = dt.fromisoformat(raw_str)
+    _created = datetime.fromisoformat(raw_str)
     return _created.strftime("%b. %d, %Y")
 
 
 # ファイル取得
-async def fetch_file(session, url):
-    async with session.get(url) as response:
-        if response.status != 200:
-            response.raise_for_status()
-        return await response.read()
+async def http_get_file(session: aiohttp.ClientSession, url: str):
+    try:
+        async with session.get(url) as response:
+            if response.status != 200:
+                response.raise_for_status()
+            return await response.read()
+    except Exception as e:
+        print(e)
+        raise e
 
 
 # マイクロサービス呼び出し: Worker
-async def fetch(session: aiohttp.ClientSession, url: str, require: bool):
+async def http_post(session: aiohttp.ClientSession, require: bool, url: str, body):
+    try:
+        async with session.post(url=url, json=body) as response:
+            if response.status >= 300:
+                response.raise_for_status()
+            return await response.json()
+    except Exception as e:
+        if require:
+            raise e
+        else:
+            print("Fetch exception of post:", "url=", url)
+
+
+# マイクロサービス呼び出し: Worker
+async def http_get(session: aiohttp.ClientSession, require: bool, url: str):
     try:
         async with session.get(url) as response:
             if response.status >= 300:
@@ -60,7 +81,7 @@ async def fetch(session: aiohttp.ClientSession, url: str, require: bool):
         if require:
             raise e
         else:
-            print("Fetch exception:", "url=", url)
+            print("Fetch exception of get:", "url=", url)
 
 
 # マイクロサービス呼び出し: Master
@@ -69,7 +90,7 @@ async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
     tasks = []
     for url in urls:
         task = asyncio.create_task(
-            fetch(session=session, url=url.url, require=url.require))
+            http_get(session=session, url=url.url, require=url.require))
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
@@ -177,7 +198,7 @@ async def top_handler(request: Request, keyword: str = ""):
                     author.get('first_name_ja')
                 found_author.append(display_name)
 
-        created_at = dt.fromisoformat(rp.get("created_at"))
+        created_at = datetime.fromisoformat(rp.get("created_at"))
         year_month = created_at.strftime("%Y年%m月")
         paper_details[year_month] = paper_details.get(year_month, []) + [{
             "uuid": rp.get("uuid", "#"),
@@ -220,7 +241,11 @@ async def paper_handler(paper_uuid: UUID, request: Request):
             require=False),
         FetchUrl(
             url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}",
-            require=False))
+            require=False),
+        FetchUrl(
+            url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats/{paper_uuid}",
+            require=False)
+    )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_raw = await fetch_all(session=session, urls=urls)
@@ -237,6 +262,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     res_paper_me = json_raw[1]
     res_thumbnail = json_raw[2]
     res_fulltext = json_raw[3]
+    res_stats = json_raw[4]
 
     # 著者の取得
     found_author = []
@@ -268,6 +294,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         "label": res_paper_me.get("label"),
         "created_at": reformat_datetime(res_paper_me.get("created_at")),
         "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
+        "downloads": res_stats['total_downloads'],
     }
 
     # 全文
@@ -296,9 +323,32 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 @app.get("/paper/{paper_uuid}/download", response_class=Response)
 async def paper_download_handler(paper_uuid: UUID, request: Request):
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
+        # タスク一覧
+        tasks = []
+
+        # ダウンロード数の更新
+        url = f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats"
+        body = {
+            "paper_uuid": str(paper_uuid),
+            "ip_v4_addr": "192.0.2.0",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        print("Stats update:", body)
+        task = asyncio.create_task(
+            http_post(session=session, url=url, body=body, require=False)
+        )
+        tasks.append(task)
+
+        # ファイルのダウンロード
         url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
+        task = asyncio.create_task(
+            http_get_file(session=session, url=url)
+        )
+        tasks.append(task)
+
+        # 実行結果の集約
         try:
-            res_pdf = await fetch_file(session, url)
+            json_raw = await asyncio.gather(*tasks)
         except aiohttp.ClientResponseError as e:
             print("Paper Download Error 1:", e)
             if e.code == 404:
@@ -308,7 +358,11 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
             print("Paper Download Error 2:", e)
             raise HTTPException(status_code=503)
 
-    return Response(content=res_pdf, media_type="application/pdf")
+    res_stats = json_raw[0]
+    res_paper_file = json_raw[1]
+    print("Stats Response:", res_stats)
+
+    return Response(content=res_paper_file, media_type="application/pdf")
 
 
 @app.get("/author/{author_uuid}", response_class=HTMLResponse)
@@ -385,7 +439,7 @@ async def thumbnail_handler(paper_uuid: UUID, image_id: str):
         url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
                f"/thumbnail/{paper_uuid}/{image_id}")
         try:
-            res_img = await fetch_file(session, url)
+            res_img = await http_get_file(session, url)
         except aiohttp.ClientResponseError as e:
             print("Thumbnail Download Error 1:", e)
             if e.code == 404:
