@@ -284,6 +284,11 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     except Exception:
         thumbnail_list = []
 
+    # ダウンロード数
+    total_downloads = 0
+    if res_stats:
+        total_downloads = res_stats.get('total_downloads', 0)
+
     paper_details = {
         "uuid": res_paper_me.get("uuid"),
         "title": res_paper_me.get("title"),
@@ -294,7 +299,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         "label": res_paper_me.get("label"),
         "created_at": reformat_datetime(res_paper_me.get("created_at")),
         "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
-        "downloads": res_stats['total_downloads'],
+        "downloads": total_downloads,
     }
 
     # 全文
