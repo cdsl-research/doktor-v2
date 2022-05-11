@@ -241,7 +241,11 @@ async def paper_handler(paper_uuid: UUID, request: Request):
             require=False),
         FetchUrl(
             url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}",
-            require=False))
+            require=False),
+        FetchUrl(
+            url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats/{paper_uuid}",
+            require=False)
+    )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
             json_raw = await fetch_all(session=session, urls=urls)
@@ -258,6 +262,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     res_paper_me = json_raw[1]
     res_thumbnail = json_raw[2]
     res_fulltext = json_raw[3]
+    res_stats = json_raw[4]
 
     # 著者の取得
     found_author = []
@@ -289,6 +294,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
         "label": res_paper_me.get("label"),
         "created_at": reformat_datetime(res_paper_me.get("created_at")),
         "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
+        "downloads": res_stats['total_downloads'],
     }
 
     # 全文
