@@ -75,7 +75,8 @@ def create_stats_handler(stats: StatsCreateUpdate):
     try:
         insert_id = db["stats"].insert_one(my_stats).inserted_id
         print("insert_id:", insert_id)
-        return StatusResponse(status="ok", message=f"Success insert = {insert_id}")
+        return StatusResponse(status="ok",
+                              message=f"Success insert = {insert_id}")
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to insert")
 
