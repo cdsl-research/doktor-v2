@@ -3,9 +3,10 @@ from http.client import HTTPException
 import os
 import sys
 from datetime import datetime
+from turtle import down
 from uuid import UUID
 from ipaddress import IPv4Address
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
@@ -49,6 +50,10 @@ class StatsCount(BaseModel):
     total_downloads: int
 
 
+class StatsCountSeveral(BaseModel):
+    stats: List[StatsCount]
+
+
 @app.get("/", response_model=ServiceHello)
 def root_handler():
     return ServiceHello(name="stats")
@@ -64,7 +69,32 @@ def topz_handler():
     return ServiceHealth(resource="busy")
 
 
-@app.post("/stats", response_model=StatusResponse)
+@app.get("/stats", response_model=StatsCountSeveral)
+def read_stats_handler():
+    query = {
+        "$group": {
+            "_id": "$paper_uuid",
+            "total_downloads": {
+                "$sum": 1
+            }
+        }
+    }
+    print("All Stats Query:", query)
+    try:
+        downloads = db["stats"].aggregate([
+            query
+        ])
+        res = []
+        for x in list(downloads):
+            sc = StatsCount(paper_uuid=x['_id'],
+                            total_downloads=x['total_downloads'])
+            res.append(sc)
+        return StatsCountSeveral(stats=res)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Fail to select")
+
+
+@ app.post("/stats", response_model=StatusResponse)
 def create_stats_handler(stats: StatsCreateUpdate):
     json_stats = jsonable_encoder(stats)
     my_stats = {
@@ -80,8 +110,8 @@ def create_stats_handler(stats: StatsCreateUpdate):
         raise HTTPException(status_code=500, detail="Fail to insert")
 
 
-@app.get("/stats/{paper_id}", response_model=StatsCount)
-def read_stats_handler(paper_id: UUID):
+@ app.get("/stats/{paper_id}", response_model=StatsCount)
+def read_stat_handler(paper_id: UUID):
     query = {
         "paper_uuid": str(paper_id)
     }
