@@ -147,6 +147,11 @@ async def top_handler(request: Request, keyword: str = ""):
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author?name={striped_keyword}",
             require=False),
+        # 統計の取得
+        FetchUrl(
+            url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats",
+            require=False
+        )
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
@@ -164,6 +169,7 @@ async def top_handler(request: Request, keyword: str = ""):
     res_author = json_raw[1]
     res_fulltext = json_raw[2]
     res_author_search = json_raw[3]
+    res_stats = json_raw[4]
 
     # 論文タイトルの検索
     found_papers = []
@@ -171,6 +177,17 @@ async def top_handler(request: Request, keyword: str = ""):
         if striped_keyword in rp['title']:
             found_papers.append(rp)
     # print(found_papers)
+
+    # 著者名の検索
+    author_details = []
+    if keyword:
+        for author in res_author_search:
+            display_name = author.get('last_name_ja') + " " + \
+                author.get('first_name_ja')
+            author_details.append({
+                "name": display_name,
+                "uuid": author["uuid"]
+            })
 
     # 全文の検索
     if res_fulltext:
@@ -185,6 +202,13 @@ async def top_handler(request: Request, keyword: str = ""):
         # print(found_papers)
     # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
+    # 論文のダウンロード数
+    downloads_count = {}
+    if res_stats:
+        downloads_count = {rs['paper_uuid']: rs['total_downloads']
+                           for rs in res_stats['stats']}
+
+    # 論文ごとの詳細情報を組み立て
     paper_details = {}
     for rp in found_papers:  # 論文を選択
         # 論文に対応する著者名を検索
@@ -198,26 +222,22 @@ async def top_handler(request: Request, keyword: str = ""):
                     author.get('first_name_ja')
                 found_author.append(display_name)
 
+        # 論文の作成年月日
         created_at = datetime.fromisoformat(rp.get("created_at"))
         year_month = created_at.strftime("%Y年%m月")
+
+        # 論文のダウンロード数
+        paper_uuid = rp.get("uuid", "#")
+        total_downloads = downloads_count.get(paper_uuid, "0")
+
         paper_details[year_month] = paper_details.get(year_month, []) + [{
-            "uuid": rp.get("uuid", "#"),
+            "uuid": paper_uuid,
             "title": rp.get("title", "No Title"),
             "author": found_author,
             "label": rp.get("label", "No Label"),
-            "created_at": reformat_datetime(rp.get("created_at"))
+            "created_at": reformat_datetime(rp.get("created_at")),
+            "downloads": total_downloads
         }]
-
-    # 著者名の検索
-    author_details = []
-    if keyword:
-        for author in res_author_search:
-            display_name = author.get('last_name_ja') + " " + \
-                author.get('first_name_ja')
-            author_details.append({
-                "name": display_name,
-                "uuid": author["uuid"]
-            })
 
     return templates.TemplateResponse("top.html", {
         "request": request,
