@@ -71,19 +71,26 @@ def topz_handler():
 
 @app.get("/stats", response_model=StatsCountSeveral)
 def read_stats_handler():
-    query = {
-        "$group": {
-            "_id": "$paper_uuid",
-            "total_downloads": {
-                "$sum": 1
+    query = [
+        {
+            "$group": {
+                "_id": "$paper_uuid",
+                "total_downloads": {
+                    "$sum": 1
+                }
+            },
+        },
+        {
+            "$sort": {
+                "total_downloads": -1
             }
         }
-    }
+    ]
     print("All Stats Query:", query)
     try:
-        downloads = db["stats"].aggregate([
+        downloads = db["stats"].aggregate(
             query
-        ])
+        )
         res = []
         for x in list(downloads):
             sc = StatsCount(paper_uuid=x['_id'],
