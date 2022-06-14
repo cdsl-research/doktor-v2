@@ -10,6 +10,8 @@ spec:
   selector:
     matchLabels:
       minio: thumbnail
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
