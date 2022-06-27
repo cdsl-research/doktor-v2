@@ -91,7 +91,6 @@ def paper_only_upload():
         for p in papers
     }
 
-
     req = requests.get(f"{PAPER_URL}/paper")
     assert req.status_code == 200
     res = req.json()
@@ -114,7 +113,6 @@ def paper_only_upload():
         except Exception as e:
             print(e)
             print("Failed only upload:", paper)
-        
 
 
 def author_add_wrapper():
