@@ -82,6 +82,41 @@ def _paper_add(
     assert req.status_code == 200
 
 
+def paper_only_upload():
+    with open('papers.json') as f:
+        papers = json.load(f)
+    # CDSL-TR-002: xxxxxxxxxxxxx
+    mapping_table = {
+        p["paper_id"]: p["paper_url_id"]
+        for p in papers
+    }
+
+
+    req = requests.get(f"{PAPER_URL}/paper")
+    assert req.status_code == 200
+    res = req.json()
+
+    for paper in res['papers']:
+        try:
+            paper_label = paper['label']
+            paper_url_id = mapping_table[paper_label]
+            paper_uuid = paper['uuid']
+
+            PAPER_FILE_UPLOAD_URL = f"{PAPER_URL}/paper/{paper_uuid}/upload"
+            print("PAPER_FILE_UPLOAD_URL:", PAPER_FILE_UPLOAD_URL)
+            pdffile = {'file': (
+                f"{paper_uuid}.pdf",
+                open(f"pdf_files/{paper_url_id}.pdf", 'rb'),
+                "application/pdf"
+            )}
+            req = requests.post(PAPER_FILE_UPLOAD_URL, files=pdffile)
+            assert req.status_code == 200
+        except Exception as e:
+            print(e)
+            print("Failed only upload:", paper)
+        
+
+
 def author_add_wrapper():
     """ 著者の追加 """
     with open("authors.json") as f:
@@ -140,12 +175,15 @@ def thumbnail_add():
     assert req.status_code == 200
     res = req.json()
     for paper in res['papers']:
-        paper_uuid = paper['uuid']
-        req2 = requests.post(
-            f"{THUMBNAIL_URL}/thumbnail/{paper_uuid}", data={})
-        print(req2)
-        print(paper['title'])
-        assert req2.status_code == 200
+        try:
+            paper_uuid = paper['uuid']
+            req2 = requests.post(
+                f"{THUMBNAIL_URL}/thumbnail/{paper_uuid}", data={})
+            print(req2)
+            print(paper['title'])
+            assert req2.status_code == 200
+        except Exception:
+            print("Failed: thumbnail upload", paper)
 
 
 def fulltext_add():
@@ -153,17 +191,21 @@ def fulltext_add():
     assert req.status_code == 200
     res = req.json()
     for paper in res['papers']:
-        paper_uuid = paper['uuid']
-        req2 = requests.post(
-            f"{FULLTEXT_URL}/fulltext/{paper_uuid}", data={})
-        print(req2)
-        print(paper['title'])
-        assert req2.status_code == 200
+        try:
+            paper_uuid = paper['uuid']
+            req2 = requests.post(
+                f"{FULLTEXT_URL}/fulltext/{paper_uuid}", data={})
+            print(req2)
+            print(paper['title'])
+            assert req2.status_code == 200
+        except Exception:
+            print("Failed: fulltext upload", paper)
 
 
 def main():
     # author_add_wrapper()
     # paper_add_wrapper()
+    # paper_only_upload()
     thumbnail_add()
     # fulltext_add()
 
