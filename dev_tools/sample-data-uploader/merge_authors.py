@@ -15,7 +15,7 @@ import json
 
 
 def main():
-    """ Open cached author list """
+    """Open cached author list"""
     with open("authors.json") as f:
         total_authors = json.load(f)
     uniq_names = {a["last_name_ja"] + " " + a["first_name_ja"]
@@ -48,7 +48,7 @@ def main():
     new_authors = list(write_buffer.values())
     total_authors += new_authors
     # print(json.dumps(total_authors, indent=4, ensure_ascii=False))
-    with open("authors.json", mode='w') as f:
+    with open("authors.json", mode="w") as f:
         json.dump(total_authors, f, indent=4, ensure_ascii=False)
 
 
