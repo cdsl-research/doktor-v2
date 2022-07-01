@@ -39,7 +39,7 @@ try:
         MINIO_HOST,
         access_key=MINIO_ROOT_USER,
         secret_key=MINIO_ROOT_PASSWORD,
-        secure=False
+        secure=False,
     )
 except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     print(e)
@@ -127,15 +127,13 @@ def read_papers_handler(private: bool = False, title: str = ""):
 
     if title:
         _title = title.strip()
-        validate = re.search('^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$', _title)
+        validate = re.search("^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$", _title)
         if validate is None:
             raise HTTPException(status_code=400, detail="Invalid input")
         else:
-            query["title"] = {
-                "$regex": title
-            }
+            query["title"] = {"$regex": title}
 
-    found_papers = db["paper"].find(query, {'_id': 0})
+    found_papers = db["paper"].find(query, {"_id": 0})
     read_papers = list(map(lambda x: PaperRead(**x), found_papers))
     return PaperReadSeveral(papers=read_papers)
 
@@ -143,7 +141,7 @@ def read_papers_handler(private: bool = False, title: str = ""):
 @app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
     entry = db["paper"].find_one(
-        {"uuid": paper_uuid, "is_public": True}, {'_id': 0})
+        {"uuid": paper_uuid, "is_public": True}, {"_id": 0})
     if entry:
         return entry
     else:
@@ -154,8 +152,7 @@ def read_paper_handler(paper_uuid: UUID):
 async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
-            raise HTTPException(status_code=400,
-                                detail="Invalid Content-Type")
+            raise HTTPException(status_code=400, detail="Invalid Content-Type")
         # print("file number:", file.file.fileno())
         exist = minio_client.bucket_exists(MINIO_BUCKET_NAME)
         if not exist:
@@ -166,7 +163,8 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
             file.file,
             length=-1,
             part_size=10 * 1024 * 1024,
-            content_type="application/pdf")
+            content_type="application/pdf",
+        )
         return StatusResponse(**{"status": "ok"})
         response.close()
         response.release_conn()
@@ -175,12 +173,15 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
         raise HTTPException(status_code=503, detail=str(e.message))
 
 
-@app.get("/paper/{paper_uuid}/download", responses={
-    200: {
-        "content": {"application/pdf": {}},
-        "description": "Return the PDF file",
-    }
-})
+@app.get(
+    "/paper/{paper_uuid}/download",
+    responses={
+        200: {
+            "content": {"application/pdf": {}},
+            "description": "Return the PDF file",
+        }
+    },
+)
 async def download_paper_handler(paper_uuid: UUID):
     try:
         response = minio_client.get_object(
@@ -190,10 +191,12 @@ async def download_paper_handler(paper_uuid: UUID):
         response.release_conn()
     except S3Error as e:
         print("Download exception: ", e)
-        _status_code = 404 if e.code in (
-            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        raise HTTPException(status_code=_status_code,
-                            detail=str(e.message))
+        _status_code = (
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
+        raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
 # @app.put("/paper/{paper_uuid}", response_model=PaperRead)
@@ -217,8 +220,7 @@ def delete_paper_handler():
     print(res.deleted_count, " documents deleted.")
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
-        minio_client.list_objects(
-            MINIO_BUCKET_NAME, recursive=True),
+        minio_client.list_objects(MINIO_BUCKET_NAME, recursive=True),
     )
     errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
     for error in errors:
@@ -228,7 +230,7 @@ def delete_paper_handler():
 
 if __name__ == "__main__":
     try:
-        mongo_client.admin.command('ping')
+        mongo_client.admin.command("ping")
         print("MongoDB connected.")
     except (ConnectionFailure, OperationFailure) as e:
         print("MongoDB not available. ", e)
@@ -249,4 +251,5 @@ if __name__ == "__main__":
         print("Bucket 'paper' already exists")
 
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0")
