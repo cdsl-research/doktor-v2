@@ -1,14 +1,13 @@
 import asyncio
-import json
 import os
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone, tzinfo
-from typing import Tuple
+from datetime import datetime, timezone
+from typing import Tuple, Union, Optional
 from uuid import UUID
 
 import aiohttp
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -45,9 +44,13 @@ def reformat_datetime(raw_str: str) -> str:
 
 
 # ファイル取得
-async def http_get_file(session: aiohttp.ClientSession, url: str):
+async def http_get_file(session: aiohttp.ClientSession, url: str, x_req_id: Optional[UUID]):
     try:
-        async with session.get(url) as response:
+        if x_req_id is None:
+            _headers = {}
+        else:
+            _headers = {"x-request-id": x_req_id}
+        async with session.get(url, headers=_headers) as response:
             if response.status != 200:
                 response.raise_for_status()
             return await response.read()
@@ -57,9 +60,13 @@ async def http_get_file(session: aiohttp.ClientSession, url: str):
 
 
 # マイクロサービス呼び出し: Worker
-async def http_post(session: aiohttp.ClientSession, require: bool, url: str, body):
+async def http_post(session: aiohttp.ClientSession, require: bool, url: str, body, x_req_id: Optional[UUID]):
     try:
-        async with session.post(url=url, json=body) as response:
+        if x_req_id is None:
+            _headers = {}
+        else:
+            _headers = {"x-request-id": x_req_id}
+        async with session.post(url=url, headers=_headers, json=body) as response:
             if response.status >= 300:
                 response.raise_for_status()
             return await response.json()
@@ -71,9 +78,13 @@ async def http_post(session: aiohttp.ClientSession, require: bool, url: str, bod
 
 
 # マイクロサービス呼び出し: Worker
-async def http_get(session: aiohttp.ClientSession, require: bool, url: str):
+async def http_get(session: aiohttp.ClientSession, require: bool, url: str, x_req_id: Optional[UUID]):
     try:
-        async with session.get(url) as response:
+        if x_req_id is None:
+            _headers = {}
+        else:
+            _headers = {"x-request-id": x_req_id}
+        async with session.get(url, headers=_headers) as response:
             if response.status >= 300:
                 response.raise_for_status()
             return await response.json()
@@ -86,11 +97,11 @@ async def http_get(session: aiohttp.ClientSession, require: bool, url: str):
 
 # マイクロサービス呼び出し: Master
 # Masterから複数のWorkerを呼び出す．
-async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl]):
+async def fetch_all(session: aiohttp.ClientSession, urls: Tuple[FetchUrl], x_req_id: Optional[UUID]):
     tasks = []
     for url in urls:
         task = asyncio.create_task(
-            http_get(session=session, url=url.url, require=url.require))
+            http_get(session=session, url=url.url, require=url.require, x_req_id=x_req_id))
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
@@ -121,7 +132,7 @@ async def validation_exception_handler(request, exc):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def top_handler(request: Request, keyword: str = ""):
+async def top_handler(request: Request, keyword: str = "", x_req_id: Union[UUID, None] = Header(default=None)):
     striped_keyword = ""
     if keyword:
         # スペースを削除
@@ -155,7 +166,7 @@ async def top_handler(request: Request, keyword: str = ""):
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_raw = await fetch_all(session, urls)
+            json_raw = await fetch_all(session=session, urls=urls, x_req_id=x_req_id)
         except aiohttp.ClientResponseError as e:
             print("Top Error 1:", e)
             if e.code == 404:
@@ -248,7 +259,7 @@ async def top_handler(request: Request, keyword: str = ""):
 
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
-async def paper_handler(paper_uuid: UUID, request: Request):
+async def paper_handler(request: Request, paper_uuid: UUID, x_req_id: Union[UUID, None] = Header(default=None)):
     urls = (
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author",
@@ -268,7 +279,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_raw = await fetch_all(session=session, urls=urls)
+            json_raw = await fetch_all(session=session, urls=urls, x_req_id=x_req_id)
         except aiohttp.ClientResponseError as e:
             print("Paper Single View Fetch Error 1:", e)
             if e.code == 404:
@@ -346,7 +357,7 @@ async def paper_handler(paper_uuid: UUID, request: Request):
 
 
 @app.get("/paper/{paper_uuid}/download", response_class=Response)
-async def paper_download_handler(paper_uuid: UUID, request: Request):
+async def paper_download_handler(paper_uuid: UUID, request: Request, x_req_id: Union[UUID, None] = Header(default=None)):
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         # タスク一覧
         tasks = []
@@ -360,14 +371,15 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
         }
         print("Stats update:", body)
         task = asyncio.create_task(
-            http_post(session=session, url=url, body=body, require=False)
+            http_post(session=session, url=url, body=body,
+                      require=False, x_req_id=x_req_id)
         )
         tasks.append(task)
 
         # ファイルのダウンロード
         url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
         task = asyncio.create_task(
-            http_get_file(session=session, url=url)
+            http_get_file(session=session, url=url, x_req_id=x_req_id)
         )
         tasks.append(task)
 
@@ -391,7 +403,7 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
 
 
 @app.get("/author/{author_uuid}", response_class=HTMLResponse)
-async def author_handler(author_uuid: UUID, request: Request):
+async def author_handler(author_uuid: UUID, request: Request, x_req_id: Union[UUID, None] = Header(default=None)):
     urls = (
         FetchUrl(
             url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
@@ -404,7 +416,7 @@ async def author_handler(author_uuid: UUID, request: Request):
             require=True))
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
-            json_res = await fetch_all(session, urls)
+            json_res = await fetch_all(session=session, urls=urls, x_req_id=x_req_id)
         except aiohttp.ClientResponseError as e:
             print("Author Single View Error 1:", e)
             if e.code == 404:
@@ -459,12 +471,12 @@ async def author_handler(author_uuid: UUID, request: Request):
 
 
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
-async def thumbnail_handler(paper_uuid: UUID, image_id: str):
+async def thumbnail_handler(paper_uuid: UUID, image_id: str, x_req_id: Union[UUID, None] = Header(default=None)):
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         url = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
                f"/thumbnail/{paper_uuid}/{image_id}")
         try:
-            res_img = await http_get_file(session, url)
+            res_img = await http_get_file(session=session, url=url, x_req_id=x_req_id)
         except aiohttp.ClientResponseError as e:
             print("Thumbnail Download Error 1:", e)
             if e.code == 404:
