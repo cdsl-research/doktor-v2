@@ -3,8 +3,8 @@ import os
 import socket
 import sys
 import time
-from uuid import UUID
 from typing import Literal, Optional
+from uuid import UUID
 
 import fitz
 import requests
@@ -28,7 +28,7 @@ try:
         MINIO_HOST,
         access_key=MINIO_ACCESS_KEY,
         secret_key=MINIO_SECRET_KEY,
-        secure=False
+        secure=False,
     )
 except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     print(e)
@@ -72,13 +72,18 @@ def read_thumbnail(paper_uuid: UUID):
     try:
         files = minio_client.list_objects(
             MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
-        filenames = [f._object_name.replace(f"{paper_uuid}/", "")
-                     .replace(".png", "") for f in files]
+        filenames = [
+            f._object_name.replace(f"{paper_uuid}/", "").replace(".png", "")
+            for f in files
+        ]
         return {"images": filenames}
     except S3Error as e:
         print("Download exception: ", e)
-        _status_code = 404 if e.code in (
-            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        _status_code = (
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
@@ -114,12 +119,13 @@ def create_thumbnail(paper_uuid: UUID):
             put_path,
             io.BytesIO(fbody),
             length=-1,
-            part_size=1000 * 1024 * 1024)
+            part_size=1000 * 1024 * 1024,
+        )
 
     return {"status": "ok"}
 
 
-@ app.get("/thumbnail/{paper_uuid}/{image_id}")
+@app.get("/thumbnail/{paper_uuid}/{image_id}")
 def read_thumbnail(paper_uuid: UUID, image_id: str):
     # todo: image_id の形式のバリデーション
     try:
@@ -129,8 +135,11 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
         return Response(content=response.read(), media_type="image/png")
     except S3Error as e:
         print("Download exception: ", e)
-        _status_code = 404 if e.code in (
-            "NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        _status_code = (
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
     except Exception as e:
         res_status = 503
@@ -143,8 +152,7 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
 def delete_thumbnail_handler():
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
-        minio_client.list_objects(
-            MINIO_BUCKET_NAME, recursive=True),
+        minio_client.list_objects(MINIO_BUCKET_NAME, recursive=True),
     )
     errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
     for error in errors:
@@ -168,4 +176,5 @@ if __name__ == "__main__":
         print("Bucket 'paper' already exists")
 
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0")
