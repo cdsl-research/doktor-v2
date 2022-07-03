@@ -91,6 +91,7 @@ async def http_post(
 async def http_get(
     session: aiohttp.ClientSession, require: bool, url: str, x_req_id: Optional[UUID]
 ):
+    print("HTTP_GET:", x_req_id)
     try:
         if x_req_id is None:
             _headers = {}
@@ -469,7 +470,8 @@ async def author_handler(
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
     urls = (
-        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
         ),
