@@ -91,6 +91,7 @@ async def http_post(
 async def http_get(
     session: aiohttp.ClientSession, require: bool, url: str, x_req_id: Optional[UUID]
 ):
+    print("HTTP_GET:", x_req_id)
     try:
         if x_req_id is None:
             _headers = {}
