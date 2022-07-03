@@ -157,6 +157,7 @@ async def top_handler(
     keyword: str = "",
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
+    print(request.headers)
     striped_keyword = ""
     if keyword:
         # スペースを削除
