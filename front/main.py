@@ -474,8 +474,7 @@ async def author_handler(
 ):
     x_request_id = uuid4() if x_request_id is None else x_request_id
     urls = (
-        FetchUrl(
-            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
         ),
