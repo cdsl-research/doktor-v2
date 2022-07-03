@@ -1,8 +1,8 @@
-from email import message
 import os
 import sys
 from datetime import datetime
-from typing import Literal, Optional, List
+from email import message
+from typing import List, Literal, Optional
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
@@ -94,7 +94,7 @@ def create_author_handler(author: AuthorCreateUpdate):
         "joined_year": json_author.get("joined_year"),
         "is_graduated": json_author.get("is_graduated"),
         "created_at": datetime.now(),
-        "updated_at": datetime.now()
+        "updated_at": datetime.now(),
     }
     insert_id = db["author"].insert_one(my_author).inserted_id
     print("insert_id:", insert_id)
@@ -103,13 +103,18 @@ def create_author_handler(author: AuthorCreateUpdate):
 
 @app.get("/author")
 def read_authors_handler(name: str = ""):
-    target_fields = ["first_name_ja", "middle_name_ja",
-                     "last_name_ja", "first_name_en",
-                     "middle_name_en", "last_name_en"]
+    target_fields = [
+        "first_name_ja",
+        "middle_name_ja",
+        "last_name_ja",
+        "first_name_en",
+        "middle_name_en",
+        "last_name_en",
+    ]
     or_conditions = [{tf: {"$regex": name}} for tf in target_fields]
     query = {"$or": or_conditions}
     print("Mongo Query:", query)
-    return list(db["author"].find(query, {'_id': 0}))
+    return list(db["author"].find(query, {"_id": 0}))
 
 
 # @app.get("/author", response_model=AuthorReadSeveral)
@@ -120,7 +125,7 @@ def read_authors_handler(name: str = ""):
 
 @app.get("/author/{author_uuid}", response_model=AuthorRead)
 def read_author_handler(author_uuid: UUID):
-    entry = db["author"].find_one({"uuid": author_uuid}, {'_id': 0})
+    entry = db["author"].find_one({"uuid": author_uuid}, {"_id": 0})
     if entry:
         return AuthorRead(**entry)
     else:
@@ -155,11 +160,12 @@ def delete_author_handler():
 
 if __name__ == "__main__":
     try:
-        client.admin.command('ping')
+        client.admin.command("ping")
         print("MongoDB connected.")
     except (ConnectionFailure, OperationFailure) as e:
         print("MongoDB not available. ", e)
         sys.exit(-1)
 
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0")

@@ -1,12 +1,12 @@
-from email import message
-from http.client import HTTPException
 import os
 import sys
 from datetime import datetime
-from turtle import down
-from uuid import UUID
+from email import message
+from http.client import HTTPException
 from ipaddress import IPv4Address
-from typing import Literal, Optional, List
+from turtle import down
+from typing import List, Literal, Optional
+from uuid import UUID
 
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
@@ -73,35 +73,25 @@ def topz_handler():
 def read_stats_handler():
     query = [
         {
-            "$group": {
-                "_id": "$paper_uuid",
-                "total_downloads": {
-                    "$sum": 1
-                }
-            },
+            "$group": {"_id": "$paper_uuid", "total_downloads": {"$sum": 1}},
         },
-        {
-            "$sort": {
-                "total_downloads": -1
-            }
-        }
+        {"$sort": {"total_downloads": -1}},
     ]
     print("All Stats Query:", query)
     try:
-        downloads = db["stats"].aggregate(
-            query
-        )
+        downloads = db["stats"].aggregate(query)
         res = []
         for x in list(downloads):
-            sc = StatsCount(paper_uuid=x['_id'],
-                            total_downloads=x['total_downloads'])
+            sc = StatsCount(
+                paper_uuid=x["_id"],
+                total_downloads=x["total_downloads"])
             res.append(sc)
         return StatsCountSeveral(stats=res)
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to select")
 
 
-@ app.post("/stats", response_model=StatusResponse)
+@app.post("/stats", response_model=StatusResponse)
 def create_stats_handler(stats: StatsCreateUpdate):
     json_stats = jsonable_encoder(stats)
     my_stats = {
@@ -118,14 +108,12 @@ def create_stats_handler(stats: StatsCreateUpdate):
         raise HTTPException(status_code=500, detail="Fail to insert")
 
 
-@ app.get("/stats/{paper_id}", response_model=StatsCount)
+@app.get("/stats/{paper_id}", response_model=StatsCount)
 def read_stat_handler(paper_id: UUID):
-    query = {
-        "paper_uuid": str(paper_id)
-    }
+    query = {"paper_uuid": str(paper_id)}
     print("Stats Query:", query)
     try:
-        downloads = db["stats"].find(query, {'_id': 0}).count()
+        downloads = db["stats"].find(query, {"_id": 0}).count()
         return StatsCount(paper_uuid=paper_id, total_downloads=downloads)
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to select")
@@ -133,11 +121,12 @@ def read_stat_handler(paper_id: UUID):
 
 if __name__ == "__main__":
     try:
-        client.admin.command('ping')
+        client.admin.command("ping")
         print("MongoDB connected.")
     except (ConnectionFailure, OperationFailure) as e:
         print("MongoDB not available. ", e)
         sys.exit(-1)
 
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0")

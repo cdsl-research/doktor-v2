@@ -10,6 +10,8 @@ spec:
   selector:
     matchLabels:
       db: fulltext
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
