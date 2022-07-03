@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional, Tuple, Union
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import aiohttp
 from fastapi import FastAPI, Header, HTTPException, Request
@@ -157,7 +157,7 @@ async def top_handler(
     keyword: str = "",
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
-    print(request.headers)
+    x_request_id = uuid4() if x_request_id is None else x_request_id
     striped_keyword = ""
     if keyword:
         # スペースを削除
@@ -300,6 +300,7 @@ async def paper_handler(
     paper_uuid: UUID,
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
+    x_request_id = uuid4() if x_request_id is None else x_request_id
     urls = (
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
@@ -415,6 +416,7 @@ async def paper_download_handler(
     request: Request,
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
+    x_request_id = uuid4() if x_request_id is None else x_request_id
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         # タスク一覧
         tasks = []
@@ -470,8 +472,10 @@ async def author_handler(
     request: Request,
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
+    x_request_id = uuid4() if x_request_id is None else x_request_id
     urls = (
-        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
         ),
@@ -551,6 +555,7 @@ async def thumbnail_handler(
     image_id: str,
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
+    x_request_id = uuid4() if x_request_id is None else x_request_id
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         url = (
             f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
