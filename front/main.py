@@ -91,13 +91,13 @@ async def http_post(
 async def http_get(
     session: aiohttp.ClientSession, require: bool, url: str, x_req_id: Optional[UUID]
 ):
-    print("HTTP_GET:", x_req_id)
     try:
         if x_req_id is None:
             _headers = {}
             print("HTTP_GET: empty")
         else:
             _headers = {"x-request-id": str(x_req_id)}
+            print("HTTP_GET:", x_req_id)
         async with session.get(url, headers=_headers) as response:
             if response.status >= 300:
                 response.raise_for_status()
