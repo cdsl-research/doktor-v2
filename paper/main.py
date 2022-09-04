@@ -133,7 +133,7 @@ def read_papers_handler(private: bool = False, title: str = ""):
         else:
             query["title"] = {"$regex": title}
 
-    found_papers = db["paper"].find(query, {"_id": 0})
+    found_papers = db["paper"].find(query, {"_id": 0}).sort("label", -1)
     read_papers = list(map(lambda x: PaperRead(**x), found_papers))
     return PaperReadSeveral(papers=read_papers)
 
