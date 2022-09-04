@@ -1,5 +1,5 @@
 #!/bin/bash 
-set -xu -o pipefail
+set -xeu -o pipefail
 
 get_svc_port () {
   echo $(kubectl get svc -n $1 | grep app | awk -F: '{print $2}' | grep -o '3[0-9]\+')
