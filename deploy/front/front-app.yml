@@ -45,12 +45,6 @@ spec:
               value: "stats-app.stats"
             - name: SERVICE_STATS_PORT
               value: "4000"
-          livenessProbe:
-            httpGet:
-              path: /
-              port: health-port
-            periodSeconds: 10
-            timeoutSeconds: 3
           readinessProbe:
             httpGet:
               path: /
