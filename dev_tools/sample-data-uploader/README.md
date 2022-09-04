@@ -1,40 +1,48 @@
 # sample-data-uploader
 
-## 著者と論文の取得
+## Setup
 
 1. `scraping_papers.py` を実行して `papers.json` を作成
-1. `create_authors.py` を実行して `_authors.xxxxyyzz.json` を作成
-1. `merge_authors.py` を実行して `authors.json` を更新
-1. `download.bash` を実行して論文PDFファイルを取得
 
 ```
 python3 scraping_papers.py
+```
 
+2. `create_authors.py` を実行して `_authors.xxxxyyzz.json` を作成
+
+```
 python3 create_authors.py
+```
 
+3. `merge_authors.py` を実行して `authors.json` を更新
+
+```
 python3 merge_authors.py
-
-download.bash
 ```
 
-## アップローダの使い方
-
-環境変数でAuthorサービスとPaperサービスのエンドポイントをセットする．
+4. `pre_upload.sh` を実行して環境変数を設定
 
 ```
-export AUTHOR_ENDPOINT="http://192.168.201.80:32004"
-export PAPER_ENDPOINT="http://192.168.201.80:30948"
+. pre_upload.sh
+export | grep -i endpo
 ```
 
-サービスのエンドポイントは kubectl コマンドで取得する．
+5. gdown をインストール
 
 ```
-kubectl get svc -n author
-kubectl get svc -n paper
+pip install gdown
 ```
 
-スクリプトを実行する．
+6. `download.bash` を実行して論文PDFファイルを取得
 
 ```
-python upload.py
+./download.bash
+```
+
+7. `upload.py` を実行して論文PDFファイルをアップロード
+
+```
+pip install requests
+
+python3 upload.py
 ```
