@@ -283,11 +283,15 @@ async def top_handler(
             }
         ]
 
+        # 並べ替え
+        paper_details_sort = dict(
+            sorted(paper_details.items(), key=lambda x: x[0]))
+
     return templates.TemplateResponse(
         "top.html",
         {
             "request": request,
-            "papers": paper_details,
+            "papers": paper_details_sort,
             "authors": author_details,
             "search_keyword": striped_keyword,
         },
@@ -474,7 +478,8 @@ async def author_handler(
 ):
     x_request_id = uuid4() if x_request_id is None else x_request_id
     urls = (
-        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
         ),
