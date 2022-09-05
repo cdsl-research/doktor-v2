@@ -285,7 +285,7 @@ async def top_handler(
 
         # 並べ替え
         paper_details_sort = dict(
-            sorted(paper_details.items(), key=lambda x: x[0]))
+            sorted(paper_details.items(), key=lambda x: x[0], reverse=True))
 
     return templates.TemplateResponse(
         "top.html",
