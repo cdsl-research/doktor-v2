@@ -16,8 +16,7 @@ from pydantic import BaseModel
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
 
 """ Elasticsearch Setup """
-ELASTICSEARCH_HOST = os.getenv(
-    "ELASTICSEARCH_HOST", "fulltext-elastic:9200")
+ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "fulltext-elastic:9200")
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
 
 for _ in range(120):
@@ -107,10 +106,9 @@ def create_fulltext_handler(paper_uuid: UUID):
             raw_text = doc.get_page_text(pno=i)
             formated_text = raw_text.replace("\n", "")
             record = {
-                'paper_uuid': paper_uuid,
-                'page_number': i,
-                'text': formated_text
-            }
+                "paper_uuid": paper_uuid,
+                "page_number": i,
+                "text": formated_text}
             print("Insert record:", record)
             try:
                 es.index(index=ELASTICSEARCH_INDEX, document=record)
@@ -137,8 +135,9 @@ def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
     if records_count == 0:
         print("Matched 0 records:")
         background_tasks.add_task(create_fulltext_handler, paper_uuid)
-    records_list = list(map(lambda x: FulltextRead(
-        **x["_source"]), res["hits"]["hits"]))
+    records_list = list(
+        map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"])
+    )
     return FulltextReadSeveral(fulltexts=records_list)
 
 
@@ -149,15 +148,12 @@ def reads_fulltext_handler(keyword: str = ""):
             "match": {
                 "text": {
                     "query": keyword,
-                    "operator": "and"
-                }
-            }
-        }
-    }
+                    "operator": "and"}}}}
     print("Elasticsearch Query:", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
-    records_list = list(map(lambda x: FulltextRead(
-        **x["_source"]), res["hits"]["hits"]))
+    records_list = list(
+        map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"])
+    )
     return FulltextReadSeveral(fulltexts=records_list)
 
 
@@ -178,4 +174,5 @@ if __name__ == "__main__":
             time.sleep(1)
 
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0")

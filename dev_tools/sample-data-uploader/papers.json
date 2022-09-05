@@ -1,6 +1,172 @@
 [
     {
         "author": [
+            "坂本 一俊",
+            "伊藤 佳城",
+            "串田 高幸"
+        ],
+        "title": "メモリとCPU使用量と応答時間に基づくKubernetes上のPod数の決定",
+        "paper_id": "CDSL-TR-107",
+        "datetime": "Aug. 10 2022",
+        "paper_url_id": "1atY8WHCxclRdF6qfAtV56vvf_P8Pq32n",
+        "created_at": "2022-08-10T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "牧 丈晴",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "IoTデバイスにおけるWi-Fi接続のための暗号化キー更新の自動化",
+        "paper_id": "CDSL-TR-108",
+        "datetime": "Aug. 10 2022",
+        "paper_url_id": "1dp_7Xma0ZH6Zh3rfy2kZw3nXpVLMvKif",
+        "created_at": "2022-08-10T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "河竹 純一",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "無線LANのマルチホップネットワークにおける送受信のタイミングの一致によるIoTデバイスの省電力化",
+        "paper_id": "CDSL-TR-109",
+        "datetime": "Aug. 29 2022",
+        "paper_url_id": "16rBkY21rZUB3yOlSVivC-CBMMr7P4J2e",
+        "created_at": "2022-08-29T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "小林 竣",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "自律航法に基づく省電力な測位と歩行時補正による精度の改善",
+        "paper_id": "CDSL-TR-095",
+        "datetime": "Jul. 15 2022",
+        "paper_url_id": "1RY46Ol3lheuQiKihhkJqy1OZGNGQ1CEj",
+        "created_at": "2022-07-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山本 拓海",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "ToFセンサで取得する距離データと検知時間差に基づく入退室の識別による室内人数の算出",
+        "paper_id": "CDSL-TR-096",
+        "datetime": "Jul. 15 2022",
+        "paper_url_id": "1IcnYk20M6Njkb5-sPe24QtOEp9CoY3MR",
+        "created_at": "2022-07-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高木 優希",
+            "串田 高幸"
+        ],
+        "title": "RSSIの度数分布を用いた凸の選択による多点測位の誤差削減",
+        "paper_id": "CDSL-TR-097",
+        "datetime": "Jul. 19 2022",
+        "paper_url_id": "1eZV2Oxpxv9qE_jWbqqJPPPAj0-UZ9QnO",
+        "created_at": "2022-07-19T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "IoTデバイスへの重み付けと電池残量に基づく中継機能の停止判定によるデータ受信時間の延長",
+        "paper_id": "CDSL-TR-098",
+        "datetime": "Jul. 19 2022",
+        "paper_url_id": "1hUVQJtZlFJ2aOpPoV_RoXDVRFrWV9AH4",
+        "created_at": "2022-07-19T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "富田 啓太",
+            "中川 翔太",
+            "串田 高幸"
+        ],
+        "title": "二分探索法を用いたKubernetes Pod数の決定の自動化による応答時間の遅延の低減",
+        "paper_id": "CDSL-TR-100",
+        "datetime": "Jul. 20 2022",
+        "paper_url_id": "1FiZQpDyAEDdKQ4KeShpaZSIpcaTu1l46",
+        "created_at": "2022-07-20T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高橋 風太",
+            "飯島 貴政",
+            "串田 高幸"
+        ],
+        "title": "業務開始時刻に基づくディスク読み書き量の制限によるバックアップとユーザのファイル転送時間の両立",
+        "paper_id": "CDSL-TR-101",
+        "datetime": "Jul. 21 2022",
+        "paper_url_id": "1oiZGZ8o61Ze-fxi6dTjUax05gU3aX9zk",
+        "created_at": "2022-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "梅田 拓哉",
+            "高木 優希",
+            "串田 高幸"
+        ],
+        "title": "RSSIの適用範囲の設定による屋内測位の誤差削減",
+        "paper_id": "CDSL-TR-102",
+        "datetime": "Jul. 21 2022",
+        "paper_url_id": "1TptAhfNCwnZzzlfao4QKsIDnL9UUZU7H",
+        "created_at": "2022-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高橋 祐之介",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "通信可能台数の予測に基づく動的なBLE通信の終了による省電力化",
+        "paper_id": "CDSL-TR-103",
+        "datetime": "Jul. 21 2022",
+        "paper_url_id": "1EkywRP5rp2Et25w1lORFpe5X8U5u2l1L",
+        "created_at": "2022-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "廣居 舜佑",
+            "高木 優希",
+            "串田 高幸"
+        ],
+        "title": "RSSIに基づくビーコン配置による位置測位誤差の削減",
+        "paper_id": "CDSL-TR-104",
+        "datetime": "Jul. 25 2022",
+        "paper_url_id": "1oJNfG_OJGV8f3mncYlYdz0ygeK3lOrYB",
+        "created_at": "2022-07-25T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "伊藤 佳城",
+            "串田 高幸"
+        ],
+        "title": "Kubernetes PodのCPU使用率とアクセス数の変化量に基づく再配置",
+        "paper_id": "CDSL-TR-106",
+        "datetime": "Jul. 29 2022",
+        "paper_url_id": "1Etvrq2ywaVCbKWbqrgB0s7X6wSOYwztM",
+        "created_at": "2022-07-29T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
             "富田 啓太",
             "串田 高幸"
         ],
@@ -76,7 +242,7 @@
             "高橋 祐之介",
             "串田 高幸"
         ],
-        "title": "IoT機器同士の通信による障害内容の切り分けによるMQTTクライアント切断遅延の短縮",
+        "title": "IoT機器の共同通信による障害情報の開示およびMQTTクライアント切断遅延の短縮",
         "paper_id": "CDSL-TR-085",
         "datetime": "Jan. 16 2022",
         "paper_url_id": "1v5i7UlPDlETkfw9RmIVAhg7aZBQtjvWk",
