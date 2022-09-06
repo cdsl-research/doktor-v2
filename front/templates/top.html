@@ -15,14 +15,13 @@
         <ul>
             {% for paper in year_month_papers %}
             <li>
-                <h4 class="title">{{ paper.title }}</h4>
+                <h4 class="title"><a href="/paper/{{ paper.uuid }}" class="view">{{ paper.title }}</a></h4>
                 <div class="paper-detail">
                     <span>{% for author in paper.author %} {{ author }}, {% endfor %}</span>
                     <span>{{ paper.label }},</span>
                     <span>{{ paper.created_at }}, </span>
                     <span>ダウンロード数: {{ paper.downloads }}</span>
                 </div>
-                <a href="/paper/{{ paper.uuid }}" class="view">詳細</a>
             </li>
             {% endfor %}
         </ul>
@@ -40,10 +39,20 @@
         margin: 0 1rem 0 0;
     }
 
+    section > ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    section > ul > li {
+        border-bottom: solid 1px #d7d7d7;
+        padding-bottom: 1rem;
+    }
+    section > ul > li > h4 {
+        font-weight: normal;
+    }
+
     a.view {
-        display: inline-block;
-        border: dashed 1.5px;
-        padding: 0.0rem 0.5rem;
         text-decoration: none;
     }
 </style>
