@@ -1,0 +1,175 @@
+[
+  {
+    "_id": {
+      "$oid": "613b1c3ec2d54a7d276d4c53"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "rRqJu/iaQ42+8n+Nau85Xg==",
+        "subType": "03"
+      }
+    },
+    "author_uuid": [
+      "7478b7b4-0aa8-4a6e-bb3d-21cd4b4f060c",
+      "024cc361-0a4a-45a7-812e-f4850b468f81"
+    ],
+    "title": "温室において天窓の開閉と温度の対応関係に基づいた省電力な制御手法",
+    "keywords": [
+      "温室",
+      "電力制御"
+    ],
+    "label": "CDSL-TR-052",
+    "categories_id": [
+      0
+    ],
+    "abstract": "ここにabstractが入る．",
+    "url": "https://ja.tak-cslab.org/xxx",
+    "thumbnail_url": "https://ja.tak-cslab.org/yyy",
+    "is_public": true,
+    "created_at": {
+      "$date": "2021-09-10T08:50:06.721Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:50:06.721Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b1c6ac2d54a7d276d4c54"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "JZ1bJA8WRniM0PUfOMNu3A==",
+        "subType": "03"
+      }
+    },
+    "author_uuid": [
+      "7478b7b4-0aa8-4a6e-bb3d-21cd4b4f060c",
+      "024cc361-0a4a-45a7-812e-f4850b468f81"
+    ],
+    "title": "通信障害時に迂回経路でデータ転送をする方式",
+    "keywords": [
+      "通信障害",
+      "迂回"
+    ],
+    "label": "CDSL-TR-046",
+    "categories_id": [
+      0
+    ],
+    "abstract": "ここにabstractが入る．",
+    "url": "https://ja.tak-cslab.org/xxx",
+    "thumbnail_url": "https://ja.tak-cslab.org/yyy",
+    "is_public": true,
+    "created_at": {
+      "$date": "2021-09-10T08:50:50.435Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:50:50.435Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b1ccec2d54a7d276d4c55"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "e6sWV3gnSH+e2rDDfnmFcw==",
+        "subType": "03"
+      }
+    },
+    "author_uuid": [
+      "a81ab1f4-8e71-4670-84a5-20a3a497fdb5",
+      "024cc361-0a4a-45a7-812e-f4850b468f81"
+    ],
+    "title": "コンテナランタイムのパフォーマンス比較とシステム管理における評価",
+    "keywords": [
+      "コンテナランタイム",
+      "パフォーマンス"
+    ],
+    "label": "CDSL-TR-002",
+    "categories_id": [
+      0
+    ],
+    "abstract": "ここにabstractが入る．",
+    "url": "https://ja.tak-cslab.org/xxx",
+    "thumbnail_url": "https://ja.tak-cslab.org/yyy",
+    "is_public": true,
+    "created_at": {
+      "$date": "2021-09-10T08:52:30.907Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T08:52:30.907Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b20dec2d54a7d276d4c56"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "XanvETjfRoez4qCdkJrwYA==",
+        "subType": "03"
+      }
+    },
+    "author_uuid": [
+      "d584ad01-28b9-42f0-8583-402f1e5a75dc",
+      "3091f613-bae5-4c52-bff5-c39c2bd25798",
+      "024cc361-0a4a-45a7-812e-f4850b468f81"
+    ],
+    "title": "太陽光発電のパネル表面温度による電力量の予測精度の向上",
+    "keywords": [
+      "太陽光発電",
+      "パネル表面温度",
+      "電力量"
+    ],
+    "label": "CDSL-TR-055",
+    "categories_id": [
+      0
+    ],
+    "abstract": "ここにabstractが入る．",
+    "url": "https://ja.tak-cslab.org/xxx",
+    "thumbnail_url": "https://ja.tak-cslab.org/yyy",
+    "is_public": true,
+    "created_at": {
+      "$date": "2021-09-10T09:09:50.133Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T09:09:50.133Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613b2164c2d54a7d276d4c57"
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "c1gzuXEnTJmgiE95Fvo6Fw==",
+        "subType": "03"
+      }
+    },
+    "author_uuid": [
+      "268fa6a7-d7fd-41ab-b8a8-83ddf3e82a47",
+      "024cc361-0a4a-45a7-812e-f4850b468f81"
+    ],
+    "title": "人感センサを用いた入退室検出の人数と出席登録数の照合",
+    "keywords": [
+      "人感センサ",
+      "入退室",
+      "出席"
+    ],
+    "label": "CDSL-TR-042",
+    "categories_id": [
+      0
+    ],
+    "abstract": "ここにabstractが入る．",
+    "url": "https://ja.tak-cslab.org/xxx",
+    "thumbnail_url": "https://ja.tak-cslab.org/yyy",
+    "is_public": true,
+    "created_at": {
+      "$date": "2021-09-10T09:12:04.908Z"
+    },
+    "updated_at": {
+      "$date": "2021-09-10T09:12:04.908Z"
+    }
+  }
+]

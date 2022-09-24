@@ -1,0 +1,180 @@
+import os
+import re
+import socket
+import sys
+import time
+from datetime import datetime
+from typing import List, Literal, Optional
+from uuid import UUID, uuid4
+
+import urllib3
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import Response
+from minio import Minio, S3Error
+from minio.deleteobjects import DeleteObject
+from pydantic import BaseModel
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, OperationFailure
+
+""" MongoDB Setup """
+MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
+MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
+MONGO_HOST = os.getenv("MONGO_HOST", "paper-mongo")
+MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
+
+mongo_client = MongoClient(MONGO_CONNECTION_STRING)
+db = mongo_client[MONGO_DBNAME]
+
+
+""" Minio Setup"""
+MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
+MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
+MINIO_HOST = os.getenv("MINIO_HOST", "paper-minio:9000")
+MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
+
+try:
+    minio_client = Minio(
+        MINIO_HOST,
+        access_key=MINIO_ROOT_USER,
+        secret_key=MINIO_ROOT_PASSWORD,
+        secure=False,
+    )
+except (S3Error, urllib3.exceptions.MaxRetryError) as e:
+    print(e)
+    sys.exit(-1)
+
+
+""" FastAPI Setup """
+app = FastAPI()
+
+
+class ServiceHello(BaseModel):
+    name: str
+
+
+class ServiceHealth(BaseModel):
+    resouce: str
+
+
+class StatusResponse(BaseModel):
+    status: Literal["ok", "error"]
+    message: Optional[str] = ""
+
+
+class KeywordCreateUpdate(BaseModel):
+    paper_uuid: List[UUID]
+
+
+class KeywordRead(BaseModel):
+    paper_uuid: UUID
+    title: str
+    label: str
+    is_public: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = datetime.now()
+    # todo) reference_id: List[int]
+
+
+class KeywordReadSeveral(BaseModel):
+    keywords: List[KeywordRead]
+
+
+@app.get("/", response_model=ServiceHello)
+def root_handler():
+    return ServiceHello(name="paper")
+
+
+@app.get("/healthz", response_model=StatusResponse)
+def healthz_handler():
+    return StatusResponse(status="ok", message="it works")
+
+
+@app.get("/topz", response_model=ServiceHealth)
+def topz_handler():
+    return ServiceHealth(resource="busy")
+
+
+@app.post("/keyword", response_model=KeywordRead)
+def create_keyword_handler():
+    # paperサービスを呼び出し
+    # fulltextサービスを呼び出し
+    my_keyword = {
+        "uuid": uuid4(),
+        "author_uuid": json_paper.get("author_uuid"),
+        "title": json_paper.get("title"),
+        "label": json_paper.get("label"),
+        "is_public": json_paper.get("is_public"),
+        "created_at": json_paper.get("created_at"),
+        "updated_at": json_paper.get("updated_at"),
+    }
+    insert_id = db["paper"].insert_one(my_paper).inserted_id
+    print("insert_id:", insert_id)
+    return PaperRead(**my_paper)
+
+
+@app.get("/keyword", response_model=KeywordReadSeveral)
+def read_keyword_handler():
+    if title:
+        _title = title.strip()
+        validate = re.search("^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$", _title)
+        if validate is None:
+            raise HTTPException(status_code=400, detail="Invalid input")
+        else:
+            query["title"] = {"$regex": title}
+
+    found_papers = db["paper"].find(query, {"_id": 0}).sort("label", -1)
+    read_papers = list(map(lambda x: PaperRead(**x), found_papers))
+    return PaperReadSeveral(papers=read_papers)
+
+
+@app.get("/keyword/{paper_uuid}", response_model=PaperRead)
+def read_paper_handler(paper_uuid: UUID):
+    entry = db["paper"].find_one(
+        {"uuid": paper_uuid, "is_public": True}, {"_id": 0})
+    if entry:
+        return entry
+    else:
+        raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.delete("/reset", response_model=StatusResponse)
+def delete_paper_handler():
+    res = db["paper"].delete_many({})
+    print(res.deleted_count, " documents deleted.")
+    delete_object_list = map(
+        lambda x: DeleteObject(x.object_name),
+        minio_client.list_objects(MINIO_BUCKET_NAME, recursive=True),
+    )
+    errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
+    for error in errors:
+        print("error occured when deleting object", error)
+    return StatusResponse(**{"status": "ok"})
+
+
+if __name__ == "__main__":
+    try:
+        mongo_client.admin.command("ping")
+        print("MongoDB connected.")
+    except (ConnectionFailure, OperationFailure) as e:
+        print("MongoDB not available. ", e)
+        sys.exit(-1)
+
+    while True:
+        try:
+            res = socket.getaddrinfo(MINIO_HOST, None)
+            break
+        except Exception as e:
+            print("Retry resolve host:", e)
+            time.sleep(1)
+
+    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+    if not found:
+        minio_client.make_bucket(MINIO_BUCKET_NAME)
+    else:
+        print("Bucket 'paper' already exists")
+
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0")
