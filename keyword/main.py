@@ -1,9 +1,10 @@
 import asyncio
+import collections
 import os
 import sys
 from typing import List, Literal, Optional, Dict
 from uuid import UUID
-from xml.etree.ElementPath import xpath_tokenizer_re
+
 
 import aiohttp
 from fastapi import FastAPI, HTTPException
@@ -130,11 +131,7 @@ async def read_paper_handler(paper_uuid: UUID):
 
     # 形態素解析
     all_words = wakati.parse(content).split()
-    uniq_words = set(all_words)
-    uniq_word_counts = {}
-    for uw in uniq_words:
-        current = uniq_word_counts.get(uw, 0)
-        uniq_word_counts[uw] = current + all_words.count(uw)
+    uniq_word_counts = collections.Counter(all_words)
 
     return uniq_word_counts
 
