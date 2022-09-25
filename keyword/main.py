@@ -130,12 +130,6 @@ async def read_paper_handler(paper_uuid: UUID):
     res_fulltext = json_raw[0]["fulltexts"]
     content = " ".join((map(_replace, res_fulltext)))
 
-    def _select_noun(text: str) -> str:
-        try:
-            return
-        except Exception:
-            return False
-
     # 形態素解析
     result = wakati.parse(content).splitlines()
     noun_words = list()
