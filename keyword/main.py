@@ -1,6 +1,7 @@
 import asyncio
 import collections
 import os
+import re
 import sys
 from typing import List, Literal, Optional, Dict
 from uuid import UUID
@@ -142,7 +143,7 @@ async def read_paper_handler(paper_uuid: UUID):
         try:
             the_word = res.split("\t")[0]
             category = res.split("\t")[4]
-            if "名詞" in category:
+            if "名詞" in category and not re.fullmatch('[0-9]+', the_word):
                 noun_words.append(the_word)
         except Exception:
             continue
