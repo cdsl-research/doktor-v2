@@ -95,14 +95,16 @@ def topz_handler():
     return ServiceHealth(resource="busy")
 
 
-# @app.get("/keyword", response_model=KeywordReadSeveral)
-# def read_keyword_handler():
-#     found_papers = db["paper"].find(query, {"_id": 0}).sort("label", -1)
-#     read_papers = list(map(lambda x: PaperRead(**x), found_papers))
-#     return PaperReadSeveral(papers=read_papers)
+@app.get("/keyword/{paper_uuid}", response_model=KeywordRead)
+def read_keyword_handler(paper_uuid: UUID):
+    query = {
+        "paper_uuid": paper_uuid.hex
+    }
+    found_keywords = db["keyword"].find_one(query, {"_id": 0})
+    return KeywordRead(**found_keywords)
 
 
-@app.post("/keyword/{paper_uuid}")  # , response_model=KeywordRead)
+@app.post("/keyword/{paper_uuid}", response_model=KeywordRead)
 async def read_paper_handler(paper_uuid: UUID):
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         # タスク一覧
@@ -143,9 +145,11 @@ async def read_paper_handler(paper_uuid: UUID):
             continue
 
     uniq_word_counts = collections.Counter(noun_words)
+    uniq_word_counts_filtered = list(
+        filter(lambda x: x[1] >= 3, uniq_word_counts.items()))
     my_keyword = {
         "paper_uuid": paper_uuid.hex,
-        "keyword_counts": uniq_word_counts
+        "keyword_counts": uniq_word_counts_filtered
     }
     insert_id = db["keyword"].insert_one(my_keyword).inserted_id
     print("insert_id:", insert_id)
