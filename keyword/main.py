@@ -36,7 +36,7 @@ TIMEOUT = aiohttp.ClientTimeout(total=REQ_TIMEOUT_SEC)
 app = FastAPI()
 
 """ Mecab """
-wakati = MeCab.Tagger("-Owakati")
+wakati = MeCab.Tagger()
 
 
 class ServiceHello(BaseModel):
@@ -61,6 +61,10 @@ class KeywordRead(BaseModel):
     keyword_counts: Dict[str, int]
 
 
+class KeywordReadSeveral(BaseModel):
+    keywords: List[KeywordRead]
+
+
 # ファイル取得
 async def http_get(
     session: aiohttp.ClientSession, url: str
@@ -73,10 +77,6 @@ async def http_get(
     except Exception as e:
         print(e)
         raise e
-
-
-class KeywordReadSeveral(BaseModel):
-    keywords: List[KeywordRead]
 
 
 @app.get("/", response_model=ServiceHello)
@@ -129,11 +129,32 @@ async def read_paper_handler(paper_uuid: UUID):
     res_fulltext = json_raw[0]["fulltexts"]
     content = " ".join((map(_replace, res_fulltext)))
 
-    # 形態素解析
-    all_words = wakati.parse(content).split()
-    uniq_word_counts = collections.Counter(all_words)
+    def _select_noun(text: str) -> str:
+        try:
+            return
+        except Exception:
+            return False
 
-    return uniq_word_counts
+    # 形態素解析
+    result = wakati.parse(content).splitlines()
+    noun_words = list()
+    for res in result:
+        try:
+            the_word = res.split("\t")[0]
+            category = res.split("\t")[4]
+            if "名詞" in category:
+                noun_words.append(the_word)
+        except Exception:
+            continue
+
+    uniq_word_counts = collections.Counter(noun_words)
+    my_keyword = {
+        "paper_uuid": paper_uuid.hex,
+        "keyword_counts": uniq_word_counts
+    }
+    insert_id = db["keyword"].insert_one(my_keyword).inserted_id
+    print("insert_id:", insert_id)
+    return KeywordRead(**my_keyword)
 
 
 # @app.get("/keyword/{paper_uuid}", response_model=KeywordRead)
