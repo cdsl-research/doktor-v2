@@ -1,18 +1,13 @@
+import asyncio
 import os
-import re
-import socket
 import sys
-import time
-from datetime import datetime
-from typing import List, Literal, Optional
-from uuid import UUID, uuid4
+from typing import List, Literal, Optional, Dict
+from uuid import UUID
+from xml.etree.ElementPath import xpath_tokenizer_re
 
-import urllib3
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import Response
-from minio import Minio, S3Error
-from minio.deleteobjects import DeleteObject
+import aiohttp
+from fastapi import FastAPI, HTTPException
+import MeCab
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
@@ -20,34 +15,27 @@ from pymongo.errors import ConnectionFailure, OperationFailure
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
-MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
-MONGO_HOST = os.getenv("MONGO_HOST", "paper-mongo")
+MONGO_DBNAME = os.getenv("MONGO_DBNAME", "keyword")
+MONGO_HOST = os.getenv("MONGO_HOST", "keyword-mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 
 mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 db = mongo_client[MONGO_DBNAME]
 
+SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
+SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")
+SVC_FULLTEXT_HOST = os.getenv("SERVICE_FULLTEXT_HOST", "fulltext-app")
+SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
+REQ_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", 5))
 
-""" Minio Setup"""
-MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
-MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
-MINIO_HOST = os.getenv("MINIO_HOST", "paper-minio:9000")
-MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKEt_NAME", "paper")
-
-try:
-    minio_client = Minio(
-        MINIO_HOST,
-        access_key=MINIO_ROOT_USER,
-        secret_key=MINIO_ROOT_PASSWORD,
-        secure=False,
-    )
-except (S3Error, urllib3.exceptions.MaxRetryError) as e:
-    print(e)
-    sys.exit(-1)
+TIMEOUT = aiohttp.ClientTimeout(total=REQ_TIMEOUT_SEC)
 
 
 """ FastAPI Setup """
 app = FastAPI()
+
+""" Mecab """
+wakati = MeCab.Tagger("-Owakati")
 
 
 class ServiceHello(BaseModel):
@@ -69,12 +57,21 @@ class KeywordCreateUpdate(BaseModel):
 
 class KeywordRead(BaseModel):
     paper_uuid: UUID
-    title: str
-    label: str
-    is_public: bool
-    created_at: datetime
-    updated_at: Optional[datetime] = datetime.now()
-    # todo) reference_id: List[int]
+    keyword_counts: Dict[str, int]
+
+
+# ファイル取得
+async def http_get(
+    session: aiohttp.ClientSession, url: str
+):
+    try:
+        async with session.get(url) as response:
+            if response.status != 200:
+                response.raise_for_status()
+            return await response.json()
+    except Exception as e:
+        print(e)
+        raise e
 
 
 class KeywordReadSeveral(BaseModel):
@@ -83,7 +80,7 @@ class KeywordReadSeveral(BaseModel):
 
 @app.get("/", response_model=ServiceHello)
 def root_handler():
-    return ServiceHello(name="paper")
+    return ServiceHello(name="keyword")
 
 
 @app.get("/healthz", response_model=StatusResponse)
@@ -96,61 +93,67 @@ def topz_handler():
     return ServiceHealth(resource="busy")
 
 
-@app.post("/keyword", response_model=KeywordRead)
-def create_keyword_handler():
-    # paperサービスを呼び出し
-    # fulltextサービスを呼び出し
-    my_keyword = {
-        "uuid": uuid4(),
-        "author_uuid": json_paper.get("author_uuid"),
-        "title": json_paper.get("title"),
-        "label": json_paper.get("label"),
-        "is_public": json_paper.get("is_public"),
-        "created_at": json_paper.get("created_at"),
-        "updated_at": json_paper.get("updated_at"),
-    }
-    insert_id = db["paper"].insert_one(my_paper).inserted_id
-    print("insert_id:", insert_id)
-    return PaperRead(**my_paper)
+# @app.get("/keyword", response_model=KeywordReadSeveral)
+# def read_keyword_handler():
+#     found_papers = db["paper"].find(query, {"_id": 0}).sort("label", -1)
+#     read_papers = list(map(lambda x: PaperRead(**x), found_papers))
+#     return PaperReadSeveral(papers=read_papers)
 
 
-@app.get("/keyword", response_model=KeywordReadSeveral)
-def read_keyword_handler():
-    if title:
-        _title = title.strip()
-        validate = re.search("^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$", _title)
-        if validate is None:
-            raise HTTPException(status_code=400, detail="Invalid input")
-        else:
-            query["title"] = {"$regex": title}
+@app.post("/keyword/{paper_uuid}")  # , response_model=KeywordRead)
+async def read_paper_handler(paper_uuid: UUID):
+    async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
+        # タスク一覧
+        tasks = []
 
-    found_papers = db["paper"].find(query, {"_id": 0}).sort("label", -1)
-    read_papers = list(map(lambda x: PaperRead(**x), found_papers))
-    return PaperReadSeveral(papers=read_papers)
+        # fulltextサービスを呼び出し
+        url = f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}"
+        task = asyncio.create_task(
+            http_get(session=session, url=url)
+        )
+        tasks.append(task)
+
+        # 実行結果の集約
+        try:
+            json_raw = await asyncio.gather(*tasks)
+        except Exception as e:
+            print("Paper Download Error 2:", e)
+            raise HTTPException(status_code=503)
+
+    def _replace(text: str) -> str:
+        x = text["text"].replace("テクニカルレポートCDSL Technical Report", "").replace(
+            "c⃝ 2021 Cloud and Distributed Systems Laboratory", "")
+        return x
+
+    res_fulltext = json_raw[0]["fulltexts"]
+    content = " ".join((map(_replace, res_fulltext)))
+
+    # 形態素解析
+    all_words = wakati.parse(content).split()
+    uniq_words = set(all_words)
+    uniq_word_counts = {}
+    for uw in uniq_words:
+        current = uniq_word_counts.get(uw, 0)
+        uniq_word_counts[uw] = current + all_words.count(uw)
+
+    return uniq_word_counts
 
 
-@app.get("/keyword/{paper_uuid}", response_model=PaperRead)
-def read_paper_handler(paper_uuid: UUID):
-    entry = db["paper"].find_one(
-        {"uuid": paper_uuid, "is_public": True}, {"_id": 0})
-    if entry:
-        return entry
-    else:
-        raise HTTPException(status_code=404, detail="Not Found")
+# @app.get("/keyword/{paper_uuid}", response_model=KeywordRead)
+# def read_paper_handler(paper_uuid: UUID):
+#     entry = db["keyword"].find_one(
+#         {"uuid": paper_uuid, "is_public": True}, {"_id": 0})
+#     if entry:
+#         return entry
+#     else:
+#         raise HTTPException(status_code=404, detail="Not Found")
 
 
-@app.delete("/reset", response_model=StatusResponse)
-def delete_paper_handler():
-    res = db["paper"].delete_many({})
-    print(res.deleted_count, " documents deleted.")
-    delete_object_list = map(
-        lambda x: DeleteObject(x.object_name),
-        minio_client.list_objects(MINIO_BUCKET_NAME, recursive=True),
-    )
-    errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
-    for error in errors:
-        print("error occured when deleting object", error)
-    return StatusResponse(**{"status": "ok"})
+# @app.delete("/reset", response_model=StatusResponse)
+# def delete_paper_handler():
+#     res = db["paper"].delete_many({})
+#     print(res.deleted_count, " documents deleted.")
+#     return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":
@@ -161,20 +164,5 @@ if __name__ == "__main__":
         print("MongoDB not available. ", e)
         sys.exit(-1)
 
-    while True:
-        try:
-            res = socket.getaddrinfo(MINIO_HOST, None)
-            break
-        except Exception as e:
-            print("Retry resolve host:", e)
-            time.sleep(1)
-
-    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
-    if not found:
-        minio_client.make_bucket(MINIO_BUCKET_NAME)
-    else:
-        print("Bucket 'paper' already exists")
-
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0")
