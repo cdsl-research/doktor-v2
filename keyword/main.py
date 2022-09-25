@@ -3,13 +3,12 @@ import collections
 import os
 import re
 import sys
-from typing import List, Literal, Optional, Dict
+from typing import Dict, List, Literal, Optional
 from uuid import UUID
 
-
 import aiohttp
-from fastapi import FastAPI, HTTPException
 import MeCab
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
@@ -67,9 +66,7 @@ class KeywordReadSeveral(BaseModel):
 
 
 # ファイル取得
-async def http_get(
-    session: aiohttp.ClientSession, url: str
-):
+async def http_get(session: aiohttp.ClientSession, url: str):
     try:
         async with session.get(url) as response:
             if response.status != 200:
@@ -97,9 +94,7 @@ def topz_handler():
 
 @app.get("/keyword/{paper_uuid}", response_model=KeywordRead)
 def read_keyword_handler(paper_uuid: UUID):
-    query = {
-        "paper_uuid": paper_uuid.hex
-    }
+    query = {"paper_uuid": paper_uuid.hex}
     found_keywords = db["keyword"].find_one(query, {"_id": 0})
     return KeywordRead(**found_keywords)
 
@@ -112,9 +107,7 @@ async def read_paper_handler(paper_uuid: UUID):
 
         # fulltextサービスを呼び出し
         url = f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}"
-        task = asyncio.create_task(
-            http_get(session=session, url=url)
-        )
+        task = asyncio.create_task(http_get(session=session, url=url))
         tasks.append(task)
 
         # 実行結果の集約
@@ -125,8 +118,11 @@ async def read_paper_handler(paper_uuid: UUID):
             raise HTTPException(status_code=503)
 
     def _replace(text: str) -> str:
-        x = text["text"].replace("テクニカルレポートCDSL Technical Report", "").replace(
-            "c⃝ 2021 Cloud and Distributed Systems Laboratory", "")
+        x = (
+            text["text"]
+            .replace("テクニカルレポートCDSL Technical Report", "")
+            .replace("c⃝ 2021 Cloud and Distributed Systems Laboratory", "")
+        )
         return x
 
     res_fulltext = json_raw[0]["fulltexts"]
@@ -139,17 +135,18 @@ async def read_paper_handler(paper_uuid: UUID):
         try:
             the_word = res.split("\t")[0]
             category = res.split("\t")[4]
-            if "名詞" in category and not re.fullmatch('[0-9]+', the_word):
+            if "名詞" in category and not re.fullmatch("[0-9]+", the_word):
                 noun_words.append(the_word)
         except Exception:
             continue
 
     uniq_word_counts = collections.Counter(noun_words)
     uniq_word_counts_filtered = list(
-        filter(lambda x: x[1] >= 3, uniq_word_counts.items()))
+        filter(lambda x: x[1] >= 3, uniq_word_counts.items())
+    )
     my_keyword = {
         "paper_uuid": paper_uuid.hex,
-        "keyword_counts": uniq_word_counts_filtered
+        "keyword_counts": uniq_word_counts_filtered,
     }
     insert_id = db["keyword"].insert_one(my_keyword).inserted_id
     print("insert_id:", insert_id)
@@ -182,4 +179,5 @@ if __name__ == "__main__":
         sys.exit(-1)
 
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0")
