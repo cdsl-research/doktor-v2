@@ -414,7 +414,8 @@ async def paper_handler(
         },
     )
 
-def make_bibtex(paper_details,institution):
+
+def make_bibtex(paper_details, institution):
     # 論文情報からBibTexの形式へ変換
     bibtex_data = []
 
@@ -424,7 +425,7 @@ def make_bibtex(paper_details,institution):
         cnt += 1
         name = author["name"]
         if cnt == len(paper_details["author"]):
-            out_author += f"{{{name}}}}}," 
+            out_author += f"{{{name}}}}},"
         else:
             out_author += f"{{{name}}} and "
     bibtex_data.append(out_author)
@@ -490,7 +491,6 @@ async def paper_handler(
     res_fulltext = json_raw[3]
     res_stats = json_raw[4]
 
-
     # 著者の取得
     found_author = []
     for uuid in res_paper_me["author_uuid"]:
@@ -517,9 +517,10 @@ async def paper_handler(
         "label": res_paper_me.get("label"),
         "created_at": reformat_datetime(res_paper_me.get("created_at")),
         "created_year": res_paper_me.get("created_at").split("-")[0],
-        "updated_at": reformat_datetime(res_paper_me.get("updated_at"))
+        "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
     }
-    paper_details["bibtex"] = make_bibtex(paper_details,institution="クラウド・分散システム研究室")
+    paper_details["bibtex"] = make_bibtex(
+        paper_details, institution="クラウド・分散システム研究室")
 
     return templates.TemplateResponse(
         "cite.html",
