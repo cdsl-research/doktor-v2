@@ -420,11 +420,9 @@ def make_bibtex(paper_details, institution):
     bibtex_data = []
 
     out_author = "author={"
-    cnt = 0
-    for author in paper_details["author"]:
-        cnt += 1
+    for cnt,author in enumerate(paper_details["author"]):
         name = author["name"]
-        if cnt == len(paper_details["author"]):
+        if cnt == len(paper_details["author"])-1:
             out_author += f"{{{name}}}}},"
         else:
             out_author += f"{{{name}}} and "
@@ -487,9 +485,6 @@ async def paper_handler(
 
     res_author = json_raw[0]
     res_paper_me = json_raw[1]
-    res_thumbnail = json_raw[2]
-    res_fulltext = json_raw[3]
-    res_stats = json_raw[4]
 
     # 著者の取得
     found_author = []
