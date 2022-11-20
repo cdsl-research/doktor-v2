@@ -298,6 +298,32 @@ async def top_handler(
         },
     )
 
+def make_bibtex(paper_details,institution):
+    # 論文情報からBibTexの形式へ変換
+    bibtex_data = []
+
+    out_author = "author={"
+    cnt = 0
+    for author in paper_details["author"]:
+        cnt += 1
+        name = author["name"]
+        if cnt == len(paper_details["author"]):
+            out_author += f"{{{name}}}}}," 
+        else:
+            out_author += f"{{{name}}} and "
+    bibtex_data.append(out_author)
+    title = paper_details["title"]
+    bibtex_data.append(f"title={{{title}}},")
+    year = paper_details["created_year"]
+    bibtex_data.append(f"year={{{year}}},")
+    bibtex_data.append(f"institution={{{institution}}},")
+
+    address = paper_details["label"]
+    cite = f"@techreport{{{address},\n"
+    for i in bibtex_data:
+        cite += "  " + i + "\n"
+    cite += "}"
+    return cite
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(
@@ -377,7 +403,7 @@ async def paper_handler(
         "title": res_paper_me.get("title"),
         "author": [
             {
-                "name": author.get("last_name_ja") + author.get("first_name_ja"),
+                "name": author.get("last_name_ja") + " "+ author.get("first_name_ja"),
                 "uuid": author.get("uuid"),
             }
             for author in found_author
@@ -386,9 +412,14 @@ async def paper_handler(
         "created_at": reformat_datetime(res_paper_me.get("created_at")),
         "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
         "downloads": total_downloads,
+        "created_year": res_paper_me.get("created_at").split("-")[0],
     }
+    
+    bibtex_data = {
+    }
+    bibtex_data["text"] = make_bibtex(paper_details,institution="クラウド・分散システム研究室")
 
-    # 全文
+        # 全文
     try:
         first_page = list(
             filter(lambda x: x["page_number"] == 0, res_fulltext["fulltexts"])
@@ -409,122 +440,13 @@ async def paper_handler(
             "request": request,
             "paper": paper_details,
             "page_title": f"{paper_details['title']}",
+            "bibtex": bibtex_data,
             "image_urls": thumbnail_list,
             "abstract": first_page_300,
         },
     )
 
 
-def make_bibtex(paper_details, institution):
-    # 論文情報からBibTexの形式へ変換
-    bibtex_data = []
-
-    out_author = "author={"
-    for cnt,author in enumerate(paper_details["author"]):
-        name = author["name"]
-        if cnt == len(paper_details["author"])-1:
-            out_author += f"{{{name}}}}},"
-        else:
-            out_author += f"{{{name}}} and "
-    bibtex_data.append(out_author)
-    title = paper_details["title"]
-    bibtex_data.append(f"title={{{title}}},")
-    year = paper_details["created_year"]
-    bibtex_data.append(f"year={{{year}}},")
-    bibtex_data.append(f"institution={{{institution}}},")
-
-    address = paper_details["label"]
-    cite = f"@techreport{{{address},\n"
-    for i in bibtex_data:
-        cite += "  " + i + "\n"
-    cite += "}"
-    return cite
-
-
-@app.get("/paper/{paper_uuid}/cite", response_class=Response)
-async def paper_handler(
-    request: Request,
-    paper_uuid: UUID,
-    x_request_id: Union[UUID, None] = Header(default=None),
-):
-    x_request_id = uuid4() if x_request_id is None else x_request_id
-    urls = (
-        FetchUrl(
-            url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
-        ),
-        FetchUrl(
-            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}",
-            require=True,
-        ),
-        FetchUrl(
-            url=f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}/thumbnail/{paper_uuid}",
-            require=False,
-        ),
-        FetchUrl(
-            url=f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}/fulltext/{paper_uuid}",
-            require=False,
-        ),
-        FetchUrl(
-            url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats/{paper_uuid}",
-            require=False,
-        ),
-    )
-    async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
-        try:
-            json_raw = await fetch_all(
-                session=session, urls=urls, x_req_id=x_request_id
-            )
-        except aiohttp.ClientResponseError as e:
-            print("Paper Single View Fetch Error 1:", e)
-            if e.code == 404:
-                raise HTTPException(status_code=404)
-            raise HTTPException(status_code=503)
-        except Exception as e:
-            print("Paper Single View Fetch Error 2:", e)
-            raise HTTPException(status_code=503)
-
-    res_author = json_raw[0]
-    res_paper_me = json_raw[1]
-
-    # 著者の取得
-    found_author = []
-    for uuid in res_paper_me["author_uuid"]:
-        try:
-            candidates = filter(lambda x: uuid == x.get("uuid"), res_author)
-            candidates_lst = list(candidates)
-            if len(candidates_lst) > 0:
-                author = candidates_lst[0]
-                found_author.append(author)
-        except Exception as e:
-            print("Paper Single View Author Error:", e)
-            continue
-
-    paper_details = {
-        "uuid": res_paper_me.get("uuid"),
-        "title": res_paper_me.get("title"),
-        "author": [
-            {
-                "name": author.get("last_name_ja") + " " + author.get("first_name_ja"),
-                "uuid": author.get("uuid"),
-            }
-            for author in found_author
-        ],
-        "label": res_paper_me.get("label"),
-        "created_at": reformat_datetime(res_paper_me.get("created_at")),
-        "created_year": res_paper_me.get("created_at").split("-")[0],
-        "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
-    }
-    paper_details["bibtex"] = make_bibtex(
-        paper_details, institution="クラウド・分散システム研究室")
-
-    return templates.TemplateResponse(
-        "cite.html",
-        {
-            "request": request,
-            "paper": paper_details,
-            "page_title": f"{paper_details['title']}",
-        },
-    )
 
 
 @app.get("/paper/{paper_uuid}/download", response_class=Response)
