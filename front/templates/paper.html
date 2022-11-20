@@ -20,6 +20,18 @@
 
     <section>
         <a href="{{ paper.uuid }}/download"><button>ダウンロード(PDF形式)</button></a>
+        <button style="margin-top: 5px;" id="cite_btn">引用(BibTeX)</button>
+    </section>
+
+    <div id="cite_aria" style="display: none;">
+        <section>
+            <button id="cp_btn">コピー</button> <a id="cp_info"></a>
+        </section>
+        <section>
+            <textarea id="bibtex" readonly="readonly" cols="200" rows="7" style="resize: none;">{{ bibtex.text }}</textarea>
+        </section>
+    </div>
+    
     </section>
 
     <section>
@@ -32,5 +44,32 @@
         {% endfor %}
     </section>
 </main>
+
+
+<script>
+    const cite_btn = document.getElementById("cite_btn");
+    const cite_aria = document.getElementById("cite_aria");
+    const cp_btn = document.getElementById("cp_btn");
+    const cp_info = document.getElementById("cp_info");
+
+    cite_btn.addEventListener("click", function() {
+        if(cite_aria.style.display=="none"){
+            cite_aria.style.display ="inline";    
+            cite_btn.innerText = "引用(BibTeX) 非表示";
+            cp_info.innerText = "";
+        }else{
+            cite_aria.style.display ="none";    
+            cite_btn.innerText = "引用(BibTeX)";
+        }
+    });
+
+    cp_btn.addEventListener("click", function() {
+        let txt = document.getElementById("bibtex");
+        txt.select();
+        document.execCommand("Copy");
+        cp_info.innerText = "コピーしました";
+    });
+</script>
+
 
 {% include '_footer.html' %}

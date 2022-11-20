@@ -1,0 +1,21 @@
+{% include '_header.html' %}
+
+<script>
+    function cp(){
+        var txt = document.getElementById("bibtex");
+        txt.select();
+        document.execCommand("Copy");
+    }
+</script>
+
+<main>
+    <h2>{{ paper.title }}</h2>
+    <section>
+        <a><button onclick="cp()">クリップボードへコピー</button></a>
+    </section>
+    <section>
+        <textarea id="bibtex" readonly="readonly" cols="100" rows="20" style="resize: none;">{{ paper.bibtex }}</textarea>
+    </section>
+</main>
+
+{% include '_footer.html' %}
