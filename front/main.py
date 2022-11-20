@@ -302,15 +302,7 @@ def make_bibtex(paper_details,institution):
     # 論文情報からBibTexの形式へ変換
     bibtex_data = []
 
-    out_author = "author={"
-    cnt = 0
-    for author in paper_details["author"]:
-        cnt += 1
-        name = author["name"]
-        if cnt == len(paper_details["author"]):
-            out_author += f"{{{name}}}}}," 
-        else:
-            out_author += f"{{{name}}} and "
+    out_author = "author={{" + "} and {".join([d["name"] for d in paper_details["author"]]) + "}},"
     bibtex_data.append(out_author)
     title = paper_details["title"]
     bibtex_data.append(f"title={{{title}}},")
@@ -319,10 +311,7 @@ def make_bibtex(paper_details,institution):
     bibtex_data.append(f"institution={{{institution}}},")
 
     address = paper_details["label"]
-    cite = f"@techreport{{{address},\n"
-    for i in bibtex_data:
-        cite += "  " + i + "\n"
-    cite += "}"
+    cite = f"@techreport{{{address},\n  " + "\n  ".join(bibtex_data) + "\n}"
     return cite
 
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
