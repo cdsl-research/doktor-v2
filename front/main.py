@@ -299,6 +299,27 @@ async def top_handler(
     )
 
 
+def make_bibtex(paper_details, institution):
+    # 論文情報からBibTexの形式へ変換
+    bibtex_data = []
+
+    out_author = (
+        "author={{"
+        + "} and {".join([d["name"] for d in paper_details["author"]])
+        + "}},"
+    )
+    bibtex_data.append(out_author)
+    title = paper_details["title"]
+    bibtex_data.append(f"title={{{title}}},")
+    year = paper_details["created_year"]
+    bibtex_data.append(f"year={{{year}}},")
+    bibtex_data.append(f"institution={{{institution}}},")
+
+    address = paper_details["label"]
+    cite = f"@techreport{{{address},\n  " + "\n  ".join(bibtex_data) + "\n}"
+    return cite
+
+
 @app.get("/paper/{paper_uuid}", response_class=HTMLResponse)
 async def paper_handler(
     request: Request,
@@ -377,7 +398,7 @@ async def paper_handler(
         "title": res_paper_me.get("title"),
         "author": [
             {
-                "name": author.get("last_name_ja") + author.get("first_name_ja"),
+                "name": author.get("last_name_ja") + " " + author.get("first_name_ja"),
                 "uuid": author.get("uuid"),
             }
             for author in found_author
@@ -386,7 +407,12 @@ async def paper_handler(
         "created_at": reformat_datetime(res_paper_me.get("created_at")),
         "updated_at": reformat_datetime(res_paper_me.get("updated_at")),
         "downloads": total_downloads,
+        "created_year": res_paper_me.get("created_at").split("-")[0],
     }
+
+    bibtex_data = {}
+    bibtex_data["text"] = make_bibtex(
+        paper_details, institution="クラウド・分散システム研究室")
 
     # 全文
     try:
@@ -409,6 +435,7 @@ async def paper_handler(
             "request": request,
             "paper": paper_details,
             "page_title": f"{paper_details['title']}",
+            "bibtex": bibtex_data,
             "image_urls": thumbnail_list,
             "abstract": first_page_300,
         },
