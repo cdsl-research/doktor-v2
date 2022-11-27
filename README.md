@@ -6,7 +6,7 @@
 
 Kubernetesクラスタ上にデプロイする設計です．サービスメッシュにはIstioを利用しています．
 
-<img src="doktor-v2.png" width="600" alt="doktor-v2 architecture">
+<img src="intro-doktor-v2.png" width="600" alt="doktor-v2 architecture">
 
 ## 開発者向け
 
