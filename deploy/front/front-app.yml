@@ -6,7 +6,7 @@ metadata:
   labels:
     app: front
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: front
@@ -45,12 +45,12 @@ spec:
               value: "stats-app.stats"
             - name: SERVICE_STATS_PORT
               value: "4000"
-          readinessProbe:
-            httpGet:
-              path: /
-              port: health-port
-            periodSeconds: 5
-            timeoutSeconds: 3
+              # readinessProbe:
+              #   httpGet:
+              #     path: /
+              #     port: health-port
+              #   periodSeconds: 5
+              #   timeoutSeconds: 3
 ---
 apiVersion: v1
 kind: Service
