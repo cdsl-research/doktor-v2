@@ -1,51 +1,51 @@
 # doktor-v2
 
-マイクロサービスアーキテクチャで設計された論文検索サイトです．
+Doktor is a demo web application that is implemented as microservice architecture.
+This web application provides search and download of technical reports.
 
-## アーキテクチャ
+## Architecture
 
-Kubernetesクラスタ上にデプロイする設計です．サービスメッシュにはIstioを利用しています．
+Microservices are deployed on Kubernetes cluster. Istio is utilized for service mesh in this system.
 
 <img src="intro-doktor-v2.png" width="600" alt="doktor-v2 architecture">
 
-## 開発者向け
+## Development
 
-開発にJOINする場合は，[Developer Guide](./DEVELOP_GUIDE.md)を参照ください．
+If you are interested in development, you can read [developer guides](./DEVELOP_GUIDE.md).
 
-個々のサービスはコンテナ化されています．それぞれのサービスのAPIドキュメントは以下から参照できます．
+API Documents is here.
 
 https://cdsl-research.github.io/doktor-v2/
 
-## ブランチポリシー
+## Branch Policy
 
 - `master`
   - Latest and Stable release
-  - 開発したコードはここへマージ
+  - Create a pull request to this
 - `staging`
   - Staging release (equal to staging environment)
-  - 手元（ローカル）で動作検証を行った後にPull Requestをmasterからstagingへ作成
+  - Create a pull request to this on staging release
   - http://doktor-prod1:30200/
 - `production`
   - Production release (equal to production environment)
-  - stagingで動作検証を行った後にPull Requestをmasterからproductionへ作成
+  - Create a pull request to this after staging release
   - https://doktor.tak-cslab.org/
 
 ## Directory Structure
 
-構成ファイル・スクリプト
+Tools:
 
-- `deploy` デプロイ用の構成ファイル
-- `dev_tools` 開発用のツール群
+- `deploy` deploy scripts
+- `dev_tools` development scripts
 
-各サービス
+Microservices:
 
-- `author` 著者を管理するサービス
-- `front` ユーザが操作するWeb UIのサービス
-- `front-admin` 管理者が操作するWeb UIのサービス
-- `fulltext` 論文の本文を全文検索するサービス
-- `keyword` 分かち書き（文章から単語を抽出）するサービス
-- `paper` 論文を管理するサービス
-- `stats` アクセス履歴を管理するサービス
-- `textize` 論文からテキストに書き起こすサービス
-- `thumbnail` 論文に含まれる画像を管理するサービス
+- `author` Manage authors
+- `front` Provide Web UI for end users
+- `front-admin` Provide management console
+- `fulltext` Provide fulltext search for papers
+- `paper` Manage papers
+- `stats` Manage access history
+- `textize` Get text from pdf files
+- `thumbnail` Managing figures in papers
 
