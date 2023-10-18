@@ -1,53 +1,53 @@
-# 開発ガイド
+# Development Guides
 
-## 環境
+## prerequisites
 
 - Docker for Desktop 4.1.1
 - docker-compose v2.0.0
 - Python 3.9 or later
 
-## 開発環境の構築(初回のみ)
+## Steps (only first)
 
-プロジェクトのルートディレクトリに移動する．
+Move to the project root directory
 
 ```shell
 $ pwd
 /path/to/doktor-v2
 ```
 
-Docker Networkを作成する．
+Create a docker network
 
 ```shell
 docker network create frontend
 ```
 
-[Runner](https://github.com/stylemistake/runner#installation)をインストールする．
+Install task runner: [Runner](https://github.com/stylemistake/runner#installation)
 
 ```
 npm install -g bash-task-runner
 ```
 
-## 開発環境の起動
+## Getting started
 
-プロジェクトのルートディレクトリに移動する．
+Move to the project root directory
 
 ```shell
 $ pwd
 /path/to/doktor-v2
 ```
 
-Runnerでdocker-composeをまとめて起動する．
+Start containers:
 
 ```shell
 runner up
 ```
 
-ブラウザで以下のURLへアクセスする．
+Access web ui
 
 - Web UI(front) http://localhost:4000/
 - Admin UI(front-admin) http://localhost:4300/
 
-停止する場合は以下のコマンドを実行する．
+Stop containers:
 
 ```shell
 runner down
