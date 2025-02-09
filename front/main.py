@@ -89,8 +89,10 @@ async def http_post(
 
 # マイクロサービス呼び出し: Worker
 async def http_get(
-    session: aiohttp.ClientSession, require: bool, url: str, x_req_id: Optional[UUID]
-):
+        session: aiohttp.ClientSession,
+        require: bool,
+        url: str,
+        x_req_id: Optional[UUID]):
     try:
         if x_req_id is None:
             _headers = {}
@@ -112,8 +114,9 @@ async def http_get(
 # マイクロサービス呼び出し: Master
 # Masterから複数のWorkerを呼び出す．
 async def fetch_all(
-    session: aiohttp.ClientSession, urls: Tuple[FetchUrl], x_req_id: Optional[UUID]
-):
+        session: aiohttp.ClientSession,
+        urls: Tuple[FetchUrl],
+        x_req_id: Optional[UUID]):
     tasks = []
     for url in urls:
         task = asyncio.create_task(
@@ -147,8 +150,10 @@ async def custom_http_exception_handler(request, exc):
 async def validation_exception_handler(request, exc):
     print("Error: ", exc.detail)
     templates.TemplateResponse(
-        "error.html", {
-            "message": "不正なリクエストです．", "request": request}, status_code=400)
+        "error.html",
+        {"message": "不正なリクエストです．", "request": request},
+        status_code=400,
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -412,7 +417,8 @@ async def paper_handler(
 
     bibtex_data = {}
     bibtex_data["text"] = make_bibtex(
-        paper_details, institution="クラウド・分散システム研究室")
+        paper_details, institution="クラウド・分散システム研究室"
+    )
 
     # 全文
     try:

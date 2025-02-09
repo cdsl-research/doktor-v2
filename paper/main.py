@@ -149,7 +149,9 @@ def read_paper_handler(paper_uuid: UUID):
 
 
 @app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
-async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
+async def upload_paper_file_handler(
+        paper_uuid: UUID,
+        file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="Invalid Content-Type")
