@@ -8,6 +8,7 @@ import requests
 
 DEBUG = False
 
+
 def parse_datetime(raw_datetime: str) -> dt:
     raw_datetime = raw_datetime.replace(".", " ").strip()
     _month, _day, _year = raw_datetime.split()
@@ -69,7 +70,9 @@ def main():
             # internal <a> tag
             paper_detail = paper_detail_raw.groups()[0]
             # Fix typo
-            paper_detail = paper_detail.replace("CDSL -TR", "CDSL-TR").replace("&#8221;", '"')
+            paper_detail = paper_detail.replace("CDSL -TR", "CDSL-TR").replace(
+                "&#8221;", '"'
+            )
             if DEBUG:
                 print("Raw:", paper_detail)
 
@@ -83,7 +86,7 @@ def main():
                 while True:
                     author = next(itr_parts)
                     if DEBUG:
-                        print("'"+author+"'")
+                        print("'" + author + "'")
                     if author.strip() == "":
                         break
                     paper_authors.append(author.strip())
@@ -116,7 +119,8 @@ def main():
 
                 """ find: datetime """
                 _dt = " ".join(itr_parts)
-                matched_dt_str = re.findall(r"\w{3,5}\.?\s*\d{1,2}[.,]?\s*\d{4}", _dt)
+                matched_dt_str = re.findall(
+                    r"\w{3,5}\.?\s*\d{1,2}[.,]?\s*\d{4}", _dt)
                 if len(matched_dt_str) > 2:
                     print("+" * 10, "Unexpected datetime:", matched_dt_str)
                 if DEBUG:
