@@ -150,7 +150,9 @@ def paper_add_wrapper():
         papers = json.load(f)
     for paper in papers:
         authors = paper["author"]
-        author_uuids = [author_uuid_table.get(a) for a in authors if author_uuid_table.get(a)] + [author_uuid_table_e.get(a) for a in authors if author_uuid_table_e.get(a)]
+        author_uuids = [
+            author_uuid_table.get(a) for a in authors if author_uuid_table.get(a)
+        ] + [author_uuid_table_e.get(a) for a in authors if author_uuid_table_e.get(a)]
         if None in author_uuids:
             print("Not found author:", authors, author_uuids)
         title = paper["title"]
