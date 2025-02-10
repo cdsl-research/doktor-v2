@@ -6,9 +6,11 @@ from datetime import datetime as dt
 
 import requests
 
+DEBUG = False
+
 
 def parse_datetime(raw_datetime: str) -> dt:
-    raw_datetime = raw_datetime.replace(".", "").strip()
+    raw_datetime = raw_datetime.replace(".", " ").strip()
     _month, _day, _year = raw_datetime.split()
     _month = _month[:3]  # June -> Jun
     _day = _day.zfill(2)  # 3 -> 03
@@ -67,10 +69,15 @@ def main():
 
             # internal <a> tag
             paper_detail = paper_detail_raw.groups()[0]
-            # print("Raw:", paper_detail)
+            # Fix typo
+            paper_detail = paper_detail.replace("CDSL -TR", "CDSL-TR").replace(
+                "&#8221;", '"'
+            )
+            if DEBUG:
+                print("Raw:", paper_detail)
 
             # split title, author, paper_id, datetime
-            parts = re.split(r", |，|\&#\d+;|\"|”", paper_detail)
+            parts = re.split(r"\. |, |,|，|\&#\d+;|\"|”", paper_detail)
             itr_parts = iter(parts)
 
             try:
@@ -78,10 +85,13 @@ def main():
                 paper_authors = []
                 while True:
                     author = next(itr_parts)
+                    if DEBUG:
+                        print("'" + author + "'")
                     if author.strip() == "":
                         break
                     paper_authors.append(author.strip())
-                # print(paper_authors)
+                if DEBUG:
+                    print(f"{paper_authors=}")
 
                 """ find: title """
                 title = ""
@@ -93,7 +103,8 @@ def main():
                         if title.endswith(","):
                             title = title[:-1]
                         break
-                # print(title)
+                if DEBUG:
+                    print(f"{title=}")
 
                 """ find: paper_id """
                 paper_id = ""
@@ -103,21 +114,30 @@ def main():
                     if t.strip().startswith("CDSL-TR"):
                         paper_id = t.strip()
                         break
-                # print(paper_id)
+                if DEBUG:
+                    print(f"{paper_id=}")
 
                 """ find: datetime """
                 _dt = " ".join(itr_parts)
-                if _dt.endswith("."):
-                    _dt = _dt[:-1]
-                matched_dt_str = re.findall(r"\w{3,5}\.? \d{1,2} \d{4}", _dt)
+                matched_dt_str = re.findall(
+                    r"\w{3,5}\.?\s*\d{1,2}[.,]?\s*\d{4}", _dt)
                 if len(matched_dt_str) > 2:
                     print("+" * 10, "Unexpected datetime:", matched_dt_str)
-                # print(matched_dt_str)
+                if DEBUG:
+                    print(f"{matched_dt_str=}")
+
+                if len(matched_dt_str) == 0:
+                    print("+" * 10, "ERROR: fail to parse", paper_detail)
+                    continue
+
+                """ fix typo """
+                matched_dt_str[0] = matched_dt_str[0].replace("Arp", "Apr")
 
                 """ parse datetime string """
                 dt_created_at = parse_datetime(matched_dt_str[0])
                 created_at = dt_created_at.isoformat()
-                # print(created_at)
+                if DEBUG:
+                    print(f"{created_at=}")
 
                 updated_at = ""
                 if len(matched_dt_str) == 2:
@@ -137,7 +157,7 @@ def main():
                 )
 
             except StopIteration:
-                print("+" * 10, "ERROR", paper_detail)
+                print("+" * 10, "ERROR: exception", paper_detail)
                 continue
 
     # print(json.dumps(matched_papers, indent=4))

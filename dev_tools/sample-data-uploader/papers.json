@@ -1,13 +1,1515 @@
 [
     {
         "author": [
+            "田中 美帆",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "YAMLファイルを比較して生成したルールによるKubernetes Podのエラー原因の提示",
+        "paper_id": "CDSL-TR-226",
+        "datetime": "Jan 8 2025.",
+        "paper_url_id": "1bhQJzAvFhNUAEC7sX_jnsSZdNvgTgcP0",
+        "created_at": "2025-01-08T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "月森 陽太",
+            "遠藤 空",
+            "串田 高幸"
+        ],
+        "title": "Ubuntu Serverへのログインと他サーバとの通信の履歴にもとづくVMの内部データのアーカイブ判断",
+        "paper_id": "CDSL-TR-227",
+        "datetime": "Jan.8 2025.",
+        "paper_url_id": "162eLmwXxCJ1H9zr2uHt7LQwBmvFnkawz",
+        "created_at": "2025-01-08T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "井出 佑",
+            "山本 真也",
+            "串田 高幸"
+        ],
+        "title": "レジスタの値からセンサーの種類を識別することによるセットアップ時間の短縮",
+        "paper_id": "CDSL-TR-228",
+        "datetime": "Jan 9 2025.",
+        "paper_url_id": "12enRwJZsH27j-2wR8nMjGsL4DDzU88BX",
+        "created_at": "2025-01-09T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "佐藤 健斗",
+            "川端 ももの",
+            "串田 高幸"
+        ],
+        "title": "レーベンシュタイン距離の正規化をもちいたログのグループ化による検索時の表示件数の削減",
+        "paper_id": "CDSL-TR-229",
+        "datetime": "Jan 9 2025.",
+        "paper_url_id": "1aaMm964bcReStKTBgltELpfHWY8B_KMx",
+        "created_at": "2025-01-09T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "宮本 港斗",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "アップデート中断時の更新プロセスの記録によるサーバーからのファイル再受信時の重複排除",
+        "paper_id": "CDSL-TR-230",
+        "datetime": "Jan 15 2025.",
+        "paper_url_id": "1tz8KYkLI2lEj4xSZDyFAlndtJ81hDFk3",
+        "created_at": "2025-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "Muhammad Akram",
+            "Miho Tanaka",
+            "Takayuki Kushida"
+        ],
+        "title": "Adjusting Deployed Container Number to Reduce Rolling Update Time",
+        "paper_id": "CDSL-TR-231",
+        "datetime": "Jan 15 2025.",
+        "paper_url_id": "1MR0kmdaQ9Y7LrADTOSU4ynwSm4u4j33h",
+        "created_at": "2025-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "加藤 健吾",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "サーバへのSSH接続時間にもとづく順位付けによるアラートの並べ替え",
+        "paper_id": "CDSL-TR-232",
+        "datetime": "Jan 20 2025.",
+        "paper_url_id": "1bZw_YB0p6ODzUDCeBvYHT2PAIda9_Kwg",
+        "created_at": "2025-01-20T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "有田 海斗",
+            "三上 翔太",
+            "串田 高幸"
+        ],
+        "title": "メトリクス名と入力した文字列が一致した候補の表示によるPrometheusのアラートの設定に要する時間の削減",
+        "paper_id": "CDSL-TR-233",
+        "datetime": "Jan 24 2025.",
+        "paper_url_id": "1VTe2Az1WjCDnnldBQEn49p5vijMgtkVi",
+        "created_at": "2025-01-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "北川 翔也",
+            "山本 真也",
+            "串田 高幸"
+        ],
+        "title": "IoTデバイス間の通信におけるアクセスポイントとクライアントの送信出力を変更することによる省電力化",
+        "paper_id": "CDSL-TR-234",
+        "datetime": "Jan 27 2025.",
+        "paper_url_id": "133KxJbUbV3WQFF5CWqIQWvcIzeBX_7tj",
+        "created_at": "2025-01-27T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "岡田 京太郎",
+            "三上 翔太",
+            "串田 高幸"
+        ],
+        "title": "テキストに含まれる定義した文字列の検出によるファイルのログタイプの特定時間の短縮",
+        "paper_id": "CDSL-TR-235",
+        "datetime": "Jan 30 2025.",
+        "paper_url_id": "1xCs4alnMkDPW0Nd1nSOQ9_c_P4TT23uk",
+        "created_at": "2025-01-30T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "三上 翔太",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "ファイルの拡張子と中身の有無によるフィルタリングと情報エントロピーをもちいたログの特定",
+        "paper_id": "CDSL-TR-212",
+        "datetime": "Dec 2 2024.",
+        "paper_url_id": "1eE_RT1yap10VCB2pPcHLZYreq-mUWhaS",
+        "created_at": "2024-12-02T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "近藤 悠斗",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "Kubernetesにおける異なるディストリビューションへのリソースの複製によるエラーの原因の分類",
+        "paper_id": "CDSL-TR-213",
+        "datetime": "Dec 2 2024.",
+        "paper_url_id": "1H4QHaHFSmWy_bEfmVucOnfdxhrGS3Vlx",
+        "created_at": "2024-12-02T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "西村 克己",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "閲覧数の差分とパレートの法則によるリストア後のテスト対象の限定と時間の短縮",
+        "paper_id": "CDSL-TR-214",
+        "datetime": "Dec 9 2024.",
+        "paper_url_id": "1tEER17oD0-eBJVVCd-EyHnoWKdjlbsoZ",
+        "created_at": "2024-12-09T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "越後谷 澪",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "クライアントの共通したパケットロスごとのマルチキャストグループを使用した重複パケットの抑制による消費電力の削減",
+        "paper_id": "CDSL-TR-215",
+        "datetime": "Dec 11 2024.",
+        "paper_url_id": "1u_X9hFCuYAEhcAuHQRf86JQXM7hfNLMV",
+        "created_at": "2024-12-11T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "遠藤 空",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "DHCPサーバによる学生名の識別におけるARPリクエストにもとづく同時刻に接続された端末の所有者の特定",
+        "paper_id": "CDSL-TR-216",
+        "datetime": "Dec 12 2024.",
+        "paper_url_id": "11sU91J5NOASZwHM6OUiFDhP9TB7tlROr",
+        "created_at": "2024-12-12T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "川端 ももの",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "問い合わせメールに含まれる日時を用いたログのプリフェッチによるキャッシュヒット率の向上",
+        "paper_id": "CDSL-TR-217",
+        "datetime": "Dec 20 2024.",
+        "paper_url_id": "1BuHmvdkpv7bAqybv2pOje9-CUtBmnHNS",
+        "created_at": "2024-12-20T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "石川裕人",
+            "高橋風太",
+            "串田 高幸"
+        ],
+        "title": "バックアップのディスク読み取り速度の制限による許容時間内のリストア完了",
+        "paper_id": "CDSL-TR-218",
+        "datetime": "Dec 22 2024.",
+        "paper_url_id": "1hBMg0oJOj857tI84DHARJDXXuP6_PAx-",
+        "created_at": "2024-12-22T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "坂井 萌桜",
+            "山野 倖平",
+            "串田 高幸"
+        ],
+        "title": "サーバのログイン時間とユーザの歩数を使用した作業時間の予測による物理マシンの停止と消費電力の削減",
+        "paper_id": "CDSL-TR-219",
+        "datetime": "Dec 23 2024.",
+        "paper_url_id": "1m9y0o5IwZeQEcH-ySNLSy_dzgSsOYGjH",
+        "created_at": "2024-12-23T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "鈴木 友也",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "SSH接続した日数と実行中のプロセスとサービスをもちいた仮想マシンの特徴の特定",
+        "paper_id": "CDSL-TR-220",
+        "datetime": "Dec 24 2024.",
+        "paper_url_id": "1E1PufB8Tv1IH6UP5mKYL75B8dzz1eh-G",
+        "created_at": "2024-12-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山崎 雅也",
+            "越後谷 澪",
+            "串田 高幸"
+        ],
+        "title": "マルチキャストにおけるパケットロスしたシーケンス番号の送信の待機時間をもちいたユニキャストでの再送信による再送時間の削減",
+        "paper_id": "CDSL-TR-221",
+        "datetime": "Dec 24 2024.",
+        "paper_url_id": "1rWxpJx-aNKdN3qwGqH7E6oOrZA8ZGlnS",
+        "created_at": "2024-12-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "マルチホップネットワークでノードの類似度を用いたクラスターヘッド選択アルゴリズム",
+        "paper_id": "CDSL-TR-222",
+        "datetime": "Dec 24 2024.",
+        "paper_url_id": "1yC2uk9FAoPzVCf9rhaB_NZBlnfsfU-RU",
+        "created_at": "2024-12-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "筒井 優貴",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "バッテリー残量と接続可能ノード数をもとにしたクラスターヘッドの決定によるノード稼働時間の均一化",
+        "paper_id": "CDSL-TR-223",
+        "datetime": "Dec 24 2024.",
+        "paper_url_id": "164F2VBCGyGkrmtFg0WCEkw-v0xVStZ0Q",
+        "created_at": "2024-12-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "手塚 雄星",
+            "西村 克己",
+            "串田 高幸"
+        ],
+        "title": "WordPressにおける転送データの削減による移行にかかる実行時間の短縮",
+        "paper_id": "CDSL-TR-224",
+        "datetime": "Dec 24 2024.",
+        "paper_url_id": "1lru6FG5lPsoHBurcJwORBYGLBq1PiY9f",
+        "created_at": "2024-12-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "構成管理データベースを使用した重みづけとアラートの通知件数の削減",
+        "paper_id": "CDSL-TR-225",
+        "datetime": "Dec 24 2024.",
+        "paper_url_id": "1ptDeoAjebi-a0hV2qPn3SFmpEmIvBC0r",
+        "created_at": "2024-12-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "業務開始時刻に完了させるバックアップに対する読み取り制御によるユーザファイルの転送時間の最短化",
+        "paper_id": "CDSL-TR-209",
+        "datetime": "Nov 22 2024.",
+        "paper_url_id": "1By-A7Rvj9Qv7ROhJiQH7_xHUV0odGDDq",
+        "created_at": "2024-11-22T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山野 倖平",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "VMの使用時間にもとづく作業時間の予測と物理マシンの停止による省電力化",
+        "paper_id": "CDSL-TR-210",
+        "datetime": "Nov 26 2024.",
+        "paper_url_id": "1Yo_XdFur6XxWzpDo-Caxs0F6rVVXXNmI",
+        "created_at": "2024-11-26T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山本 真也",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "LiDARの測定データ間の差分を圧縮することによる送信時のファイルサイズの削減",
+        "paper_id": "CDSL-TR-211",
+        "datetime": "Nov 28 2024.",
+        "paper_url_id": "11YToJkcc6DBff-DD2VJ8GQh8puBfy0Yo",
+        "created_at": "2024-11-28T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "三上 翔太",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "ファイルにおける行ごとの最頻文字数の一致率を用いたログの特定",
+        "paper_id": "CDSL-TR-199",
+        "datetime": "Aug 1 2024.",
+        "paper_url_id": "1C-C1Va7p-SkfJjVSSDCz6W5ct7R7tcJ4",
+        "created_at": "2024-08-01T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "石川 裕人",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "リストアにおける進行状況にもとづくバックアップのCPU使用量の制限による時間の増加の抑制",
+        "paper_id": "CDSL-TR-200",
+        "datetime": "Aug 1 2024.",
+        "paper_url_id": "17zBZmh77rgG8mTod10eJSa8NDDLUvxxW",
+        "created_at": "2024-08-01T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "遠藤 空",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "複数の授業でMACアドレスと出席者が重複した時間による端末所有者の特定",
+        "paper_id": "CDSL-TR-201",
+        "datetime": "Aug 1 2024.",
+        "paper_url_id": "1BJr4Tn4y0ltFb9LIvfrduu5NNmv5yY75",
+        "created_at": "2024-08-01T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山本 真也",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "LiDARデータの角度の差分と距離の差分によるデータ量の削減",
+        "paper_id": "CDSL-TR-202",
+        "datetime": "Aug 1 2024.",
+        "paper_url_id": "1bgscl-BbT02nDG-GmVk7QwfovYiX8da7",
+        "created_at": "2024-08-01T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "田中 美帆",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "KubernetesのPodステータスに基づくルールファイルを用いたエラー原因箇所の特定による実行コマンド数の削減",
+        "paper_id": "CDSL-TR-203",
+        "datetime": "Aug 5 2024.",
+        "paper_url_id": "1ZOdvwUuUl_9JFbUERgqj9JM8JZzGvf8R",
+        "created_at": "2024-08-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "川端 ももの",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "問い合わせメールとテンプレートを適用した検索クエリによるキャッシュヒット率の向上",
+        "paper_id": "CDSL-TR-204",
+        "datetime": "Aug 5 2024.",
+        "paper_url_id": "1jlEU3fBXgI6iNmCc2a0-l-HLfxESrbdL",
+        "created_at": "2024-08-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "鈴木 友也",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "TXTレコードを用いた仮想マシンが登録されているハイパーバイザー特定時間の短縮",
+        "paper_id": "CDSL-TR-205",
+        "datetime": "Aug 7 2024.",
+        "paper_url_id": "1AjFvpY4_qiYQdOnyeGCBt_Q5aS-WX8tE",
+        "created_at": "2024-08-07T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "加藤 健吾",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "showmountの出力で識別したNFSサーバの表示によるPromQLでのディスク容量が不足した原因特定の時間短縮",
+        "paper_id": "CDSL-TR-206",
+        "datetime": "Aug 7 2024.",
+        "paper_url_id": "1Tf1IlunWuVUvh4RNMzgY9yA1sq-96ezK",
+        "created_at": "2024-08-07T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "筒井 優貴",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "バッテリー残量とRSSIをもとにした送信先の選択によるマルチホップネットワークのノードの稼働時間の延長",
+        "paper_id": "CDSL-TR-207",
+        "datetime": "Aug 7 2024.",
+        "paper_url_id": "1LOXVj-29Yxt5JYQcJrnbmIiGSowcwAv-",
+        "created_at": "2024-08-07T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "宮本 港斗",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "稼働条件を満たさないIoTデバイスにおけるソフトウェアのバージョン比較を用いた更新するファイルの判断と適用",
+        "paper_id": "CDSL-TR-208",
+        "datetime": "Aug 7 2024.",
+        "paper_url_id": "12JNQvrsPHfy4L3PN_WGZ-LBy1PRjPSq8",
+        "created_at": "2024-08-07T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "西村 克己",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "ページビューの増加をもちいた記事数の限定によるリストアのテスト時間の短縮",
+        "paper_id": "CDSL-TR-196",
+        "datetime": "Jul 30 2024.",
+        "paper_url_id": "170xCZS1TRPPR2kuERsFaVfMT0WXBlUbA",
+        "created_at": "2024-07-30T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "マルチホップネットワークでノードの類似度を用いたクラスターヘッド選択によるノード間の電力負荷分散",
+        "paper_id": "CDSL-TR-197",
+        "datetime": "Jul 31 2024.",
+        "paper_url_id": "1LxxmHHl4V3PpENofKTHmquGh3DWwndNe",
+        "created_at": "2024-07-31T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "近藤 悠斗",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "KubernetesにおけるServiceの作成順をもとにしたPort番号の変更による重複の解消",
+        "paper_id": "CDSL-TR-198",
+        "datetime": "Jul 31 2024.",
+        "paper_url_id": "1jldT_2fYJuilxsCVg5wiS5qWAm044Npj",
+        "created_at": "2024-07-31T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "Webアクセスログのステータスコードの分割による検索の応答時間の短縮",
+        "paper_id": "CDSL-TR-191",
+        "datetime": "Mar 31 2024.",
+        "paper_url_id": "1EQb4EpCKoK7BuSK3ZbildASSy6TTDsTy",
+        "created_at": "2024-03-31T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "筒井 優貴",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "送信データ量の大きさに基づくIoTデバイスのBLEとWi-Fiの切り替えによる省電力化",
+        "paper_id": "CDSL-TR-190",
+        "datetime": "Feb 1 2024.",
+        "paper_url_id": "1JS_Ho6XAEXzMor_dPSgoq6u2klIlEI9J",
+        "created_at": "2024-02-01T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山野 倖平",
+            "遠藤 睦実",
+            "串田 高幸"
+        ],
+        "title": "DockerfileにおけるRUNとcurlを用いたイメージサイズの削減",
+        "paper_id": "CDSL-TR-171",
+        "datetime": "Jan 11 2024.",
+        "paper_url_id": "1K-iKWX977XgBJZitN5Q3O1FOJxc9zqYD",
+        "created_at": "2024-01-11T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "加藤 健吾",
+            "遠藤 睦実",
+            "串田 高幸"
+        ],
+        "title": "Pythonベースイメージの事前pullによるDockerイメージのビルド時間の短縮",
+        "paper_id": "CDSL-TR-172-updated",
+        "datetime": "Jan 16 2024.",
+        "paper_url_id": "194qHex0e0oyuts2dzNCOxUKs1-nk5MQv",
+        "created_at": "2024-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "西村 克己",
+            "圖齋 雄治",
+            "串田 高幸"
+        ],
+        "title": "Zipf法則にもとづくWordPressの対象コンテンツの限定化による移行前後の確認作業時間の短縮",
+        "paper_id": "CDSL-TR-173",
+        "datetime": "Jan 11 2024.",
+        "paper_url_id": "1Na8CyDIZZYvxRUihPONtDgVll_EphKLD",
+        "created_at": "2024-01-11T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "金子 拓磨",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "ログファイル内でのステータスコード500番台の有無にもとづく非圧縮によるシステム障害の検索時間の短縮",
+        "paper_id": "CDSL-TR-174",
+        "datetime": "Jan 15 2024.",
+        "paper_url_id": "13XzDwn3biexs84juGJWiq-EGuIiw1UWT",
+        "created_at": "2024-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "遠藤 空",
+            "西嶌 知良",
+            "串田 高幸"
+        ],
+        "title": "ファイルのアクセスと更新回数にもとづく重要度の決定によるリストア時間の短縮とストレージ容量の確保",
+        "paper_id": "CDSL-TR-175",
+        "datetime": "Jan 15 2024.",
+        "paper_url_id": "1mbOx1zEhlL-rSkIFRo5F0ov1VXdjwxmu",
+        "created_at": "2024-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "川端 ももの",
+            "増田 和範",
+            "串田 高幸"
+        ],
+        "title": "データサイズの相関係数を用いた未使用VMの特定と圧縮によるバックアップフォルダのストレージの削減",
+        "paper_id": "CDSL-TR-176",
+        "datetime": "Jan 15 2024.",
+        "paper_url_id": "1CtqDq2RC_h-3WtqJwo92sVZRkZ1jkYPp",
+        "created_at": "2024-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "田中 美帆",
+            "三上 智徳",
+            "串田 高幸"
+        ],
+        "title": "最大アクセス間隔にもとづく放置VMのシャットダウンによる消費電力削減",
+        "paper_id": "CDSL-TR-177",
+        "datetime": "Jan 15 2024.",
+        "paper_url_id": "1bTq3k20LojfFZczXv8hcZpPFP7E09Nl3",
+        "created_at": "2024-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "宮本 港斗",
+            "中里 聖",
+            "串田 高幸"
+        ],
+        "title": "屋外環境での加速度による停止検出と地磁気による方向検出を利用したGPSの取得回数の低減による省電力化",
+        "paper_id": "CDSL-TR-178",
+        "datetime": "Jan 15 2024.",
+        "paper_url_id": "1GM5taRRrIC4pR-gIPKqfYQR3U7zF0W8O",
+        "created_at": "2024-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山本 真也",
+            "大沢 恭平",
+            "串田 高幸"
+        ],
+        "title": "RSSIにもとづく送信出力の変更によるIoTデバイスの省電力化",
+        "paper_id": "CDSL-TR-179",
+        "datetime": "Jan 15 2024.",
+        "paper_url_id": "1Phw2HUHEk5uxLQRD2nE5-piNwbbtkSBg",
+        "created_at": "2024-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "鈴木 友也",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "Kubernetesを用いた講義における課題の進捗にもとづくPodの削除によるストレージ使用量の削減",
+        "paper_id": "CDSL-TR-180",
+        "datetime": "Jan 15 2024.",
+        "paper_url_id": "1rkaeBhDgBYHv_pzByyhTH8W5VXXW20Oa",
+        "created_at": "2024-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "近藤 悠斗",
+            "平尾 真斗",
+            "串田 高幸"
+        ],
+        "title": "マイクロサービスの依存数にもとづいたアラートの重大度による緊急性の高いタスクの割り当て",
+        "paper_id": "CDSL-TR-182",
+        "datetime": "Jan 16 2024.",
+        "paper_url_id": "1wRB-yX25Vobnr06YERH-arJDm6lfwX4D",
+        "created_at": "2024-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "奥田 滉大",
+            "中里 聖",
+            "串田 高幸"
+        ],
+        "title": "加速度センサとジャイロセンサを利用した掃除機の弧をえがく動きにもとづく移動経路の測定",
+        "paper_id": "CDSL-TR-183",
+        "datetime": "Jan 16 2024.",
+        "paper_url_id": "1Cwr7iV-iLsWMsarpNyrzbgPasxw8aWJd",
+        "created_at": "2024-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "石川裕人",
+            "疋田辰起",
+            "串田 高幸"
+        ],
+        "title": "Sock ShopにおけるCPU使用量の変化にもとづくスパイクアクセス時の原因特定",
+        "paper_id": "CDSL-TR-184",
+        "datetime": "Jan 16 2024.",
+        "paper_url_id": "1KC8z5gn5GBPuNX26KpAADUoVq2uzkr4Y",
+        "created_at": "2024-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "マルチホップネットワークにおけるリンクごとの送受信の同期によるIoTデバイスの省電力化",
+        "paper_id": "CDSL-TR-185",
+        "datetime": "Jan 18 2024.",
+        "paper_url_id": "1XuwhqFpQBvzt_auEiCnVqwBXq79OzwFc",
+        "created_at": "2024-01-18T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "越後谷 澪",
+            "五十嵐 蓮",
+            "串田 高幸"
+        ],
+        "title": "歩く動作と落とし物が落下する動作の加速度センサーの計測値の差分を利用した落とし物の早期検知",
+        "paper_id": "CDSL-TR-186",
+        "datetime": "Jan 18 2024.",
+        "paper_url_id": "1tNiklENOlS_yLLvvqrv0lztp1Hay28Yl",
+        "created_at": "2024-01-18T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "橋本 健",
+            "井田 尚樹",
+            "串田 高幸"
+        ],
+        "title": "ファイル更新回数とアクセス頻度にもとづくディレクトリ圧縮の優先度付けによるストレージ使用量の削減",
+        "paper_id": "CDSL-TR-187",
+        "datetime": "Jan 19 2024.",
+        "paper_url_id": "1O13jfo77op1IoeLo0JbJPRYmGZwhuOgP",
+        "created_at": "2024-01-19T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "森井 佑誠",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "middle-sock: Linux namespace へのパケット宛先変換による DHCP サーバコンテナの移植性の向上",
+        "paper_id": "CDSL-TR-188",
+        "datetime": "Jan 24 2024.",
+        "paper_url_id": "10fLBs0oXnxO9CFFCLD3SuiMX4WZKYlcb",
+        "created_at": "2024-01-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "三上 翔太",
+            "圖齋 雄治",
+            "串田 高幸"
+        ],
+        "title": "KubernetesのPVの閾値を用いたNFSサーバーストレージ管理によるストレージ容量の超過を延期",
+        "paper_id": "CDSL-TR-189",
+        "datetime": "Jan 24 2024.",
+        "paper_url_id": "1_Sfu-BWDqOdW6eiu6k3Am5JE4smgpic0",
+        "created_at": "2024-01-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "平尾 真斗",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "監視システムの設定ファイル内でのアラート設定箇所の集約と機能ごとの分割による可読性の向上",
+        "paper_id": "CDSL-TR-163",
+        "datetime": "Dec 1 2023.",
+        "paper_url_id": "1_C-ttJYYgr1NeGY4WDG4Bst6yeEDa-et",
+        "created_at": "2023-12-01T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大沢 恭平",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "マルチホップネットワークにおけるクラスターヘッドをクライアントモードにすることによる消費電力削減",
+        "paper_id": "CDSL-TR-164",
+        "datetime": "Dec 5 2023.",
+        "paper_url_id": "1Ev2h1Jq0_6ftdSgP_VNLQYXT8F-b52wM",
+        "created_at": "2023-12-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "井田 尚樹",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "ECサイトのバックアップ期限とディスク帯域幅使用率にもとづく読み取り量の制御によるレスポンス数の減少の抑制",
+        "paper_id": "CDSL-TR-165",
+        "datetime": "Dec 5 2023.",
+        "paper_url_id": "12NXMpuH5eIfIBkYRkBDesac3wVyi07g3",
+        "created_at": "2023-12-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "西嶌 知良",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "Sock Shopにおける内部トラフィックの取得とCPU使用率の比較による応答時間の増加の原因の特定",
+        "paper_id": "CDSL-TR-166",
+        "datetime": "Dec 5 2023.",
+        "paper_url_id": "1uUrZns0FnnIBPCuBtUexzJofRS_juQ0Y",
+        "created_at": "2023-12-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "遠藤 睦実",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "Githubのコミット履歴にもとづくCOPY処理の分割によるDockerイメージBuild時間の短縮",
+        "paper_id": "CDSL-TR-167",
+        "datetime": "Dec 6 2023.",
+        "paper_url_id": "1KYFZ4hDfvJdj0CLcgQ3cKfjcZqfr3RMR",
+        "created_at": "2023-12-06T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "増田 和範",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "Sock Shopのサービス絞り込みとPod数とリクエスト数のピアソン相関係数に基づくグラフ表示変更による利便性向上",
+        "paper_id": "CDSL-TR-168",
+        "datetime": "Dec 11 2023.",
+        "paper_url_id": "19XEqEYM4uypZg6ilW_H_fcOjDjhORcoD",
+        "created_at": "2023-12-11T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "疋田 辰起",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "Sock Shopにおける異常となる応答時間の予測CPU使用量を閾値としたアラートストームの防止",
+        "paper_id": "CDSL-TR-169",
+        "datetime": "Dec 14 2023.",
+        "paper_url_id": "1lA6rwH9rx5VemkVnK3bRGU8-aoLcv1Ui",
+        "created_at": "2023-12-14T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "栗原 尚希",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "プロキシ先検索と設定ファイル作成の自動化によるNginxサーバ構築の簡略化",
+        "paper_id": "CDSL-TR-170",
+        "datetime": "Dec 29 2023.",
+        "paper_url_id": "1OuNGcbtDI7KetOjWyAU5zZE9ZRiaG6Dl",
+        "created_at": "2023-12-29T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "三上 智徳",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "プロジェクトの各工程の延期時間にもとづく優先度の決定によるファイル送信時間の増加の抑制",
+        "paper_id": "CDSL-TR-159",
+        "datetime": "Nov 28 2023.",
+        "paper_url_id": "1yzaBosyOV86AdvN6Q_nizhnlzOtjrrQH",
+        "created_at": "2023-11-28T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "圖齋 雄治",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "コンテンツコピーと設定ファイル変更の一括処理による仮想マシンからコンテナへのWordPress移行時間削減",
+        "paper_id": "CDSL-TR-161",
+        "datetime": "Nov 30 2023.",
+        "paper_url_id": "1t39dmDGhvnuMwb5004cGfR6fqTRspGZN",
+        "created_at": "2023-11-30T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "中里 聖",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "RFIDによる出入口の通過の検出と加速度と地磁気を用いた屋内測位のマッピング補正",
+        "paper_id": "CDSL-TR-162",
+        "datetime": "Nov 30 2023.",
+        "paper_url_id": "1spxT5A5Tf3LsmwwKdci5b3ubRZhU2sV4",
+        "created_at": "2023-11-30T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "栗原 尚希",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "設定ファイル作成の自動化によるNginxサーバ構築の簡略化",
+        "paper_id": "CDSL-TR-154",
+        "datetime": "Aug 4 2023 ",
+        "paper_url_id": "1Td_LjYv136nxvUf4EVURjpiL8E9gMOmG",
+        "created_at": "2023-08-04T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "マルチホップネットワークにおけるリンクごとの送受信の同期によるIoTデバイスの省電力化",
+        "paper_id": "CDSL-TR-155",
+        "datetime": "Aug 4 2023.",
+        "paper_url_id": "1lQwi1etIUdsaL5IXpfWEUDsPFUt9Xp4l",
+        "created_at": "2023-08-04T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "森井 佑誠",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "ホスト OS のルーティングテーブルを用いたコンフィグファイルによる DHCP サーバコンテナの自動構築",
+        "paper_id": "CDSL-TR-156",
+        "datetime": "Aug 4 2023.",
+        "paper_url_id": "1UwGQ2NJEnHh5BCKPUDR2u7Gen_vVgyax",
+        "created_at": "2023-08-04T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "金子 拓磨",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "ログのPriorityを用いたシステム障害発生時における非圧縮による検索時間の短縮",
+        "paper_id": "CDSL-TR-157",
+        "datetime": "Aug 8 2023.",
+        "paper_url_id": "1wuX0_YG7HaETdGbsSazCkHr9E-7bbDnb",
+        "created_at": "2023-08-08T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "WebアクセスログのステータスコードとURLの分類による検索の応答時間の短縮",
+        "paper_id": "CDSL-TR-158",
+        "datetime": "Aug 28 2023.",
+        "paper_url_id": "1C5gQCV9Su92gC-TYetghw4Fn4nhzqtDQ",
+        "created_at": "2023-08-28T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "三上 智徳",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "プロジェクトの納期と進捗にもとづく優先ユーザの決定によるファイル送信時間の増加の抑制",
+        "paper_id": "CDSL-TR-143",
+        "datetime": "Jul 14 2023.",
+        "paper_url_id": "1et9BXBkVCJa1DxHUO31e-5ndz0-R1TYb",
+        "created_at": "2023-07-14T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "遠藤 睦実",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "Dockerfileにおけるファイル更新回数を利用したCOPY処理の分割によるイメージビルド時間の短縮",
+        "paper_id": "CDSL-TR-144",
+        "datetime": "Jul 19 2023.",
+        "paper_url_id": "1lLXKurZXG36jVmk3Ig4D_iceAhGi3dnV",
+        "created_at": "2023-07-19T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大沢 恭平",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "クラスターヘッドをクライアントモードにすることによる消費電力削減",
+        "paper_id": "CDSL-TR-145",
+        "datetime": "Jul 20 2023.",
+        "paper_url_id": "12lO5okFByt1EbFZqSCY6f_x2HXwBNGDS",
+        "created_at": "2023-07-20T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "疋田 辰起",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "Sock Shopにおける負荷試験を反映したPodのCPUとメモリ使用率の閾値によるアラート設計",
+        "paper_id": "CDSL-TR-146",
+        "datetime": "Jul 20 2023.",
+        "paper_url_id": "1-rPGi_gU3QICY9356K3166WWIXH8V5CK",
+        "created_at": "2023-07-20T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "中里 聖",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "RFIDを用いた出入口の通過の検出による屋内測位の補正",
+        "paper_id": "CDSL-TR-147",
+        "datetime": "Jul 20 2023.",
+        "paper_url_id": "1qHIcEWK1DsfWacJu-M1J9fOqoN-53rR4",
+        "created_at": "2023-07-20T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "期限付バックアップ中のディスク読み取り量の再計算によるユーザのファイル転送時間の短縮",
+        "paper_id": "CDSL-TR-148",
+        "datetime": "Jul 21 2023.",
+        "paper_url_id": "1AieMwgKnO7AW2-5qdhXEyJnKCxFpgwDt",
+        "created_at": "2023-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "井田 尚樹",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "ECサイトのバックアップ期限とディスク帯域幅使用率にもとづく読み取り量の制御によるレスポンス数の減少の抑制",
+        "paper_id": "CDSL-TR-149",
+        "datetime": "Jul 21 2023.",
+        "paper_url_id": "14bZHg2jzhCIu_kwIOZCggR5PNdttZlWD",
+        "created_at": "2023-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "増田 和範",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "Sock Shopの1秒間あたりのリクエスト数とサービス内Pod数の相関係数にもとづく表示順変更による利便性の向上",
+        "paper_id": "CDSL-TR-150",
+        "datetime": "Jul 21 2023.",
+        "paper_url_id": "1WSbMN50PYAsDVhETwrNkJbd4AMACfSVq",
+        "created_at": "2023-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "圖齋 雄治",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "WordPressのコンテナ化に伴うコンテンツ送信と設定ファイル変更の一括処理による移行の自動化",
+        "paper_id": "CDSL-TR-151",
+        "datetime": "Jul 21 2023.",
+        "paper_url_id": "1AkKNN-AbgdbCzZ7TKfb4KybMruEFk2E7",
+        "created_at": "2023-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "西嶌 知良",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "マイクロサービスで動作するアプリケーション応答時間増加の原因の特定",
+        "paper_id": "CDSL-TR-152",
+        "datetime": "Jul 21 2023.",
+        "paper_url_id": "1sbhF3ytYVmlZivYNdZhW8wYziSp-MXXm",
+        "created_at": "2023-07-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "五十嵐 蓮",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "パケットロスの共通度にもとづくマルチキャストとユニキャストの動的切り替えによる送信時間の短縮",
+        "paper_id": "CDSL-TR-153",
+        "datetime": "Jul 25 2023.",
+        "paper_url_id": "1yxlMz2e2DdBxXNo8ke2q79wpzypYnpLH",
+        "created_at": "2023-07-25T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大野 有樹",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "WebアクセスログのステータスコードとURLの分類による検索時間の削減",
+        "paper_id": "CDSL-TR-140",
+        "datetime": "Apr 4 2023.",
+        "paper_url_id": "1hB-C1BxgMYSjiErIPxGvBWvo90JcZvS_",
+        "created_at": "2023-04-04T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "河竹 純一",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "マルチホップネットワークにおける送受信の同期によるIoTデバイスの省電力化",
+        "paper_id": "CDSL-TR-141",
+        "datetime": "Arp 4 2023.",
+        "paper_url_id": "1Aeaw7bxdVFnBjCevCzktzWLf4yHaCjRB",
+        "created_at": "2023-04-04T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "Aarushi Vyass",
+            "Tomoyuki Koyama",
+            "Vishnu Vinodkumar",
+            "Takayuki Kushida"
+        ],
+        "title": "Real-Time NO2 monitoring alert using XGBoost",
+        "paper_id": "CDSL-TR-139",
+        "datetime": "Mar 16 2023.",
+        "paper_url_id": "1qhf928nGxodsFQ3oYRPVklhbv8Gi_oMl",
+        "created_at": "2023-03-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "Ashish Vinod Joshi",
+            "Gargi Ajay Thakare",
+            "Gautami Mahajan",
+            "Shunnosuke Hiroi",
+            "Takayuki Kushida"
+        ],
+        "title": "IoT based smoke and gas leaks detection and ventilation system",
+        "paper_id": "CDSL-TR-138",
+        "datetime": "Feb 9 2023.",
+        "paper_url_id": "1LkeTR1kfpe3HszX21XuZISZK8TcSQHNI",
+        "created_at": "2023-02-09T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "三上 智徳",
+            "高橋 風太",
+            "串田 高幸"
+        ],
+        "title": "ファイル送信の検知に基づく重複排除を行うサーバの切り替えによるファイル転送時間の増加の抑制",
+        "paper_id": "CDSL-TR-122",
+        "datetime": "Jan 15 2023.",
+        "paper_url_id": "12Phc32ajhLRQixXYshG4Dp-Y5B2gic9l",
+        "created_at": "2023-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "井田 尚樹",
+            "飯島 貴政",
+            "串田 高幸"
+        ],
+        "title": "RPSの低下検知に基づくファイルのコピーの中断と再開によるHTTPレスポンス数の減少の軽減",
+        "paper_id": "CDSL-TR-123",
+        "datetime": "Jan 15 2023.",
+        "paper_url_id": "1IBZ0CTeDMi4XMvgaLJ0TmTnIQQWysqu2",
+        "created_at": "2023-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "疋田 辰起",
+            "飯島 貴政",
+            "串田 高幸"
+        ],
+        "title": "マイクロサービスにおける適切なアラートの設定",
+        "paper_id": "CDSL-TR-124",
+        "datetime": "Jan 15 2023.",
+        "paper_url_id": "1LqaH8o71-NIpDAPT7Vc3MjUMEIVADiRd",
+        "created_at": "2023-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "増田 和範",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "Kubernetes環境下におけるPod単位でのCPU使用量分析のグラフ自動生成",
+        "paper_id": "CDSL-TR-125",
+        "datetime": "Jan 15 2023.",
+        "paper_url_id": "16WcWYlkZUPiECFNbdFUbMo9xBMaBQN0E",
+        "created_at": "2023-01-15T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "岡田 大輝",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "分散合意アルゴリズムにおけるリーダーを含む全ノード参加型の選挙によるビザンチン故障耐性とクラスター内の合意",
+        "paper_id": "CDSL-TR-126",
+        "datetime": "Jan 16 2023.",
+        "paper_url_id": "1HRwHCyDPWRM50xzBAPKK2FwIbJYHu5BD",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "神戸 優樹",
+            "串田 高幸"
+        ],
+        "title": "Wi-Fiでの三点測位と歩行者自律航法を用いた屋内測位の精度改善",
+        "paper_id": "CDSL-TR-127",
+        "datetime": "Jan 16 2023.",
+        "paper_url_id": "10ceqzmjWRNWcq3fFYrNSBjjQpu-cS1uw",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "圖齋 雄治",
+            "坂本 一俊",
+            "串田 高幸"
+        ],
+        "title": "GitHub上にアップロードされた.dockerignoreファイルをもとにしたテンプレートの作成",
+        "paper_id": "CDSL-TR-128",
+        "datetime": "Jan. 16 2023.",
+        "paper_url_id": "169kTciw5IJI8rHQgFUqQB44d3Lmqdfkq",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "五十嵐 蓮",
+            "山本 拓海",
+            "串田 高幸"
+        ],
+        "title": "TCPを用いたパケット再送を組み合わせた複数のIoTデバイスに対するマルチキャストによるファイル送信",
+        "paper_id": "CDSL-TR-129",
+        "datetime": "Jan 16 2023.",
+        "paper_url_id": "1Cl6TtX4-9VhzezqFrdQgQGkvQrIGoIjz",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大沢 恭平",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "IoTデバイスのアクセスポイントモード動作時間の短縮による消費電力の削減",
+        "paper_id": "CDSL-TR-130",
+        "datetime": "Jan 16 2023.",
+        "paper_url_id": "1IeTEVsyjgGUP9mR_TdKmlHvrTNUmKNtY",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "西嶌 知良",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "マイクロサービスで動作するOnline Boutiqueへの負荷試験と応答時間のグラフ作成の自動化",
+        "paper_id": "CDSL-TR-131",
+        "datetime": "Jan 16 2023.",
+        "paper_url_id": "1vLeP_imQompKbaCraIxX1UYN7nzN4YtY",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "中里 聖",
+            "小林 竣",
+            "串田 高幸"
+        ],
+        "title": "加速度センサを用いた距離推定の誤差を倍率補正",
+        "paper_id": "CDSL-TR-132",
+        "datetime": "Jan 16 2023.",
+        "paper_url_id": "1Nb7YTC-tCGEtFkOQCcMSPo1nAIxflJXi",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "平尾 真斗",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "エラー原因の診断機能のモジュール化とワークフローによる設定手順の簡略化",
+        "paper_id": "CDSL-TR-133",
+        "datetime": "Jan 16 2023.",
+        "paper_url_id": "1QMTCsOsRTlrSVeQGN6Q3vYO9rfKzN1YX",
+        "created_at": "2023-01-16T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "遠藤 睦実",
+            "坂本 一俊",
+            "串田 高幸"
+        ],
+        "title": "ファイルの更新回数に基づいたファイルのコピー順の変更によるDockerfileのビルド時間の短縮",
+        "paper_id": "CDSL-TR-134",
+        "datetime": "Jan 17 2023.",
+        "paper_url_id": "1UPzUGCfYiBlWmJV1kMo4MYATh48gAcEk",
+        "created_at": "2023-01-17T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "金子 拓磨",
+            "高橋 風太",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "サーバダウン時におけるログファイルの非圧縮による検索時間の短縮",
+        "paper_id": "CDSL-TR-135",
+        "datetime": "Jan 18 2023.",
+        "paper_url_id": "1Np4osHPTLW3MpMClSt1xnvbC4x0G5W21",
+        "created_at": "2023-01-18T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "栗原 尚希",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "Nginxのworker connections設定のための負荷試験の自動化",
+        "paper_id": "CDSL-TR-136",
+        "datetime": "Jan 19 2023.",
+        "paper_url_id": "1qajj7Gxsjfx9-AW0Xee34Ua6YiAk8dqi",
+        "created_at": "2023-01-19T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "牧 丈晴",
+            "大野 有樹",
+            "串田 高幸"
+        ],
+        "title": "IoTデバイスにおけるWi-Fi接続のためのパスワード更新の自動化",
+        "paper_id": "CDSL-TR-117",
+        "datetime": "Dec 2 2022.",
+        "paper_url_id": "1JOpq1j6UR74ZmuHGg4u1J0F2WN6mz4r-",
+        "created_at": "2022-12-02T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "大野 有樹",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "分散検索手法におけるアクセスログの検索の応答時間の削減",
+        "paper_id": "CDSL-TR-118",
+        "datetime": "Dec 5 2022.",
+        "paper_url_id": "1vRjmmjzmvyYwcacCC9yWBsEJdsfOWaDZ",
+        "created_at": "2022-12-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "中川 翔太",
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "WebAssemblyのメモリにおける増加量とリクエスト数の比による必要量の推定を用いたインスタンスの再起動",
+        "paper_id": "CDSL-TR-119",
+        "datetime": "Dec 5 2022.",
+        "paper_url_id": "1jso0HQjQweO8CEAQqPeRQBQ79y38c4ar",
+        "created_at": "2022-12-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高橋 祐之介",
+            "河竹 純一",
+            "串田 高幸"
+        ],
+        "title": "通信可能台数の予測に基づく動的なBLE通信の停止による省電力化",
+        "paper_id": "CDSL-TR-110",
+        "datetime": "Nov 18 2022.",
+        "paper_url_id": "1UjCfDDI6RcutyUa-5njOMP2990L-81aE",
+        "created_at": "2022-11-18T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "山本 拓海",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "ToFセンサで取得する距離データと検知時間差に基づく入退室の識別による室内人数の算出",
+        "paper_id": "CDSL-TR-111",
+        "datetime": "Nov 19 2022.",
+        "paper_url_id": "1gDmpdV_GHTwitmAsWXxqpPAOnl1g8JrT",
+        "created_at": "2022-11-19T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "小林 竣",
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "自律航法に基づく省電力な測位と歩行時補正による精度の改善の実測結果",
+        "paper_id": "CDSL-TR-112",
+        "datetime": "Nov 21 2022.",
+        "paper_url_id": "1TE7F8-zs6afG27z2oXazXIVVvPkqoUfU",
+        "created_at": "2022-11-21T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高橋 風太",
+            "飯島 貴政",
+            "串田 高幸"
+        ],
+        "title": "業務開始時刻に基づくディスク読み書き量の制限によるバックアップとユーザのファイル転送時間の両立",
+        "paper_id": "CDSL-TR-113",
+        "datetime": "Nov 24 2022.",
+        "paper_url_id": "1B0fMhhIUvKWMgzH3L-w_2onTWqcgXgnK",
+        "created_at": "2022-11-24T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "廣居 舜佑",
+            "高木 優希",
+            "串田 高幸"
+        ],
+        "title": "RSSIの度数分布に基づく階級数を用いたビーコンの位置決定による屋内測位誤差の削減",
+        "paper_id": "CDSL-TR-114",
+        "datetime": "Nov 26 2022.",
+        "paper_url_id": "1u_vSIS-N34pBoRxo7c1jZ5GGYULlxGtb",
+        "created_at": "2022-11-26T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "坂本 一俊",
+            "伊藤 佳城",
+            "串田 高幸"
+        ],
+        "title": "CPU使用量に基づく最小二乗法を用いたマイクロサービスの処理リクエスト数の上限の推定",
+        "paper_id": "CDSL-TR-115",
+        "datetime": "Nov 27 2022.",
+        "paper_url_id": "1WIyiJWC11dqVyaG5RFDQwCXbzrSSl0ie",
+        "created_at": "2022-11-27T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "梅田 拓哉",
+            "高木 優希",
+            "串田 高幸"
+        ],
+        "title": "距離に対するRSSIの基準範囲の設定による屋内測位の誤差削減",
+        "paper_id": "CDSL-TR-116",
+        "datetime": "Nov 28 2022.",
+        "paper_url_id": "1_Xug81VQbOeaVrmmnek6XtDk-4cttSbH",
+        "created_at": "2022-11-28T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
             "坂本 一俊",
             "伊藤 佳城",
             "串田 高幸"
         ],
         "title": "メモリとCPU使用量と応答時間に基づくKubernetes上のPod数の決定",
         "paper_id": "CDSL-TR-107",
-        "datetime": "Aug. 10 2022",
+        "datetime": "Aug 10 2022.",
         "paper_url_id": "1atY8WHCxclRdF6qfAtV56vvf_P8Pq32n",
         "created_at": "2022-08-10T00:00:00+09:00",
         "updated_at": ""
@@ -20,7 +1522,7 @@
         ],
         "title": "IoTデバイスにおけるWi-Fi接続のための暗号化キー更新の自動化",
         "paper_id": "CDSL-TR-108",
-        "datetime": "Aug. 10 2022",
+        "datetime": "Aug 10 2022.",
         "paper_url_id": "1dp_7Xma0ZH6Zh3rfy2kZw3nXpVLMvKif",
         "created_at": "2022-08-10T00:00:00+09:00",
         "updated_at": ""
@@ -33,7 +1535,7 @@
         ],
         "title": "無線LANのマルチホップネットワークにおける送受信のタイミングの一致によるIoTデバイスの省電力化",
         "paper_id": "CDSL-TR-109",
-        "datetime": "Aug. 29 2022",
+        "datetime": "Aug 29 2022.",
         "paper_url_id": "16rBkY21rZUB3yOlSVivC-CBMMr7P4J2e",
         "created_at": "2022-08-29T00:00:00+09:00",
         "updated_at": ""
@@ -46,7 +1548,7 @@
         ],
         "title": "自律航法に基づく省電力な測位と歩行時補正による精度の改善",
         "paper_id": "CDSL-TR-095",
-        "datetime": "Jul. 15 2022",
+        "datetime": "Jul 15 2022.",
         "paper_url_id": "1RY46Ol3lheuQiKihhkJqy1OZGNGQ1CEj",
         "created_at": "2022-07-15T00:00:00+09:00",
         "updated_at": ""
@@ -59,7 +1561,7 @@
         ],
         "title": "ToFセンサで取得する距離データと検知時間差に基づく入退室の識別による室内人数の算出",
         "paper_id": "CDSL-TR-096",
-        "datetime": "Jul. 15 2022",
+        "datetime": "Jul 15 2022.",
         "paper_url_id": "1IcnYk20M6Njkb5-sPe24QtOEp9CoY3MR",
         "created_at": "2022-07-15T00:00:00+09:00",
         "updated_at": ""
@@ -71,21 +1573,21 @@
         ],
         "title": "RSSIの度数分布を用いた凸の選択による多点測位の誤差削減",
         "paper_id": "CDSL-TR-097",
-        "datetime": "Jul. 19 2022",
+        "datetime": "Jul 19 2022.",
         "paper_url_id": "1eZV2Oxpxv9qE_jWbqqJPPPAj0-UZ9QnO",
         "created_at": "2022-07-19T00:00:00+09:00",
         "updated_at": ""
     },
     {
         "author": [
-            "杉本 一彦",
-            "串田 高幸"
+            "Takamasa Iijima",
+            "Takayuki Kushida"
         ],
-        "title": "IoTデバイスへの重み付けと電池残量に基づく中継機能の停止判定によるデータ受信時間の延長",
-        "paper_id": "CDSL-TR-098",
-        "datetime": "Jul. 19 2022",
-        "paper_url_id": "1hUVQJtZlFJ2aOpPoV_RoXDVRFrWV9AH4",
-        "created_at": "2022-07-19T00:00:00+09:00",
+        "title": "CPU resource co-op model using container metrics on microservice",
+        "paper_id": "CDSL-TR-099",
+        "datetime": "Jul 20 2022.",
+        "paper_url_id": "1hvJ6V0Jl53OIv84X_zoSPQFXHZ2Mw_8p",
+        "created_at": "2022-07-20T00:00:00+09:00",
         "updated_at": ""
     },
     {
@@ -96,7 +1598,7 @@
         ],
         "title": "二分探索法を用いたKubernetes Pod数の決定の自動化による応答時間の遅延の低減",
         "paper_id": "CDSL-TR-100",
-        "datetime": "Jul. 20 2022",
+        "datetime": "Jul 20 2022.",
         "paper_url_id": "1FiZQpDyAEDdKQ4KeShpaZSIpcaTu1l46",
         "created_at": "2022-07-20T00:00:00+09:00",
         "updated_at": ""
@@ -109,7 +1611,7 @@
         ],
         "title": "業務開始時刻に基づくディスク読み書き量の制限によるバックアップとユーザのファイル転送時間の両立",
         "paper_id": "CDSL-TR-101",
-        "datetime": "Jul. 21 2022",
+        "datetime": "Jul 21 2022.",
         "paper_url_id": "1oiZGZ8o61Ze-fxi6dTjUax05gU3aX9zk",
         "created_at": "2022-07-21T00:00:00+09:00",
         "updated_at": ""
@@ -122,7 +1624,7 @@
         ],
         "title": "RSSIの適用範囲の設定による屋内測位の誤差削減",
         "paper_id": "CDSL-TR-102",
-        "datetime": "Jul. 21 2022",
+        "datetime": "Jul 21 2022.",
         "paper_url_id": "1TptAhfNCwnZzzlfao4QKsIDnL9UUZU7H",
         "created_at": "2022-07-21T00:00:00+09:00",
         "updated_at": ""
@@ -135,7 +1637,7 @@
         ],
         "title": "通信可能台数の予測に基づく動的なBLE通信の終了による省電力化",
         "paper_id": "CDSL-TR-103",
-        "datetime": "Jul. 21 2022",
+        "datetime": "Jul 21 2022.",
         "paper_url_id": "1EkywRP5rp2Et25w1lORFpe5X8U5u2l1L",
         "created_at": "2022-07-21T00:00:00+09:00",
         "updated_at": ""
@@ -148,7 +1650,7 @@
         ],
         "title": "RSSIに基づくビーコン配置による位置測位誤差の削減",
         "paper_id": "CDSL-TR-104",
-        "datetime": "Jul. 25 2022",
+        "datetime": "Jul 25 2022.",
         "paper_url_id": "1oJNfG_OJGV8f3mncYlYdz0ygeK3lOrYB",
         "created_at": "2022-07-25T00:00:00+09:00",
         "updated_at": ""
@@ -160,7 +1662,7 @@
         ],
         "title": "Kubernetes PodのCPU使用率とアクセス数の変化量に基づく再配置",
         "paper_id": "CDSL-TR-106",
-        "datetime": "Jul. 29 2022",
+        "datetime": "Jul 29 2022.",
         "paper_url_id": "1Etvrq2ywaVCbKWbqrgB0s7X6wSOYwztM",
         "created_at": "2022-07-29T00:00:00+09:00",
         "updated_at": ""
@@ -172,7 +1674,7 @@
         ],
         "title": "Kubernetes PodのRTTを用いたリーダー候補の順位付けによる再選出時間の短縮",
         "paper_id": "CDSL-TR-090",
-        "datetime": "Feb. 2 2022",
+        "datetime": "Feb 2 2022.",
         "paper_url_id": "1DDgQ016-075Xe5BFWs4wzbhcOobdlA6G",
         "created_at": "2022-02-02T00:00:00+09:00",
         "updated_at": ""
@@ -184,7 +1686,7 @@
         ],
         "title": "IoTデバイスでセンサのアドレス取得による不具合の判別",
         "paper_id": "CDSL-TR-091",
-        "datetime": "Feb. 10 2022",
+        "datetime": "Feb 10 2022.",
         "paper_url_id": "1TMUGYjsngcbVFuyrEJZWkaMTOBOjqRd4",
         "created_at": "2022-02-10T00:00:00+09:00",
         "updated_at": ""
@@ -196,7 +1698,7 @@
         ],
         "title": "Wi-Fiにおける三点測位と歩行者自律航法を用いた屋内測位の精度改善",
         "paper_id": "CDSL-TR-092",
-        "datetime": "Feb. 10 2022",
+        "datetime": "Feb 10 2022.",
         "paper_url_id": "16tyD0n2aVXEkr3KDXtN7epiuW7RkZfqc",
         "created_at": "2022-02-10T00:00:00+09:00",
         "updated_at": ""
@@ -208,7 +1710,7 @@
         ],
         "title": "リバースプロキシサーバにおけるメモリと応答時間のパレート最適によるkeepalive timeoutの設定",
         "paper_id": "CDSL-TR-093",
-        "datetime": "Feb. 11 2022",
+        "datetime": "Feb 11 2022.",
         "paper_url_id": "1LtnueDFZ8Aou1LP93uL8WsXdiJj8hMPG",
         "created_at": "2022-02-11T00:00:00+09:00",
         "updated_at": ""
@@ -220,7 +1722,7 @@
         ],
         "title": "負荷テストを用いた Kubernetes Pod におけるメモリの実測値との差を縮小するための Requests の再設定",
         "paper_id": "CDSL-TR-094",
-        "datetime": "Feb. 11 2022",
+        "datetime": "Feb 11 2022.",
         "paper_url_id": "1AVYx24a7ullMb3yGxkVXKryFEprqELNx",
         "created_at": "2022-02-11T00:00:00+09:00",
         "updated_at": ""
@@ -232,7 +1734,7 @@
         ],
         "title": "入室と退室における人感センサを用いた人数の計測の精度向上",
         "paper_id": "CDSL-TR-084",
-        "datetime": "Jan. 15 2022",
+        "datetime": "Jan 15 2022.",
         "paper_url_id": "1Jr2PklflXLtS2mxHrlHbeZCVCf-xMMg5",
         "created_at": "2022-01-15T00:00:00+09:00",
         "updated_at": ""
@@ -244,7 +1746,7 @@
         ],
         "title": "IoT機器の共同通信による障害情報の開示およびMQTTクライアント切断遅延の短縮",
         "paper_id": "CDSL-TR-085",
-        "datetime": "Jan. 16 2022",
+        "datetime": "Jan 16 2022.",
         "paper_url_id": "1v5i7UlPDlETkfw9RmIVAhg7aZBQtjvWk",
         "created_at": "2022-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -256,7 +1758,7 @@
         ],
         "title": "BLEビーコンの個数増加による推定座標の精度の改善",
         "paper_id": "CDSL-TR-086",
-        "datetime": "Jan. 16 2022",
+        "datetime": "Jan 16 2022.",
         "paper_url_id": "1M3y1SkL4M1-3TLGbgbTzEG2hykGKyZZ0",
         "created_at": "2022-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -268,7 +1770,7 @@
         ],
         "title": "ファイル受信の検知を用いたバックアップの中断によるファイル送信時間の増加の抑制",
         "paper_id": "CDSL-TR-087",
-        "datetime": "Jan. 19 2022",
+        "datetime": "Jan 19 2022.",
         "paper_url_id": "1gIaU2aKjlc5J8JewBoLTxuDpE5WJcPqk",
         "created_at": "2022-01-19T00:00:00+09:00",
         "updated_at": ""
@@ -280,7 +1782,7 @@
         ],
         "title": "距離と地磁気データから位置の特定による目標物の識別",
         "paper_id": "CDSL-TR-088",
-        "datetime": "Jan. 20 2022",
+        "datetime": "Jan 20 2022",
         "paper_url_id": "1vo_Nirim5g7IV1otAWlqtkIKX-Pc0IWA",
         "created_at": "2022-01-20T00:00:00+09:00",
         "updated_at": ""
@@ -292,7 +1794,7 @@
         ],
         "title": "距離センサ及び地磁気センサを用いたIoTデバイスの測位手法",
         "paper_id": "CDSL-TR-089",
-        "datetime": "Jan. 28 2022",
+        "datetime": "Jan 28 2022.",
         "paper_url_id": "1YOl33xQFE9DGfj9aiuCaMJIUkfx1fKQj",
         "created_at": "2022-01-28T00:00:00+09:00",
         "updated_at": ""
@@ -305,7 +1807,7 @@
         ],
         "title": "加速度センサーを用いたBLEの3点測位の精度改善",
         "paper_id": "CDSL-TR-072",
-        "datetime": "Dec. 1 2021",
+        "datetime": "Dec 1 2021.",
         "paper_url_id": "1-Zv6tGcLUSDQPam8Z5UsfpEu0HOpSkxu",
         "created_at": "2021-12-01T00:00:00+09:00",
         "updated_at": ""
@@ -318,7 +1820,7 @@
         ],
         "title": "異なるコンテナにおける同一ライブラリのファイルサイズ比較による完備率の算出",
         "paper_id": "CDSL-TR-073",
-        "datetime": "Dec. 1 2021",
+        "datetime": "Dec 1 2021.",
         "paper_url_id": "1gSRdB_yFzkg5LXwrw-2CR9N8bFMd1mYB",
         "created_at": "2021-12-01T00:00:00+09:00",
         "updated_at": ""
@@ -330,7 +1832,7 @@
         ],
         "title": "WebAssemblyにおける必要メモリ量の区間推定を用いたインスタンスの再起動によるメモリ使用量の削減",
         "paper_id": "CDSL-TR-074",
-        "datetime": "Dec. 6 2021",
+        "datetime": "Dec 6 2021.",
         "paper_url_id": "1TFt6QFQMhCMZV8U3roupLhCXDhj2xX8K",
         "created_at": "2021-12-06T00:00:00+09:00",
         "updated_at": ""
@@ -343,7 +1845,7 @@
         ],
         "title": "事前ソートによるWebアクセスログの検索時間の削減",
         "paper_id": "CDSL-TR-075",
-        "datetime": "Dec. 17 2021",
+        "datetime": "Dec 17 2021.",
         "paper_url_id": "19_18foi9EiBU48aufGjZFd5HZR00CMwz",
         "created_at": "2021-12-17T00:00:00+09:00",
         "updated_at": ""
@@ -356,7 +1858,7 @@
         ],
         "title": "温室における複数環境パラメータを配慮した省電力な温度の制御手法",
         "paper_id": "CDSL-TR-076",
-        "datetime": "Dec. 19 2021",
+        "datetime": "Dec 19 2021.",
         "paper_url_id": "1kS9luqvZHQLkE_BYYln3XxwfoUxpbZfm",
         "created_at": "2021-12-19T00:00:00+09:00",
         "updated_at": ""
@@ -369,7 +1871,7 @@
         ],
         "title": "風速によってセンシング頻度を変化させる大気汚染の監視の省電力化",
         "paper_id": "CDSL-TR-077",
-        "datetime": "Dec. 20 2021",
+        "datetime": "Dec 20 2021.",
         "paper_url_id": "1efjjiIsQWu_KGwBmWYeensYnR74njqkr",
         "created_at": "2021-12-20T00:00:00+09:00",
         "updated_at": ""
@@ -381,7 +1883,7 @@
         ],
         "title": "マイクロサービスにおけるメトリクスによるサービスの優先順位および計算リソースの共助モデル",
         "paper_id": "CDSL-TR-079",
-        "datetime": "Dec. 22 2021",
+        "datetime": "Dec 22 2021.",
         "paper_url_id": "1VMXCv4CsTb8BvokNc9rbG4_mg-tlGTxs",
         "created_at": "2021-12-22T00:00:00+09:00",
         "updated_at": ""
@@ -393,7 +1895,7 @@
         ],
         "title": "電池残量にもとづく無線の中継機能の起動と停止によるIoTデバイスの省電力化",
         "paper_id": "CDSL-TR-080",
-        "datetime": "Dec. 22 2021 (updated on Feb. 11 2022)",
+        "datetime": "Dec 22 2021 (updated on Feb 11 2022).",
         "paper_url_id": "1luMPkdis2TR5i0Gx3TZR-pX7yQiBp3I8",
         "created_at": "2021-12-22T00:00:00+09:00",
         "updated_at": "2022-02-11T00:00:00+09:00"
@@ -405,7 +1907,7 @@
         ],
         "title": "WebAssemblyにおけるメモリ使用量削減のための稼働実績に基づく再起動の閾値の決定",
         "paper_id": "CDSL-TR-081",
-        "datetime": "Dec. 22 2021 (updated on Feb 21 2022)",
+        "datetime": "Dec 22 2021 (updated on Feb 21 2022).",
         "paper_url_id": "1bS8KQEUr-hcj_7Bf69_ykESr6kK8h_0_",
         "created_at": "2021-12-22T00:00:00+09:00",
         "updated_at": "2022-02-21T00:00:00+09:00"
@@ -417,7 +1919,7 @@
         ],
         "title": "Kubernetes Podの度数分布を用いた動的再配置によるレスポンスタイムの向上とノードリソース均一化",
         "paper_id": "CDSL-TR-082",
-        "datetime": "Dec. 22 2021",
+        "datetime": "Dec 22 2021.",
         "paper_url_id": "14IGPchKCrXOZOhfIZnblEFFs2qWWElu2",
         "created_at": "2021-12-22T00:00:00+09:00",
         "updated_at": ""
@@ -429,7 +1931,7 @@
         ],
         "title": "BLEを用いた多点測位によるIoTデバイスの位置推定",
         "paper_id": "CDSL-TR-083",
-        "datetime": "Dec. 22 2021",
+        "datetime": "Dec 22 2021.",
         "paper_url_id": "1FermEuTmDDovmiQLkMNjrts7eIdGhK_U",
         "created_at": "2021-12-22T00:00:00+09:00",
         "updated_at": ""
@@ -441,7 +1943,7 @@
         ],
         "title": "消費電力予測とデータ送信経路の動的ルーティングによるバッテリー駆動時間の延長",
         "paper_id": "CDSL-TR-065",
-        "datetime": "Nov. 18 2021",
+        "datetime": "Nov 18 2021.",
         "paper_url_id": "1abjTOZ2_wiaRntOgd9vQYFxK5TvWAodp",
         "created_at": "2021-11-18T00:00:00+09:00",
         "updated_at": ""
@@ -454,7 +1956,7 @@
         ],
         "title": "気温の変動に応じたデータ送信頻度の増減によるIoTデバイスの省電力化",
         "paper_id": "CDSL-TR-066",
-        "datetime": "Nov. 30 2021",
+        "datetime": "Nov 30 2021.",
         "paper_url_id": "1AbgRhm-5dcQSV_bBEx2FKLow2Vrq3wym",
         "created_at": "2021-11-30T00:00:00+09:00",
         "updated_at": ""
@@ -467,7 +1969,7 @@
         ],
         "title": "事前ソートによるWebアクセスログの検索時間の削減",
         "paper_id": "CDSL-TR-067",
-        "datetime": "Nov. 30 2021",
+        "datetime": "Nov 30 2021.",
         "paper_url_id": "1aU0Ord54J7ks9a4-wS3ygwzOzIHFpszX",
         "created_at": "2021-11-30T00:00:00+09:00",
         "updated_at": ""
@@ -480,7 +1982,7 @@
         ],
         "title": "ファイル名およびファイルのハッシュ値の比較によるプログラムコピーを用いたスケーラビリティの向上",
         "paper_id": "CDSL-TR-068",
-        "datetime": "Nov. 30 2021",
+        "datetime": "Nov 30 2021.",
         "paper_url_id": "1dC5Su6H7ZAezAqGV2zKuX795hTErFo_u",
         "created_at": "2021-11-30T00:00:00+09:00",
         "updated_at": ""
@@ -493,7 +1995,7 @@
         ],
         "title": "自律航法に基づくGPS通信回数の低減によるIoTデバイスの省電力な測位の実測結果",
         "paper_id": "CDSL-TR-069",
-        "datetime": "Nov. 30 2021",
+        "datetime": "Nov 30 2021.",
         "paper_url_id": "1Jy0EwSrtCNYcbF7lxGHkoYbZPzEcpOsk",
         "created_at": "2021-11-30T00:00:00+09:00",
         "updated_at": ""
@@ -506,7 +2008,7 @@
         ],
         "title": "マイクロサービスにおけるトランザクション処理パターンの切り替えによる整合性担保の時間削減",
         "paper_id": "CDSL-TR-070",
-        "datetime": "Nov. 30 2021",
+        "datetime": "Nov 30 2021.",
         "paper_url_id": "1KkksbSe2WM8kZ65iDtfoDa4A6-qDF1uE",
         "created_at": "2021-11-30T00:00:00+09:00",
         "updated_at": ""
@@ -519,7 +2021,7 @@
         ],
         "title": "太陽光発電のパネル表面温度による電力量の予測精度の向上",
         "paper_id": "CDSL-TR-071",
-        "datetime": "Nov. 30 2021",
+        "datetime": "Nov 30 2021.",
         "paper_url_id": "1OlykW_79LTk6Djsw1wDqB2dWsBkTTgca",
         "created_at": "2021-11-30T00:00:00+09:00",
         "updated_at": ""
@@ -532,21 +2034,9 @@
         ],
         "title": "風速によってセンシング頻度を変化させる大気汚染の監視の省電力化",
         "paper_id": "CDSL-TR-063",
-        "datetime": "Oct. 19 2021",
+        "datetime": "Oct 19 2021.",
         "paper_url_id": "1IX15EBtu9MmUui2Vgk5EG1dWIiLAa7m7",
         "created_at": "2021-10-19T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "伊藤 佳城",
-            "串田 高幸"
-        ],
-        "title": "負荷テストによるKubernetes Pod構成のCPUとメモリ値の自動設定",
-        "paper_id": "CDSL-TR-064",
-        "datetime": "Oct. 27 2021",
-        "paper_url_id": "1GgEBLzs6ncWjlOt3J52T049N3UUMlFfR",
-        "created_at": "2021-10-27T00:00:00+09:00",
         "updated_at": ""
     },
     {
@@ -556,7 +2046,7 @@
         ],
         "title": "マイクロサービスにおけるメトリクスによるサービスの優先順位および計算リソースの共助モデル",
         "paper_id": "CDSL-TR-060",
-        "datetime": "Sep. 4 2021",
+        "datetime": "Sep 4 2021.",
         "paper_url_id": "1OMtF82M_Zf9RciVa9fWshwppWne3COxR",
         "created_at": "2021-09-04T00:00:00+09:00",
         "updated_at": ""
@@ -569,7 +2059,7 @@
         ],
         "title": "異なるコンテナのライブラリ比較による完備率の算出",
         "paper_id": "CDSL-TR-061",
-        "datetime": "Sep. 10 2021",
+        "datetime": "Sep 10 2021.",
         "paper_url_id": "1jJMk-ZK3IHYb4zcjycXwT6sI0N0oUDe7",
         "created_at": "2021-09-10T00:00:00+09:00",
         "updated_at": ""
@@ -582,7 +2072,7 @@
         ],
         "title": "レスポンスタイムの維持のための異なるファイル名とハッシュ値を用いたプログラムのコピー",
         "paper_id": "CDSL-TR-062",
-        "datetime": "Sep. 27 2021",
+        "datetime": "Sep 27 2021.",
         "paper_url_id": "1Vi9MzmSfmjt2GefKVAI-724zdcIvWChA",
         "created_at": "2021-09-27T00:00:00+09:00",
         "updated_at": ""
@@ -595,7 +2085,7 @@
         ],
         "title": "温室において天窓の開閉と温度の対応関係に基づいた省電力な制御手法",
         "paper_id": "CDSL-TR-052",
-        "datetime": "Aug. 1 2021",
+        "datetime": "Aug 1 2021.",
         "paper_url_id": "1kjCDHuaV6da6HTd5cFvQysv-lJvPaE93",
         "created_at": "2021-08-01T00:00:00+09:00",
         "updated_at": ""
@@ -608,7 +2098,7 @@
         ],
         "title": "自律航法に基づくGPS通信回数の低減によるIoTデバイスの省電力な測位",
         "paper_id": "CDSL-TR-053",
-        "datetime": "Aug. 5 2021",
+        "datetime": "Aug 5 2021.",
         "paper_url_id": "1iSG6duC6dPQNfgDXnqpMnsNRbw18HA82",
         "created_at": "2021-08-05T00:00:00+09:00",
         "updated_at": ""
@@ -621,7 +2111,7 @@
         ],
         "title": "加速度センサーを用いたBLEの3点測位の精度改善",
         "paper_id": "CDSL-TR-054",
-        "datetime": "Aug. 5 2021",
+        "datetime": "Aug 5 2021.",
         "paper_url_id": "1RK1xYkWZDP-wg_6DNJkuEEQGJ654nLqC",
         "created_at": "2021-08-05T00:00:00+09:00",
         "updated_at": ""
@@ -634,7 +2124,7 @@
         ],
         "title": "太陽光発電のパネル表面温度による電力量の予測精度の向上",
         "paper_id": "CDSL-TR-055",
-        "datetime": "Aug. 5 2021",
+        "datetime": "Aug 5 2021.",
         "paper_url_id": "1kSav__V2mEv9-j2bUHnDT7SmGfDglZ3b",
         "created_at": "2021-08-05T00:00:00+09:00",
         "updated_at": ""
@@ -646,7 +2136,7 @@
         ],
         "title": "教諭間で授業データを共有することで小学校教諭にかかる事務作業を軽減するWebサービス",
         "paper_id": "CDSL-TR-056",
-        "datetime": "Aug. 6 2021",
+        "datetime": "Aug 6 2021.",
         "paper_url_id": "1tVSSJ67xyeXUnnyRxLFsKqEXVIE6niGr",
         "created_at": "2021-08-06T00:00:00+09:00",
         "updated_at": ""
@@ -658,7 +2148,7 @@
         ],
         "title": "BLEを用いた多点測位によるIoTデバイスの位置推定",
         "paper_id": "CDSL-TR-057",
-        "datetime": "Aug. 7 2021",
+        "datetime": "Aug 7 2021.",
         "paper_url_id": "1EhuuRw2qwQSjEZUB_VRD1l9ioDePdwYh",
         "created_at": "2021-08-07T00:00:00+09:00",
         "updated_at": ""
@@ -671,7 +2161,7 @@
         ],
         "title": "マイクロサービスにおける整合性担保の時間を削減する方法",
         "paper_id": "CDSL-TR-058",
-        "datetime": "Aug. 11 2021",
+        "datetime": "Aug 11 2021.",
         "paper_url_id": "1k__G_AzgmlU-UmR_nYr0eYrBayXVoTO8",
         "created_at": "2021-08-11T00:00:00+09:00",
         "updated_at": ""
@@ -683,7 +2173,7 @@
         ],
         "title": "分散トレーシングのためのログ検索の高速化",
         "paper_id": "CDSL-TR-059",
-        "datetime": "Aug. 13 2021",
+        "datetime": "Aug 13 2021.",
         "paper_url_id": "1feZlqWejgqf8zpWQBQOSpr5JXYkPQL4t",
         "created_at": "2021-08-13T00:00:00+09:00",
         "updated_at": ""
@@ -696,7 +2186,7 @@
         ],
         "title": "気温の変動に応じたデータ送信頻度の増減によるIoTデバイスの省電力化",
         "paper_id": "CDSL-TR-051",
-        "datetime": "Jul. 31 2021",
+        "datetime": "Jul 31 2021.",
         "paper_url_id": "1HGk8Y-tZEjLRDMnz5Vf9UqiJBQzJuT6Y",
         "created_at": "2021-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -708,7 +2198,7 @@
         ],
         "title": "動的に変化するIPアドレスからIoTデバイスを識別する方法",
         "paper_id": "CDSL-TR-049",
-        "datetime": "June. 18 2021",
+        "datetime": "June 18 2021.",
         "paper_url_id": "1ZCCVwQidWyLOWltpaeUdlUe0ucuxlbyc",
         "created_at": "2021-06-18T00:00:00+09:00",
         "updated_at": ""
@@ -720,7 +2210,7 @@
         ],
         "title": "ロードバランサーを用いた追加サーバーのCPU使用量を抑えるソフトウェア",
         "paper_id": "CDSL-TR-047",
-        "datetime": "Jun. 28 2021",
+        "datetime": "Jun 28 2021.",
         "paper_url_id": "1ArivBaWKACLFx-xaHtLB4BnXRlaK_Pgh",
         "created_at": "2021-06-28T00:00:00+09:00",
         "updated_at": ""
@@ -732,33 +2222,9 @@
         ],
         "title": "利用用途の選択でソフトウェアを追加するKubernetes構成ファイルの自動生成",
         "paper_id": "CDSL-TR-048",
-        "datetime": "May 12 2021",
+        "datetime": "May 12 2021.",
         "paper_url_id": "1apiDJAlbHDPZT3JbfARGV7vTIX20DhqR",
         "created_at": "2021-05-12T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "高木 優希",
-            "串田 高幸"
-        ],
-        "title": "木構造を拡張したセンサー識別子の自動割当",
-        "paper_id": "CDSL-TR-050",
-        "datetime": "Apr. 19 2021",
-        "paper_url_id": "1cIvuG26D24xU-lRioEBgM9VkMQxDq8X2",
-        "created_at": "2021-04-19T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "杉本 一彦",
-            "串田 高幸"
-        ],
-        "title": "太陽光発電を用いたIoTデバイスの動的な省電力手法",
-        "paper_id": "CDSL-TR-041",
-        "datetime": "Feb. 1 2021",
-        "paper_url_id": "1sCkA8wpTVQEla7YgwNHPPL1EJBLWD28w",
-        "created_at": "2021-02-01T00:00:00+09:00",
         "updated_at": ""
     },
     {
@@ -768,7 +2234,7 @@
         ],
         "title": "人感センサを用いた入退室検出の人数と出席登録数の照合",
         "paper_id": "CDSL-TR042",
-        "datetime": "Feb. 12 2021",
+        "datetime": "Feb 12 2021.",
         "paper_url_id": "1NzqxUEfbC173HZ7zaPEpNMuQuMKjo7Fa",
         "created_at": "2021-02-12T00:00:00+09:00",
         "updated_at": ""
@@ -780,7 +2246,7 @@
         ],
         "title": "グループ化されたIoTデバイスの相互監視による異常検知システム",
         "paper_id": "CDSL-TR-043",
-        "datetime": "Feb. 12 2012",
+        "datetime": "Feb 12 2012.",
         "paper_url_id": "17t7AeL6z8MTLIR7aOLE0YiHGENFLmnPr",
         "created_at": "2012-02-12T00:00:00+09:00",
         "updated_at": ""
@@ -792,7 +2258,7 @@
         ],
         "title": "Podの処理能力の計測を連携させたKubernetes構成の自動生成",
         "paper_id": "CDSL-TR-044",
-        "datetime": "Feb. 15 2021",
+        "datetime": "Feb 15 2021.",
         "paper_url_id": "188As3OXNEZ67qUKeDcI5n_HkuSg9jX12",
         "created_at": "2021-02-15T00:00:00+09:00",
         "updated_at": ""
@@ -804,7 +2270,7 @@
         ],
         "title": "感染症対策の為の自己申告症状データを用いた簡易診断システム",
         "paper_id": "CDSL-TR-045",
-        "datetime": "Feb. 15 2021",
+        "datetime": "Feb 15 2021.",
         "paper_url_id": "1tE4bKcC8oBoNZrFHYF6tQTeQGjCvCBEL",
         "created_at": "2021-02-15T00:00:00+09:00",
         "updated_at": ""
@@ -816,7 +2282,7 @@
         ],
         "title": "通信障害時に迂回経路でデータ転送をする方式",
         "paper_id": "CDSL-TR-046",
-        "datetime": "Feb. 18 2021",
+        "datetime": "Feb 18 2021.",
         "paper_url_id": "14eBWealpQTwS3UhM2p5Jv5vyxYmBSnT6",
         "created_at": "2021-02-18T00:00:00+09:00",
         "updated_at": ""
@@ -828,7 +2294,7 @@
         ],
         "title": "P2Pのファイル共有を目的とした通信時に通信帯域が圧迫されるのを分散する方法",
         "paper_id": "CDSL-TR-035",
-        "datetime": "Jan. 19 2021",
+        "datetime": "Jan 19 2021.",
         "paper_url_id": "1a4R8TbrgEepgIM7_hAQBLJ3iR8RxpUbE",
         "created_at": "2021-01-19T00:00:00+09:00",
         "updated_at": ""
@@ -840,7 +2306,7 @@
         ],
         "title": "サーバー上でのデータベースでセンサーのレジスタを用いた拡張性の高い識別方式",
         "paper_id": "CDSL-TR-036",
-        "datetime": "Jan. 21 2021",
+        "datetime": "Jan 21 2021.",
         "paper_url_id": "1neqzKgVjBlIXmBbDApJ2pIBoeblUqkYR",
         "created_at": "2021-01-21T00:00:00+09:00",
         "updated_at": ""
@@ -852,7 +2318,7 @@
         ],
         "title": "歩行者自立航法測位の誤差を地図情報を元に位置を修正する方法",
         "paper_id": "CDSL-TR-037",
-        "datetime": "Jan. 19 2021",
+        "datetime": "Jan 19 2021.",
         "paper_url_id": "1yEuOUf4C2wclxnFJ7P5BJmLBzrUdQJ9X",
         "created_at": "2021-01-19T00:00:00+09:00",
         "updated_at": ""
@@ -864,7 +2330,7 @@
         ],
         "title": "サウンド検出センサを用いたマイクの自動調整",
         "paper_id": "CDSL-TR-038",
-        "datetime": "Jan. 19 2021",
+        "datetime": "Jan 19 2021.",
         "paper_url_id": "1S1w4VEoOkujECmDduAFKQBaYNQYtb5Dp",
         "created_at": "2021-01-19T00:00:00+09:00",
         "updated_at": ""
@@ -876,7 +2342,7 @@
         ],
         "title": "DNSラウンドロビンの際に起きる負荷の偏りを軽減する方法",
         "paper_id": "CDSL-TR-039",
-        "datetime": "Jan. 19 2021",
+        "datetime": "Jan 19 2021.",
         "paper_url_id": "11y4beNhVcV6moycE2vajFSstjBHI9R5D",
         "created_at": "2021-01-19T00:00:00+09:00",
         "updated_at": ""
@@ -888,7 +2354,7 @@
         ],
         "title": "アクセス経路の比較からサーバースケーリングを行う方法",
         "paper_id": "CDSL-TR-040",
-        "datetime": "Jan. 19 2021",
+        "datetime": "Jan 19 2021.",
         "paper_url_id": "1N_-qfq4rstXaSC25bfcaTir5HqdL3q4C",
         "created_at": "2021-01-19T00:00:00+09:00",
         "updated_at": ""
@@ -900,7 +2366,7 @@
         ],
         "title": "木構造を用いた識別子の動的な割当によるセンサーモジュールの一意識別",
         "paper_id": "CDSL-TR-034",
-        "datetime": "Dec. 25 2020",
+        "datetime": "Dec 25 2020.",
         "paper_url_id": "10b0bqFtItaAoL3DFPlzxIBq6SO40dRNd",
         "created_at": "2020-12-25T00:00:00+09:00",
         "updated_at": ""
@@ -912,7 +2378,7 @@
         ],
         "title": "マイクロサービスにおけるコンテナID付与によるレプリカレベルでのログ特定",
         "paper_id": "CDSL-TR-029",
-        "datetime": "Nov. 27 2020",
+        "datetime": "Nov 27 2020.",
         "paper_url_id": "1DZLjHYtkKyqvQ4RXYR3ZpTbO00NoC-44",
         "created_at": "2020-11-27T00:00:00+09:00",
         "updated_at": ""
@@ -924,20 +2390,8 @@
         ],
         "title": "BLEビーコンを用いた移動型IoTデバイスの位置情報の精度改善",
         "paper_id": "CDSL-TR-030",
-        "datetime": "Nov. 27 2020",
+        "datetime": "Nov 27 2020.",
         "paper_url_id": "10cUdXAQEYFQhgMiizSec7vucIqIVm8fG",
-        "created_at": "2020-11-27T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "小山 智之",
-            "串田 高幸"
-        ],
-        "title": "検索性能に配慮した複製による分散ログ管理",
-        "paper_id": "CDSL-TR-031",
-        "datetime": "Nov. 27 2020",
-        "paper_url_id": "1J9sVvHO4WDvjTU0Ce1cunlV0TeQ43Rhv",
         "created_at": "2020-11-27T00:00:00+09:00",
         "updated_at": ""
     },
@@ -948,7 +2402,7 @@
         ],
         "title": "分散システムにおけるノードのグルーピングとグループ内マスターノードによる一貫性の強化",
         "paper_id": "CDSL-TR-032",
-        "datetime": "Nov. 27 2020",
+        "datetime": "Nov 27 2020.",
         "paper_url_id": "1tCpPL6Nj1sAMFie97FWJjQzFohuUm8Ni",
         "created_at": "2020-11-27T00:00:00+09:00",
         "updated_at": ""
@@ -960,21 +2414,9 @@
         ],
         "title": "IoT機器における熱情報とCPU状態を用いた閾値とプロセスの動的制御",
         "paper_id": "CDSL-TR-033",
-        "datetime": "Nov. 27 2020",
+        "datetime": "Nov 27 2020.",
         "paper_url_id": "18W6v8XuNX78JXWw4IuA6iEcTHPMUwO7J",
         "created_at": "2020-11-27T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "新宮 隆太",
-            "串田 高幸"
-        ],
-        "title": "分散システムにおけるノードのグルーピングとグループ内マスターノードによる一貫性の強化",
-        "paper_id": "CDSL-TR-028",
-        "datetime": "Sep. 28 2020",
-        "paper_url_id": "10XhyIx01D26NG-dTnfHJ9Fhlk688Pvw2",
-        "created_at": "2020-09-28T00:00:00+09:00",
         "updated_at": ""
     },
     {
@@ -984,7 +2426,7 @@
         ],
         "title": "IoT機器における熱情報とCPU状態を用いた閾値アラートとプロセスの動的制御",
         "paper_id": "CDSL-TR-016",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1Md5HHkOvgvf8F8R3G5FOJ7UuMs-IKQQE",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -996,7 +2438,7 @@
         ],
         "title": "転送先のリソースに配慮した自動ログ複製による小規模IoT向け分散ログ管理",
         "paper_id": "CDSL-TR-017",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1rFYNsTR27FrKbUuC8rk1T_X56IC7jIqf",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1008,7 +2450,7 @@
         ],
         "title": "BLEビーコンを用いた移動型IoTデバイスの位置情報の精度改善",
         "paper_id": "CDSL-TR-018",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1KqiRc8Smma3z59-W-rWklGPAPgsxI-aa",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1020,7 +2462,7 @@
         ],
         "title": "分散システムにおけるノードのグルーピングとグループ内マスターノードによる分断耐性の強化",
         "paper_id": "CDSL-TR-019",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1F_CDM3VE35ywaQkALqDurwk4ysaqOnyy",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1032,7 +2474,7 @@
         ],
         "title": "稼働率でグループ化されたIoTデバイスの相互監視による異常検知システム",
         "paper_id": "CDSL-TR-020",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1Xz3ErCSVCyQdrB48srOY3eD9O5BYsGVi",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1044,7 +2486,7 @@
         ],
         "title": "木構造を用いた識別子の動的な割当によるセンサーモジュールの一意識別",
         "paper_id": "CDSL-TR-021",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1ychStaRaPUtqbNJbTKSREr3te474lwQC",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1056,7 +2498,7 @@
         ],
         "title": "マイクロサービスにおけるサービス間メッシュ型アーキテクチャ上でのキューレベルでのサービスステータス管理手法",
         "paper_id": "CDSL-TR-022",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1dEIQ6MvJKATQAaG6LV1kSiyNJ_GZnqVj",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1068,7 +2510,7 @@
         ],
         "title": "podの処理能力の計測を連携させたkubernetes構成の自動生成",
         "paper_id": "CDSL-TR-023",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1wNVZR36aH-rJhWLT8g2nqJ7G12XJl6bZ",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1080,7 +2522,7 @@
         ],
         "title": "分散合意アルゴリズムにおけるリーダーを含む全ノード参加型の選挙によるビザンチン故障耐性とクラスター内の合意",
         "paper_id": "CDSL-TR-024",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1je5gc2Q9ORYczj_zkAXQHhjGk8Dc29RI",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1092,7 +2534,7 @@
         ],
         "title": "太陽光発電とバッテリーを使ったIoTデバイスの動的なデータ送信よる省電力化",
         "paper_id": "CDSL-TR-025",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1vna82SSR-kjyY_qNzk8yC90N4DCKKfAI",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1104,7 +2546,7 @@
         ],
         "title": "人感センサを用いた入退室検出の人数と出席登録数の照合",
         "paper_id": "CDSL-TR-026",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1l7rTu-akjYWfe1w-P6YGlVdiZEJ8du3O",
         "created_at": "2020-07-31T00:00:00+09:00",
         "updated_at": ""
@@ -1116,45 +2558,9 @@
         ],
         "title": "自己申告による情報と体温情報を用いた監視システム",
         "paper_id": "CDSL-TR-027",
-        "datetime": "Jul. 31 2020",
+        "datetime": "Jul 31 2020.",
         "paper_url_id": "1J31O3tpYitnsEigfX5oMtauyQ7oDGTux",
         "created_at": "2020-07-31T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "小山 智之",
-            "串田 高幸"
-        ],
-        "title": "OSの自動インストール設定の対話型作成と統一記法",
-        "paper_id": "CDSL-TR-015",
-        "datetime": "Feb. 19 2020",
-        "paper_url_id": "1qmwOXjerxHTFJGSP3aHsr7_1dOROF6V0",
-        "created_at": "2020-02-19T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "高木 優希",
-            "串田 高幸"
-        ],
-        "title": "クラウドとIoTの統合におけるセンサーデータ分散管理方法",
-        "paper_id": "CDSL-TR-016",
-        "datetime": "Feb. 19 2020",
-        "paper_url_id": "1ZNEdCg1aOKm9cu8FZmLtcWI1xAm8DKYW",
-        "created_at": "2020-02-19T00:00:00+09:00",
-        "updated_at": ""
-    },
-    {
-        "author": [
-            "飯島 貴政",
-            "串田 高幸"
-        ],
-        "title": "データの安全性を確保する災害対応型分散バックアップシステム",
-        "paper_id": "CDSL-TR-017",
-        "datetime": "Feb. 19 2020",
-        "paper_url_id": "1VJ1vkfZ_1_AVQjLAUfPnjQM6HlqNhp6j",
-        "created_at": "2020-02-19T00:00:00+09:00",
         "updated_at": ""
     },
     {
@@ -1164,7 +2570,7 @@
         ],
         "title": "自然災害に対応しコストとデータの安全性が両立できる分散バックアップシステムの提案",
         "paper_id": "CDSL-TR-001",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1o1wnzJBWdeFOr0bC7amHaUDmYs6Bf8j3",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1176,7 +2582,7 @@
         ],
         "title": "コンテナランタイムのパフォーマンス比較とシステム管理における評価",
         "paper_id": "CDSL-TR-002",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "12qUsNV8gMJRLFIWkFZNYob5lJV5C_Qf0",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1188,7 +2594,7 @@
         ],
         "title": "CnfBox: OS自動インストール設定の対話型入力と統一記法",
         "paper_id": "CDSL-TR-003",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "12UAJ-V7ks3KUmgP07tNNBM6OjDGmQegg",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1200,7 +2606,7 @@
         ],
         "title": "Multi・Hybrid Cloud Management Layerの提案",
         "paper_id": "CDSL-TR-004",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1-YE-VhboeYmbxESft7ezaM5ARYzqvcX6",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1212,7 +2618,7 @@
         ],
         "title": "IoTセンサーに対するソフトウェアからの死活監視",
         "paper_id": "CDSL-TR-005",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1_DPJU9HK6frzTQzLue_X1Rr3BRwI27_3",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1224,7 +2630,7 @@
         ],
         "title": "自動運転システムへのクラウドの活用",
         "paper_id": "CDSL-TR-006",
-        "datetime": "Feb. 4 2020",
+        "datetime": "Feb 4 2020.",
         "paper_url_id": "1-WFGSCSlWphl_GSRINeBH3EpLgemqijn",
         "created_at": "2020-02-04T00:00:00+09:00",
         "updated_at": ""
@@ -1236,7 +2642,7 @@
         ],
         "title": "通知を行う負荷管理システム",
         "paper_id": "CDSL-TR-007",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1e04RaGPBHkWg68xNw__bz6gXSt0ETT5I",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1248,7 +2654,7 @@
         ],
         "title": "RaspberryPiを用いた室内監視システムの提案",
         "paper_id": "CDSL-TR-008",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1cUxES0O11wMwVhB6uqVAInzu4T7PK3JR",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1260,7 +2666,7 @@
         ],
         "title": "超音波距離センサを用いたものの形の特定",
         "paper_id": "CDSL-TR-009",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1vxku4V9PhpRQHqqnexZ0T-exlHjzIiK7",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1272,7 +2678,7 @@
         ],
         "title": "パケット解析におけるプライバシの確保",
         "paper_id": "CDSL-TR-010",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1_Fx8YnExs03qwj9wkOX9JlE6r7ywbGuV",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1284,7 +2690,7 @@
         ],
         "title": "分散システムの障害の透過性実現のためのプロセスの状態判別方法の提案",
         "paper_id": "CDSL-TR-011",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1-MvnbZSRZ6CiHOd_FQlMf9L92I1ESO_O",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1296,7 +2702,7 @@
         ],
         "title": "クラウドとIoTセンサを用いた不具合の原因特定",
         "paper_id": "CDSL-TR-012",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1JC0R7j82rI2V9dgzXZAutYfnb6tnWNlc",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1308,7 +2714,7 @@
         ],
         "title": "クラウドとIoTの統合におけるセンサーデータ分散管理手法の提案",
         "paper_id": "CDSL-TR-013",
-        "datetime": "Jan. 16 2020",
+        "datetime": "Jan 16 2020.",
         "paper_url_id": "1eNSHjTe9KxEFZ5lHLZeOJ8Yh0oQKHlV8",
         "created_at": "2020-01-16T00:00:00+09:00",
         "updated_at": ""
@@ -1320,7 +2726,7 @@
         ],
         "title": "Raspberry Piでの忘れ物特定システム",
         "paper_id": "CDSL-TR-014",
-        "datetime": "Feb. 5 2020",
+        "datetime": "Feb 5 2020.",
         "paper_url_id": "1dxmvjEhl5-SPbunk9zH9R0uApQA0RRJE",
         "created_at": "2020-02-05T00:00:00+09:00",
         "updated_at": ""
