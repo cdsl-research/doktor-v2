@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.12-alpine
 WORKDIR /work
 COPY main.py requirements.txt /work/
 RUN pip install -U pip && \
