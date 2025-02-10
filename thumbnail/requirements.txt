@@ -10,4 +10,4 @@ typing-extensions==3.10.0.2
 uvicorn==0.15.0
 minio==7.1.0
 pymupdf==1.18.17
-requests==2.26.0
+requests==2.32.2
