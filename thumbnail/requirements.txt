@@ -1,13 +1,13 @@
 asgiref==3.4.1
 click==8.0.1
-dnspython==2.1.0
+dnspython==2.6.1
 fastapi==0.68.1
 h11==0.12.0
 pydantic==1.8.2
-pymongo==3.12.0
-starlette==0.14.2
+pymongo==4.6.3
+starlette==0.40.0
 typing-extensions==3.10.0.2
 uvicorn==0.15.0
 minio==7.1.0
 pymupdf==1.18.17
-requests==2.26.0
+requests==2.32.2
