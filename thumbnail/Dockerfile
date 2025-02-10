@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.12-slim-buster
 WORKDIR /work
 COPY main.py requirements.txt /work/
 RUN pip install -U pip && \
