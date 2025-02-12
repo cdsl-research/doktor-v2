@@ -40,7 +40,7 @@ spec:
             exec:
               command:
                 - ls
-                - /data/lost+found
+                - /data
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 4
