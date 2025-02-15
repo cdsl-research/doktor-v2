@@ -17,7 +17,7 @@ MONGO_DBNAME = os.getenv("MONGO_DBNAME", "author")
 MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/?uuidRepresentation=pythonLegacy"
 
-client = MongoClient(MONGO_CONNECTION_STRING, )
+client = MongoClient(MONGO_CONNECTION_STRING)
 db = client[MONGO_DBNAME]
 
 app = FastAPI()
