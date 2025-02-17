@@ -560,7 +560,7 @@
             "串田 高幸"
         ],
         "title": "Pythonベースイメージの事前pullによるDockerイメージのビルド時間の短縮",
-        "paper_id": "CDSL-TR-172-updated",
+        "paper_id": "CDSL-TR-172",
         "datetime": "Jan 16 2024.",
         "paper_url_id": "194qHex0e0oyuts2dzNCOxUKs1-nk5MQv",
         "created_at": "2024-01-16T00:00:00+09:00",
@@ -2233,7 +2233,7 @@
             "串田 高幸"
         ],
         "title": "人感センサを用いた入退室検出の人数と出席登録数の照合",
-        "paper_id": "CDSL-TR042",
+        "paper_id": "CDSL-TR-042",
         "datetime": "Feb 12 2021.",
         "paper_url_id": "1NzqxUEfbC173HZ7zaPEpNMuQuMKjo7Fa",
         "created_at": "2021-02-12T00:00:00+09:00",
@@ -2246,9 +2246,9 @@
         ],
         "title": "グループ化されたIoTデバイスの相互監視による異常検知システム",
         "paper_id": "CDSL-TR-043",
-        "datetime": "Feb 12 2012.",
+        "datetime": "Feb 12 2021.",
         "paper_url_id": "17t7AeL6z8MTLIR7aOLE0YiHGENFLmnPr",
-        "created_at": "2012-02-12T00:00:00+09:00",
+        "created_at": "2021-02-12T00:00:00+09:00",
         "updated_at": ""
     },
     {
@@ -2729,6 +2729,54 @@
         "datetime": "Feb 5 2020.",
         "paper_url_id": "1dxmvjEhl5-SPbunk9zH9R0uApQA0RRJE",
         "created_at": "2020-02-05T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "小山 智之",
+            "串田 高幸"
+        ],
+        "title": "検索性能に配慮した複製による分散ログ管理",
+        "paper_id": "CDSL-TR-031",
+        "datetime": "Nov. 27 2020",
+        "paper_url_id": "1J9sVvHO4WDvjTU0Ce1cunlV0TeQ43Rhv",
+        "created_at": "2020-11-27T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "新宮 隆太",
+            "串田 高幸"
+        ],
+        "title": "分散システムにおけるノードのグルーピングとグループ内マスターノードによる一貫性の強化",
+        "paper_id": "CDSL-TR-028",
+        "datetime": "Sep. 28 2020",
+        "paper_url_id": "10XhyIx01D26NG-dTnfHJ9Fhlk688Pvw2",
+        "created_at": "2020-09-28T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "杉本 一彦",
+            "串田 高幸"
+        ],
+        "title": "太陽光発電を用いたIoTデバイスの動的な省電力手法",
+        "paper_id": "CDSL-TR-041",
+        "datetime": "Feb. 1 2021",
+        "paper_url_id": "1sCkA8wpTVQEla7YgwNHPPL1EJBLWD28w",
+        "created_at": "2021-02-01T00:00:00+09:00",
+        "updated_at": ""
+    },
+    {
+        "author": [
+            "高木 優希",
+            "串田 高幸"
+        ],
+        "title": "木構造を拡張したセンサー識別子の自動割当",
+        "paper_id": "CDSL-TR-050",
+        "datetime": "Apr. 19 2021",
+        "paper_url_id": "1cIvuG26D24xU-lRioEBgM9VkMQxDq8X2",
+        "created_at": "2021-04-19T00:00:00+09:00",
         "updated_at": ""
     }
 ]
