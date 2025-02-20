@@ -3,6 +3,8 @@
 Doktor is a demo web application that is implemented as microservice architecture.
 This web application provides search and download of technical reports.
 
+https://github.com/user-attachments/assets/4088fd6a-bb87-4852-be16-d95f09c7ddf0
+
 ## Architecture
 
 Microservices are deployed on Kubernetes cluster. Istio is utilized for service mesh in this system.
