@@ -14,12 +14,13 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/status: ""
+        sidecar.istio.io/rewriteAppHTTPProbers: "false"
       labels:
         app: thumbnail
     spec:
       containers:
         - name: thumbnail-app-container
-          image: ghcr.io/cdsl-research/thumbnail:master-a5a5424
+          image: ghcr.io/cdsl-research/thumbnail:master-d735cce
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000

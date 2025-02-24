@@ -14,12 +14,13 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/status: ""
+        sidecar.istio.io/rewriteAppHTTPProbers: "false"
       labels:
         app: front
     spec:
       containers:
         - name: front-app-container
-          image: ghcr.io/cdsl-research/front:master-a5a5424
+          image: ghcr.io/cdsl-research/front:master-d735cce
           imagePullPolicy: IfNotPresent
           ports:
             - name: health-port

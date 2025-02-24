@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: thumbnail-minio-container
-          image: minio/minio:RELEASE.2021-09-03T03-56-13Z
+          image: minio/minio:RELEASE.2025-02-07T23-21-09Z
           imagePullPolicy: IfNotPresent
           command: ["minio", "server"]
           args: ["/data", "--console-address", ":9100"]
@@ -40,7 +40,7 @@ spec:
             exec:
               command:
                 - ls
-                - /data/lost+found
+                - /data
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 4
@@ -57,7 +57,6 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn
   resources:
     requests:
       storage: 5Gi

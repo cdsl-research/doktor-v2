@@ -14,12 +14,13 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/status: ""
+        sidecar.istio.io/rewriteAppHTTPProbers: "false"
       labels:
         app: paper
     spec:
       containers:
         - name: paper-app-container
-          image: ghcr.io/cdsl-research/paper:master-a5a5424
+          image: ghcr.io/cdsl-research/paper:master-d735cce
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000

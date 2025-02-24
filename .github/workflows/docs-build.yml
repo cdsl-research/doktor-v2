@@ -5,13 +5,13 @@ on:
       - master
 jobs:
   build-docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - uses: actions/setup-python@v3
         with:
-          python-version: "3.9"
+          python-version: "3.11"
           cache: "pip"
       - name: Generate docs from FastAPI
         run: |
@@ -19,7 +19,7 @@ jobs:
           python docs_src/generate_openapi_json.py
       - uses: actions/setup-node@v3
         with:
-          node-version: "14"
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: docs_src/package-lock.json
       - name: Build docs and index
