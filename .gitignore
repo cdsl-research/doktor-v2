@@ -4,3 +4,4 @@ node_modules/
 minio_data/
 **/env/
 .DS_Store
+logs/**
