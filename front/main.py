@@ -235,15 +235,15 @@ async def top_handler(
     # 全文の検索
     if res_fulltext:
         for rf in res_fulltext["fulltexts"]:
-            found_ = list(
-                filter(
-                    lambda x: rf["paper_uuid"] == x["uuid"],
-                    res_paper))
-            if len(found_) == 0:
+            contained_paper = []
+            for rp in res_paper:
+                if rf["paper_uuid"] == rp["uuid"]:
+                    contained_paper.append(rp)
+            if len(contained_paper) == 0:
                 continue
-            if found_[0] in found_papers:
+            if contained_paper[0] in found_papers:
                 continue
-            found_papers.append(found_[0])
+            found_papers.append(contained_paper[0])
         # print(found_papers)
     # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
