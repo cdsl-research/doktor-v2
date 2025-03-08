@@ -145,19 +145,8 @@ def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
 @app.get("/fulltext", response_model=FulltextReadSeveral)
 def reads_fulltext_handler(keyword: str = ""):
     payload = {
-        "query": {
-            "match": {
-                "text": {
-                    "query": keyword,
-                    "operator": "and"
-                }
-            }
-        },
-        "highlight": {
-            "fields": {
-                "text": {}
-            }
-        }
+        "query": {"match": {"text": {"query": keyword, "operator": "and"}}},
+        "highlight": {"fields": {"text": {}}},
     }
     print("Elasticsearch Query:", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
