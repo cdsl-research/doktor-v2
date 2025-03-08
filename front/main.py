@@ -233,18 +233,26 @@ async def top_handler(
                 {"name": display_name, "uuid": author["uuid"]})
 
     # 全文の検索
+    matched_parts = {}
     if res_fulltext:
         for rf in res_fulltext["fulltexts"]:
-            found_ = list(
-                filter(
-                    lambda x: rf["paper_uuid"] == x["uuid"],
-                    res_paper))
-            if len(found_) == 0:
+            matched_papers = []
+            for rp in res_paper:
+                # 個別の一致箇所をチェック
+                if rf["paper_uuid"] == rp["uuid"]:
+                    matched_papers.append(rp)
+
+            if len(matched_papers) == 0:
+                # キーワードを含む論文が見つからない場合はスキップ
                 continue
-            if found_[0] in found_papers:
+            key = matched_papers[0]["uuid"]
+            matched_parts[key] = matched_parts.get(key, []) + [rf["highlight"]]
+
+            if matched_papers[0] in found_papers:
+                # 検索結果にすでに含まれている場合はスキップ
                 continue
-            found_papers.append(found_[0])
-        # print(found_papers)
+            found_papers.append(matched_papers[0])
+
     # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
     # 論文のダウンロード数
@@ -277,6 +285,9 @@ async def top_handler(
         paper_uuid = rp.get("uuid", "#")
         total_downloads = downloads_count.get(paper_uuid, "0")
 
+        # 部分一致した箇所
+        highlight = matched_parts.get(paper_uuid, [])
+
         paper_details[year_month] = paper_details.get(year_month, []) + [
             {
                 "uuid": paper_uuid,
@@ -285,13 +296,14 @@ async def top_handler(
                 "label": rp.get("label", "No Label"),
                 "created_at": reformat_datetime(rp.get("created_at")),
                 "downloads": total_downloads,
+                "highlight": highlight,
             }
         ]
 
-        # 並べ替え
-        paper_details_sort = dict(
-            sorted(paper_details.items(), key=lambda x: x[0], reverse=True)
-        )
+    # 並べ替え
+    paper_details_sort = dict(
+        sorted(paper_details.items(), key=lambda x: x[0], reverse=True)
+    )
 
     return templates.TemplateResponse(
         "top.html",

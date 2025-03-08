@@ -21,6 +21,7 @@
                     <span>{{ paper.label }},</span>
                     <span>{{ paper.created_at }}, </span>
                     <span>ダウンロード数: {{ paper.downloads }}</span>
+                    <span>{{ paper.highlight | join('...') | safe }}</span>
                 </div>
             </li>
             {% endfor %}
@@ -37,6 +38,12 @@
 
     div.paper-detail>span {
         margin: 0 1rem 0 0;
+    }
+
+    div.paper-detail>span>em {
+        font-style: normal;
+        font-weight: bold;
+        background: var(--nc-ac-1);
     }
 
     section>ul {
