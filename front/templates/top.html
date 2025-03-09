@@ -1,5 +1,12 @@
 {% include '_header.html' %}
 
+<style>
+    .highlight > em {
+        background-color: #fca5a5;
+        font-style: normal;
+    }
+</style>
+
 <main class="container mx-auto">
     <div class="w-full">
         <form method="get" action="/" class="flex justify-center mb-8">
@@ -29,7 +36,7 @@
                         <span>{{ paper.label }},</span>
                         <span>{{ paper.created_at }}, </span>
                         <span>ダウンロード数: {{ paper.downloads }}</span>
-                        <span>{{ paper.highlight | join('...') | safe }}</span>
+                        <span class="highlight">{{ paper.highlight | join('...') | safe }}</span>
                     </div>
                 </li>
                 {% endfor %}
