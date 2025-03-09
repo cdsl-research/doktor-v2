@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ page_title | default("論文検索サービス") }} | クラウド・分散システム研究室</title>
-    <!-- Powered by https://holidaycss.js.org/ -->
-    <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body {
             max-width: 1024px;
+            margin: auto;
             padding: 1rem;
         }
     </style>
@@ -16,14 +15,13 @@
 </head>
 
 <body>
-    <header>
-        <h1>doktor</h1>
-        <p><a href="https://ja.tak-cslab.org/">クラウド・分散システム研究室</a>で作成されたテクニカルレポートを公開しています．</p>
-        <form method="get" action="/">
-            <input type="text" name="keyword" id="keyword" value="{{ search_keyword }}" placeholder="著者名/タイトル/キーワード">
-            <button type="submit">検索</button>
-        </form>
-        <nav>
-            <a href="/">トップ</a>
+    <header class="mb-4">
+        <nav class="bg-gray-800 p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <a class="text-white text-2xl font-bold" href="/">doktor</a>
+                <div>
+                    <!-- <a class="text-gray-300 hover:text-white mx-2" href="/">トップ</a> -->
+                </div>
+            </div>
         </nav>
     </header>

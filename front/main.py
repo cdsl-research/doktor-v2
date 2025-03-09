@@ -167,7 +167,7 @@ async def top_handler(
     if keyword:
         # スペースを削除
         striped_keyword = keyword.strip().replace("　", "")
-        validate_word = re.match("^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$", striped_keyword)
+        validate_word = re.match("^[0-9a-zA-Zあ-んア-ン一-鿐ー ]+$", striped_keyword)
         if validate_word is None:
             raise HTTPException(status_code=400, detail="不正なキーワードです．")
 
@@ -233,25 +233,22 @@ async def top_handler(
                 {"name": display_name, "uuid": author["uuid"]})
 
     # 全文の検索
+    paper_id_detail = {rp["uuid"]: rp for rp in res_paper}
     matched_parts = {}
     if res_fulltext:
         for rf in res_fulltext["fulltexts"]:
             matched_papers = []
-            for rp in res_paper:
-                # 個別の一致箇所をチェック
-                if rf["paper_uuid"] == rp["uuid"]:
-                    matched_papers.append(rp)
-
-            if len(matched_papers) == 0:
-                # キーワードを含む論文が見つからない場合はスキップ
+            paper = paper_id_detail.get(rf["paper_uuid"])
+            if paper is None:
                 continue
-            key = matched_papers[0]["uuid"]
+
+            key = paper["uuid"]
             matched_parts[key] = matched_parts.get(key, []) + [rf["highlight"]]
 
-            if matched_papers[0] in found_papers:
+            if paper in found_papers:
                 # 検索結果にすでに含まれている場合はスキップ
                 continue
-            found_papers.append(matched_papers[0])
+            found_papers.append(paper)
 
     # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
