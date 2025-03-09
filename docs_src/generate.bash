@@ -4,8 +4,7 @@
 for fname in $(ls openapi_*.json)
 do
     SERVICE_NAME=$(basename -s ".json" "$fname")
-    ./node_modules/.bin/redoc-cli bundle "$fname" \
-        --options.theme.colors.primary.main=orange \
+    ./node_modules/.bin/redocly build-docs "$fname" \
         --output="../docs/${SERVICE_NAME}.html"
     LINK_LIST="$LINK_LIST
     <li><a href='$SERVICE_NAME.html'>$SERVICE_NAME</a></li>"

@@ -167,7 +167,7 @@ async def top_handler(
     if keyword:
         # スペースを削除
         striped_keyword = keyword.strip().replace("　", "")
-        validate_word = re.match("^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$", striped_keyword)
+        validate_word = re.match("^[0-9a-zA-Zあ-んア-ン一-鿐ー ]+$", striped_keyword)
         if validate_word is None:
             raise HTTPException(status_code=400, detail="不正なキーワードです．")
 
@@ -233,18 +233,23 @@ async def top_handler(
                 {"name": display_name, "uuid": author["uuid"]})
 
     # 全文の検索
+    paper_id_detail = {rp["uuid"]: rp for rp in res_paper}
+    matched_parts = {}
     if res_fulltext:
         for rf in res_fulltext["fulltexts"]:
-            found_ = list(
-                filter(
-                    lambda x: rf["paper_uuid"] == x["uuid"],
-                    res_paper))
-            if len(found_) == 0:
+            matched_papers = []
+            paper = paper_id_detail.get(rf["paper_uuid"])
+            if paper is None:
                 continue
-            if found_[0] in found_papers:
+
+            key = paper["uuid"]
+            matched_parts[key] = matched_parts.get(key, []) + [rf["highlight"]]
+
+            if paper in found_papers:
+                # 検索結果にすでに含まれている場合はスキップ
                 continue
-            found_papers.append(found_[0])
-        # print(found_papers)
+            found_papers.append(paper)
+
     # print(json.dumps(found_papers, indent=4, ensure_ascii=False))
 
     # 論文のダウンロード数
@@ -277,6 +282,9 @@ async def top_handler(
         paper_uuid = rp.get("uuid", "#")
         total_downloads = downloads_count.get(paper_uuid, "0")
 
+        # 部分一致した箇所
+        highlight = matched_parts.get(paper_uuid, [])
+
         paper_details[year_month] = paper_details.get(year_month, []) + [
             {
                 "uuid": paper_uuid,
@@ -285,13 +293,14 @@ async def top_handler(
                 "label": rp.get("label", "No Label"),
                 "created_at": reformat_datetime(rp.get("created_at")),
                 "downloads": total_downloads,
+                "highlight": highlight,
             }
         ]
 
-        # 並べ替え
-        paper_details_sort = dict(
-            sorted(paper_details.items(), key=lambda x: x[0], reverse=True)
-        )
+    # 並べ替え
+    paper_details_sort = dict(
+        sorted(paper_details.items(), key=lambda x: x[0], reverse=True)
+    )
 
     return templates.TemplateResponse(
         "top.html",

@@ -61,6 +61,7 @@ class FulltextRead(BaseModel):
     paper_uuid: UUID
     page_number: int
     text: str
+    highlight: Optional[str] = None
 
 
 class FulltextReadSeveral(BaseModel):
@@ -144,16 +145,16 @@ def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
 @app.get("/fulltext", response_model=FulltextReadSeveral)
 def reads_fulltext_handler(keyword: str = ""):
     payload = {
-        "query": {
-            "match": {
-                "text": {
-                    "query": keyword,
-                    "operator": "and"}}}}
+        "query": {"match": {"text": {"query": keyword, "operator": "and"}}},
+        "highlight": {"fields": {"text": {}}},
+    }
     print("Elasticsearch Query:", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
-    records_list = list(
-        map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"])
-    )
+    records_list = []
+    for hit in res["hits"]["hits"]:
+        source = hit["_source"]
+        highlight = hit.get("highlight", {}).get("text", [""])[0]
+        records_list.append(FulltextRead(**source, highlight=highlight))
     return FulltextReadSeveral(fulltexts=records_list)
 
 
