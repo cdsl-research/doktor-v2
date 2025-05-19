@@ -465,38 +465,10 @@ async def paper_download_handler(
 ):
     x_request_id = uuid4() if x_request_id is None else x_request_id
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
-        # タスク一覧
-        tasks = []
-
-        # ダウンロード数の更新
-        url = f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats"
-        body = {
-            "paper_uuid": str(paper_uuid),
-            "ip_v4_addr": "192.0.2.0",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }
-        print("Stats update:", body)
-        task = asyncio.create_task(
-            http_post(
-                session=session,
-                url=url,
-                body=body,
-                require=False,
-                x_req_id=x_request_id,
-            )
-        )
-        tasks.append(task)
-
-        # ファイルのダウンロード
-        url = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper/{paper_uuid}/download"
-        task = asyncio.create_task(
-            http_get_file(session=session, url=url, x_req_id=x_request_id)
-        )
-        tasks.append(task)
 
         # 実行結果の集約
         try:
-            json_raw = await asyncio.gather(*tasks)
+            res_paper_file = await http_get_file(session=session, url=url, x_req_id=x_request_id)
         except aiohttp.ClientResponseError as e:
             print("Paper Download Error 1:", e)
             if e.code == 404:
@@ -505,10 +477,6 @@ async def paper_download_handler(
         except Exception as e:
             print("Paper Download Error 2:", e)
             raise HTTPException(status_code=503)
-
-    res_stats = json_raw[0]
-    res_paper_file = json_raw[1]
-    print("Stats Response:", res_stats)
 
     return Response(content=res_paper_file, media_type="application/pdf")
 
