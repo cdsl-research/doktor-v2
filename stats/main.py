@@ -113,7 +113,7 @@ def read_stat_handler(paper_id: UUID):
     query = {"paper_uuid": str(paper_id)}
     print("Stats Query:", query)
     try:
-        downloads = db["stats"].find(query, {"_id": 0}).count()
+        downloads = db["stats"].count_documents(query)
         return StatsCount(paper_uuid=paper_id, total_downloads=downloads)
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to select")
