@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: paper-app-container
-          image: ghcr.io/cdsl-research/paper:master-a8d2745
+          image: ghcr.io/cdsl-research/paper:master-42efd06
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
