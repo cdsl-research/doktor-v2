@@ -19,7 +19,7 @@
     </section>
 
     <section class="mb-8">
-        <a href="{{ paper.uuid }}/download"><button class="bg-blue-500 text-white p-2 rounded">ダウンロード(PDF形式)</button></a>
+        <button class="bg-blue-500 text-white p-2 rounded" id="download_btn">ダウンロード(PDF形式)</button>
         <button class="bg-gray-500 text-white p-2 rounded ml-2" id="cite_btn">引用(BibTeX)</button>
     </section>
 
@@ -50,6 +50,7 @@
     const cite_aria = document.getElementById("cite_aria");
     const cp_btn = document.getElementById("cp_btn");
     const cp_info = document.getElementById("cp_info");
+    const downloadBtn = document.getElementById("download_btn");
 
     cite_btn.addEventListener("click", function() {
         if(cite_aria.style.display=="none"){
@@ -67,6 +68,26 @@
         txt.select();
         document.execCommand("Copy");
         cp_info.innerText = "コピーしました";
+    });
+
+    downloadBtn.addEventListener("click", async function() {
+        const stats_url = "http://doktor-test1-v2:4600/stats";
+        const stats_body = {
+            paper_uuid: "{{ paper.uuid }}",
+            ip_v4_addr: "192.0.2.0",
+            timestamp: new Date().toISOString()
+        };
+        console.log("Stats update:", stats_body);
+
+        const response = await fetch(stats_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(stats_body)
+        });
+
+        window.location.href = "/{{ paper.uuid }}/download";
     });
 </script>
 

@@ -14,6 +14,8 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
 
+from fastapi.middleware.cors import CORSMiddleware
+
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "stats")
@@ -25,6 +27,13 @@ db = client[MONGO_DBNAME]
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://doktor-test1-v2:4000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ServiceHello(BaseModel):
     name: str
