@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional, Tuple, Union
 from uuid import UUID, uuid4
+from datetime import datetime, timedelta
+from email.utils import formatdate
 
 import aiohttp
 from fastapi import FastAPI, Header, HTTPException, Request
@@ -510,7 +512,10 @@ async def paper_download_handler(
     res_paper_file = json_raw[1]
     print("Stats Response:", res_stats)
 
-    return Response(content=res_paper_file, media_type="application/pdf")
+    tomorrow = datetime.utcnow() + timedelta(days=1)
+    http_tomorrow = formatdate(tomorrow.timestamp(), usegmt=True) 
+
+    return Response(content=res_paper_file, media_type="application/pdf", headers={"Cache-Control": "public, max-age=86400","Expires": http_tomorrow})
 
 
 @app.get("/author/{author_uuid}", response_class=HTMLResponse)
