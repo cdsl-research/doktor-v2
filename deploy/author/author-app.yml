@@ -18,6 +18,13 @@ spec:
       labels:
         app: author
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: author  # REPLACE_TAG for author-app
       containers:
         - name: author-app-container
           image: ghcr.io/cdsl-research/author:master-844b336
