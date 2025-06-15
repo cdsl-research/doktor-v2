@@ -18,6 +18,13 @@ spec:
       labels:
         app: stats
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: stats
       containers:
         - name: stats-app-container
           image: ghcr.io/cdsl-research/stats:master-844b336

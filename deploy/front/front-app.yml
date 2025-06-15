@@ -18,6 +18,13 @@ spec:
       labels:
         app: front
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: front
       containers:
         - name: front-app-container
           image: ghcr.io/cdsl-research/front:master-844b336
