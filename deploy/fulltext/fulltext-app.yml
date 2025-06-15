@@ -18,6 +18,13 @@ spec:
       labels:
         app: fulltext
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: fulltext
       containers:
         - name: fulltext-app-container
           image: ghcr.io/cdsl-research/fulltext:master-844b336

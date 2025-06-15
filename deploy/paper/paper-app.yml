@@ -18,6 +18,13 @@ spec:
       labels:
         app: paper
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: paper
       containers:
         - name: paper-app-container
           image: ghcr.io/cdsl-research/paper:master-844b336
