@@ -14,6 +14,28 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# OpenTelemetry TracerProvider の設定
+resource = Resource(attributes={"service.name": "front"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+tracer_provider = trace.get_tracer_provider()
+
+# OTLP Exporter の設定
+otlp_exporter = OTLPSpanExporter(
+    # Datadog Agent's OTLP gRPC endpoint
+    # endpoint="localhost:4317", insecure=True
+)
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# AIOHTTP クライアントの計装
+AioHttpClientInstrumentor().instrument()
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
 SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")
@@ -30,6 +52,10 @@ REQ_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", 5))
 TIMEOUT = aiohttp.ClientTimeout(total=REQ_TIMEOUT_SEC)
 
 app = FastAPI()
+
+# FastAPI アプリケーションの計装
+FastAPIInstrumentor.instrument_app(app)
+
 templates = Jinja2Templates(directory="templates")
 
 
@@ -91,10 +117,8 @@ async def http_post(
 
 # マイクロサービス呼び出し: Worker
 async def http_get(
-        session: aiohttp.ClientSession,
-        require: bool,
-        url: str,
-        x_req_id: Optional[UUID]):
+    session: aiohttp.ClientSession, require: bool, url: str, x_req_id: Optional[UUID]
+):
     try:
         if x_req_id is None:
             _headers = {}
@@ -116,17 +140,15 @@ async def http_get(
 # マイクロサービス呼び出し: Master
 # Masterから複数のWorkerを呼び出す．
 async def fetch_all(
-        session: aiohttp.ClientSession,
-        urls: Tuple[FetchUrl],
-        x_req_id: Optional[UUID]):
+    session: aiohttp.ClientSession, urls: Tuple[FetchUrl], x_req_id: Optional[UUID]
+):
     tasks = []
     for url in urls:
         task = asyncio.create_task(
             http_get(
-                session=session,
-                url=url.url,
-                require=url.require,
-                x_req_id=x_req_id))
+                session=session, url=url.url, require=url.require, x_req_id=x_req_id
+            )
+        )
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
@@ -175,9 +197,7 @@ async def top_handler(
 
     urls = (
         # 論文タイトルの検索
-        FetchUrl(
-            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
-            require=True),
+        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
         # 著者の一覧
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
@@ -193,9 +213,7 @@ async def top_handler(
             require=False,
         ),
         # 統計の取得
-        FetchUrl(
-            url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats",
-            require=False),
+        FetchUrl(url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats", require=False),
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
@@ -231,8 +249,7 @@ async def top_handler(
             display_name = (
                 author.get("last_name_ja") + " " + author.get("first_name_ja")
             )
-            author_details.append(
-                {"name": display_name, "uuid": author["uuid"]})
+            author_details.append({"name": display_name, "uuid": author["uuid"]})
 
     # 全文の検索
     paper_id_detail = {rp["uuid"]: rp for rp in res_paper}
@@ -257,8 +274,9 @@ async def top_handler(
     # 論文のダウンロード数
     downloads_count = {}
     if res_stats:
-        downloads_count = {rs["paper_uuid"]: rs["total_downloads"]
-                           for rs in res_stats["stats"]}
+        downloads_count = {
+            rs["paper_uuid"]: rs["total_downloads"] for rs in res_stats["stats"]
+        }
 
     # 論文ごとの詳細情報を組み立て
     paper_details = {}
@@ -271,9 +289,8 @@ async def top_handler(
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
                 display_name = (
-                    author.get("last_name_ja") +
-                    " " +
-                    author.get("first_name_ja"))
+                    author.get("last_name_ja") + " " + author.get("first_name_ja")
+                )
                 found_author.append(display_name)
 
         # 論文の作成年月日
@@ -513,9 +530,13 @@ async def paper_download_handler(
     print("Stats Response:", res_stats)
 
     tomorrow = datetime.utcnow() + timedelta(days=1)
-    http_tomorrow = formatdate(tomorrow.timestamp(), usegmt=True) 
+    http_tomorrow = formatdate(tomorrow.timestamp(), usegmt=True)
 
-    return Response(content=res_paper_file, media_type="application/pdf", headers={"Cache-Control": "public, max-age=86400","Expires": http_tomorrow})
+    return Response(
+        content=res_paper_file,
+        media_type="application/pdf",
+        headers={"Cache-Control": "public, max-age=86400", "Expires": http_tomorrow},
+    )
 
 
 @app.get("/author/{author_uuid}", response_class=HTMLResponse)
@@ -567,9 +588,8 @@ async def author_handler(
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
                 display_name = (
-                    author.get("last_name_ja") +
-                    " " +
-                    author.get("first_name_ja"))
+                    author.get("last_name_ja") + " " + author.get("first_name_ja")
+                )
                 found_author.append(display_name)
 
         paper_details.append(
@@ -583,8 +603,7 @@ async def author_handler(
         )
 
     author_details = {
-        "name": res_author_me.get("last_name_ja") +
-        res_author_me.get("first_name_ja"),
+        "name": res_author_me.get("last_name_ja") + res_author_me.get("first_name_ja"),
         "status": "既卒" if res_author_me.get("is_graduated") else "在学",
         "joined_year": res_author_me.get("joined_year"),
     }
