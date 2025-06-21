@@ -27,7 +27,7 @@ spec:
               app: thumbnail
       containers:
         - name: thumbnail-app-container
-          image: ghcr.io/cdsl-research/thumbnail:master-844b336
+          image: ghcr.io/cdsl-research/thumbnail:master-b812ad3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
