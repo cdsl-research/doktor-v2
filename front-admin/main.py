@@ -10,6 +10,13 @@ import aiohttp
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
 SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")
@@ -20,7 +27,23 @@ SVC_THUMBNAIL_PORT = os.getenv("SERVICE_THUMBNAIL_PORT", "8000")
 SVC_FULLTEXT_HOST = os.getenv("SERVICE_FULLTEXT_HOST", "fulltext-app")
 SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
 
+# OpenTelemetry TracerProvider の設定
+resource = Resource(attributes={"service.name": "front-admin"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+tracer_provider = trace.get_tracer_provider()
+
+# OTLP Exporter の設定
+otlp_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# AIOHTTP クライアントの計装
+AioHttpClientInstrumentor().instrument()
+
 app = FastAPI()
+
+# FastAPI アプリケーションの計装
+FastAPIInstrumentor.instrument_app(app)
+
 templates = Jinja2Templates(directory="templates")
 
 
@@ -133,14 +156,12 @@ async def add_paper_exec_handler(
                 if res_meta.status != 200:
                     print("Invalid status on meta:", res_meta.status)
                     print("Response on meta:", res_meta.json)
-                    raise HTTPException(
-                        status_code=503, detail="Internal Error")
+                    raise HTTPException(status_code=503, detail="Internal Error")
                 res_meta_detail = await res_meta.json()
                 if res_meta_detail.get("uuid"):
                     paper_uuid = res_meta_detail.get("uuid")
                 else:
-                    raise HTTPException(
-                        status_code=503, detail="Internal Error")
+                    raise HTTPException(status_code=503, detail="Internal Error")
                 print("Response on meta:", res_meta_detail)
 
             """ Add paper pdf file """
@@ -161,8 +182,7 @@ async def add_paper_exec_handler(
                 if res_file.status != 200:
                     print("Invalid status on file:", res_file.status)
                     print("Response on file:", res_file.json)
-                    raise HTTPException(
-                        status_code=503, detail="Internal Error")
+                    raise HTTPException(status_code=503, detail="Internal Error")
                 res_file_detail = res_file.json()
                 print("Response on file:", res_file_detail)
 
@@ -181,8 +201,7 @@ async def add_paper_exec_handler(
             async with session.post(url_text) as res_text:
                 if res_text.status != 200:
                     print("Invalid status on text:", res_text.status)
-                    raise HTTPException(
-                        status_code=503, detail="Internal Error")
+                    raise HTTPException(status_code=503, detail="Internal Error")
                 res_text_detail = res_text.json()
                 print("Response on text:", res_text_detail)
 
@@ -284,8 +303,7 @@ async def add_author_exec_handler(
                 if response.status != 200:
                     print("Invalid status:", response.status)
                     print("Response:", response.json)
-                    raise HTTPException(
-                        status_code=503, detail="Internal Error")
+                    raise HTTPException(status_code=503, detail="Internal Error")
                 res = await response.json()
         except Exception as e:
             print("HTTP Request failed:", e)

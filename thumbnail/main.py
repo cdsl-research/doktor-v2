@@ -13,6 +13,13 @@ from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
 from minio.deleteobjects import DeleteObject
 from pydantic import BaseModel
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -22,6 +29,18 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
 MINIO_HOST = os.getenv("MINIO_HOST", "thumbnail-minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "thumbnail")
+
+# OpenTelemetry TracerProvider の設定
+resource = Resource(attributes={"service.name": "thumbnail"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+tracer_provider = trace.get_tracer_provider()
+
+# OTLP Exporter の設定
+otlp_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# Requests の計装
+RequestsInstrumentor().instrument()
 
 try:
     minio_client = Minio(
@@ -37,6 +56,9 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 
 """ FastAPI Setup """
 app = FastAPI()
+
+# FastAPI アプリケーションの計装
+FastAPIInstrumentor.instrument_app(app)
 
 
 class ServiceHello(BaseModel):
@@ -70,8 +92,7 @@ def topz_handler():
 @app.get("/thumbnail/{paper_uuid}")
 def read_thumbnail(paper_uuid: UUID):
     try:
-        files = minio_client.list_objects(
-            MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
+        files = minio_client.list_objects(MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
         filenames = [
             f._object_name.replace(f"{paper_uuid}/", "").replace(".png", "")
             for f in files
@@ -80,10 +101,8 @@ def read_thumbnail(paper_uuid: UUID):
     except S3Error as e:
         print("Download exception: ", e)
         _status_code = (
-            404 if e.code in (
-                "NoSuchKey",
-                "NoSuchBucket",
-                "ResourceNotFound") else 503)
+            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        )
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
@@ -95,8 +114,7 @@ def create_thumbnail(paper_uuid: UUID):
         print("Fetch url:", file_url)
         pdf_data = requests.get(file_url)
     except Exception:
-        raise HTTPException(status_code=400,
-                            detail="Cloud not downloads the file.")
+        raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
 
     # 画像の取り出し
     write_file_buffer = {}
@@ -136,10 +154,8 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
     except S3Error as e:
         print("Download exception: ", e)
         _status_code = (
-            404 if e.code in (
-                "NoSuchKey",
-                "NoSuchBucket",
-                "ResourceNotFound") else 503)
+            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        )
         raise HTTPException(status_code=_status_code, detail=str(e.message))
     except Exception as e:
         res_status = 503
