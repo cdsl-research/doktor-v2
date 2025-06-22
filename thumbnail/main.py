@@ -12,14 +12,15 @@ import urllib3
 from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
 from minio.deleteobjects import DeleteObject
-from pydantic import BaseModel
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from pydantic import BaseModel
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -92,7 +93,8 @@ def topz_handler():
 @app.get("/thumbnail/{paper_uuid}")
 def read_thumbnail(paper_uuid: UUID):
     try:
-        files = minio_client.list_objects(MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
+        files = minio_client.list_objects(
+            MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
         filenames = [
             f._object_name.replace(f"{paper_uuid}/", "").replace(".png", "")
             for f in files
@@ -101,8 +103,10 @@ def read_thumbnail(paper_uuid: UUID):
     except S3Error as e:
         print("Download exception: ", e)
         _status_code = (
-            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        )
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
@@ -114,7 +118,8 @@ def create_thumbnail(paper_uuid: UUID):
         print("Fetch url:", file_url)
         pdf_data = requests.get(file_url)
     except Exception:
-        raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
+        raise HTTPException(status_code=400,
+                            detail="Cloud not downloads the file.")
 
     # 画像の取り出し
     write_file_buffer = {}
@@ -154,8 +159,10 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
     except S3Error as e:
         print("Download exception: ", e)
         _status_code = (
-            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        )
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
     except Exception as e:
         res_status = 503
