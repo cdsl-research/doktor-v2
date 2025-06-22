@@ -11,6 +11,14 @@ import requests
 from elasticsearch import Elasticsearch
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Response
 from pydantic import BaseModel
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.elasticsearch import ElasticsearchInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -18,6 +26,19 @@ PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
 """ Elasticsearch Setup """
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "fulltext-elastic:9200")
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
+
+# OpenTelemetry TracerProvider の設定
+resource = Resource(attributes={"service.name": "fulltext"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+tracer_provider = trace.get_tracer_provider()
+
+# OTLP Exporter の設定
+otlp_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# Elasticsearch と Requests の計装
+ElasticsearchInstrumentor().instrument()
+RequestsInstrumentor().instrument()
 
 for _ in range(120):
     try:
@@ -42,6 +63,9 @@ es.indices.create(index=ELASTICSEARCH_INDEX, ignore=400)
 
 """ FastAPI Setup """
 app = FastAPI()
+
+# FastAPI アプリケーションの計装
+FastAPIInstrumentor.instrument_app(app)
 
 
 class ServiceHello(BaseModel):
@@ -79,9 +103,7 @@ def healthz_handler(response: Response):
         return StatusResponse(status="ok", message="it works")
     else:
         response.status_code = 503
-        return StatusResponse(
-            status="error",
-            message="waiting for elasticsearch")
+        return StatusResponse(status="error", message="waiting for elasticsearch")
 
 
 @app.get("/topz", response_model=ServiceHealth)
@@ -98,18 +120,14 @@ def create_fulltext_handler(paper_uuid: UUID):
         pdf_data = requests.get(file_url)
     except Exception as e:
         print("Fail to download:", e)
-        raise HTTPException(status_code=400,
-                            detail="Cloud not downloads the file.")
+        raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
 
     # PDFからテキストを取り出し
     with fitz.open(stream=pdf_data.content, filetype="pdf") as doc:
         for i in range(doc.page_count):
             raw_text = doc.get_page_text(pno=i)
             formated_text = raw_text.replace("\n", "")
-            record = {
-                "paper_uuid": paper_uuid,
-                "page_number": i,
-                "text": formated_text}
+            record = {"paper_uuid": paper_uuid, "page_number": i, "text": formated_text}
             print("Insert record:", record)
             try:
                 es.index(index=ELASTICSEARCH_INDEX, document=record)
