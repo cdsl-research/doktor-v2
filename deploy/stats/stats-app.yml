@@ -27,7 +27,7 @@ spec:
               app: stats
       containers:
         - name: stats-app-container
-          image: ghcr.io/cdsl-research/stats:master-18f3e34
+          image: ghcr.io/cdsl-research/stats:master-aac9010
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
