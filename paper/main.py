@@ -16,6 +16,14 @@ from minio.deleteobjects import DeleteObject
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
@@ -23,6 +31,19 @@ MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
 MONGO_HOST = os.getenv("MONGO_HOST", "paper-mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/?uuidRepresentation=pythonLegacy"
+
+# OpenTelemetry TracerProvider の設定
+resource = Resource(attributes={"service.name": "paper"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+tracer_provider = trace.get_tracer_provider()
+
+# OTLP Exporter の設定
+otlp_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# PyMongo と Requests の計装
+PymongoInstrumentor().instrument()
+RequestsInstrumentor().instrument()
 
 mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 db = mongo_client[MONGO_DBNAME]
@@ -48,6 +69,9 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
 
 """ FastAPI Setup """
 app = FastAPI()
+
+# FastAPI アプリケーションの計装
+FastAPIInstrumentor.instrument_app(app)
 
 
 class ServiceHello(BaseModel):
@@ -140,8 +164,7 @@ def read_papers_handler(private: bool = False, title: str = ""):
 
 @app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
-    entry = db["paper"].find_one(
-        {"uuid": paper_uuid, "is_public": True}, {"_id": 0})
+    entry = db["paper"].find_one({"uuid": paper_uuid, "is_public": True}, {"_id": 0})
     if entry:
         return entry
     else:
@@ -149,9 +172,7 @@ def read_paper_handler(paper_uuid: UUID):
 
 
 @app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
-async def upload_paper_file_handler(
-        paper_uuid: UUID,
-        file: UploadFile = File(...)):
+async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="Invalid Content-Type")
@@ -186,18 +207,15 @@ async def upload_paper_file_handler(
 )
 async def download_paper_handler(paper_uuid: UUID):
     try:
-        response = minio_client.get_object(
-            MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
+        response = minio_client.get_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
         return Response(content=response.read(), media_type="application/pdf")
         response.close()
         response.release_conn()
     except S3Error as e:
         print("Download exception: ", e)
         _status_code = (
-            404 if e.code in (
-                "NoSuchKey",
-                "NoSuchBucket",
-                "ResourceNotFound") else 503)
+            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        )
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
