@@ -65,13 +65,14 @@ metadata:
   name: paper-minio
   namespace: paper
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     minio: paper
   ports:
     - protocol: TCP
       port: 9000
       targetPort: 9000
+      nodePort: 30302
 ---
 apiVersion: v1
 kind: Service
