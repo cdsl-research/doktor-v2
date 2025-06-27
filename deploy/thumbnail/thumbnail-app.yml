@@ -18,9 +18,16 @@ spec:
       labels:
         app: thumbnail
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: thumbnail
       containers:
         - name: thumbnail-app-container
-          image: ghcr.io/cdsl-research/thumbnail:master-d357abd
+          image: ghcr.io/cdsl-research/thumbnail:master-aac9010
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000

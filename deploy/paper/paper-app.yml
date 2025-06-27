@@ -18,9 +18,16 @@ spec:
       labels:
         app: paper
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: paper
       containers:
         - name: paper-app-container
-          image: ghcr.io/cdsl-research/paper:master-d357abd
+          image: ghcr.io/cdsl-research/paper:master-aac9010
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000

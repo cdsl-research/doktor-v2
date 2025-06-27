@@ -18,9 +18,16 @@ spec:
       labels:
         app: front
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: front
       containers:
         - name: front-app-container
-          image: ghcr.io/cdsl-research/front:master-d357abd
+          image: ghcr.io/cdsl-research/front:master-aac9010
           imagePullPolicy: IfNotPresent
           ports:
             - name: health-port
