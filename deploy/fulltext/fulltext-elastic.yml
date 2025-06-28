@@ -54,10 +54,11 @@ metadata:
   name: fulltext-elastic
   namespace: fulltext
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     db: fulltext
   ports:
     - protocol: TCP
       port: 9200
       targetPort: 9200
+      nodePort: 30301

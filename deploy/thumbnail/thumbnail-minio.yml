@@ -67,13 +67,14 @@ metadata:
   name: thumbnail-minio
   namespace: thumbnail
 spec:
-  type: ClusterIP
+  type: NodePort 
   selector:
     minio: thumbnail
   ports:
     - protocol: TCP
       port: 9000
       targetPort: 9000
+      nodePort: 30305
 ---
 apiVersion: v1
 kind: Service
