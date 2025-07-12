@@ -1,8 +1,9 @@
 import glob
-import yaml
-from collections import defaultdict
 import os
+from collections import defaultdict
 from pathlib import Path
+
+import yaml
 
 OUTPUT_DIR = Path(__file__).parent.resolve()
 # YAMLファイルのパスをpathlibで取得
