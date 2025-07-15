@@ -13,17 +13,18 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
 from minio import Minio, S3Error
 from minio.deleteobjects import DeleteObject
-from pydantic import BaseModel
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, OperationFailure
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from pydantic import BaseModel
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, OperationFailure
 
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
@@ -164,7 +165,8 @@ def read_papers_handler(private: bool = False, title: str = ""):
 
 @app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
-    entry = db["paper"].find_one({"uuid": paper_uuid, "is_public": True}, {"_id": 0})
+    entry = db["paper"].find_one(
+        {"uuid": paper_uuid, "is_public": True}, {"_id": 0})
     if entry:
         return entry
     else:
@@ -172,7 +174,9 @@ def read_paper_handler(paper_uuid: UUID):
 
 
 @app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
-async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
+async def upload_paper_file_handler(
+        paper_uuid: UUID,
+        file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="Invalid Content-Type")
@@ -207,15 +211,18 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
 )
 async def download_paper_handler(paper_uuid: UUID):
     try:
-        response = minio_client.get_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
+        response = minio_client.get_object(
+            MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
         return Response(content=response.read(), media_type="application/pdf")
         response.close()
         response.release_conn()
     except S3Error as e:
         print("Download exception: ", e)
         _status_code = (
-            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        )
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
