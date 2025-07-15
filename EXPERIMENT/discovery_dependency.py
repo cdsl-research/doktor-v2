@@ -132,18 +132,28 @@ for k, v in deps.items():
     print(f"{k} depends on {v}")
 
 
+def replace_kind(kind):
+    kind = str(kind)
+    if kind == "PersistentVolumeClaim":
+        return "PVC"
+    elif kind == "Service":
+        return "Svc"
+    elif kind == "Deployment":
+        return "Deploy"
+
+
 # Graphviz dot形式で出力
 def to_dot(deps):
     lines = ["digraph G {"]
     # node fontsize=10;
-    lines.append("node [fontsize=40];")
+    lines.append("node [fontsize=40,shape=box];")
     # edge [arrowhead=none];
     lines.append("edge [arrowsize=3.5,penwidth=3.5];")
-    lines.append("rankdir=LR;")
+    # lines.append("rankdir=LR;")
     for src, targets in deps.items():
-        src_label = f"{src[0]}\\n{src[1]}\\n[{src[2]}]"
+        src_label = f"{replace_kind(src[0])}\\n{src[1]}\\n[{src[2]}]"
         for tgt in targets:
-            tgt_label = f"{tgt[0]}\\n{tgt[1]}\\n[{tgt[2]}]"
+            tgt_label = f"{replace_kind(tgt[0])}\\n{tgt[1]}\\n[{tgt[2]}]"
             lines.append(f'    "{src_label}" -> "{tgt_label}";')
     lines.append("}")
     # Support fdp layout
