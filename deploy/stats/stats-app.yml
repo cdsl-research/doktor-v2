@@ -34,6 +34,14 @@ spec:
           env:
             - name: MONGO_HOST
               value: stats-mongo.stats
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://192.168.201.12:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
+            - name: OTEL_SERVICE_NAME
+              value: "stats"
 ---
 apiVersion: v1
 kind: Service

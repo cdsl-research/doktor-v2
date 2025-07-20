@@ -48,6 +48,14 @@ spec:
               value: fulltext-app.fulltext
             - name: SERVICE_FULLTEXT_PORT
               value: "4000"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://192.168.201.12:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
+            - name: OTEL_SERVICE_NAME
+              value: "front-admin"
 ---
 apiVersion: v1
 kind: Service
