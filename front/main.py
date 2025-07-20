@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional, Tuple, Union
@@ -21,6 +22,10 @@ from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrument
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # OpenTelemetry TracerProvider の設定
 resource = Resource(attributes={"service.name": "front"})
@@ -78,7 +83,7 @@ async def http_get_file(
     try:
         if x_req_id is None:
             _headers = {}
-            print("HTTP_GET_FILE: empty")
+            logger.info("HTTP_GET_FILE: empty")
         else:
             _headers = {"x-request-id": str(x_req_id)}
         async with session.get(url, headers=_headers) as response:
@@ -86,7 +91,7 @@ async def http_get_file(
                 response.raise_for_status()
             return await response.read()
     except Exception as e:
-        print(e)
+        logger.error(e)
         raise e
 
 
@@ -101,7 +106,7 @@ async def http_post(
     try:
         if x_req_id is None:
             _headers = {}
-            print("HTTP_POST: empty")
+            logger.info("HTTP_POST: empty")
         else:
             _headers = {"x-request-id": str(x_req_id)}
         async with session.post(url=url, headers=_headers, json=body) as response:
@@ -112,7 +117,7 @@ async def http_post(
         if require:
             raise e
         else:
-            print("Fetch exception of post:", "url=", url)
+            logger.warning("Fetch exception of post: url=%s", url)
 
 
 # マイクロサービス呼び出し: Worker
@@ -122,10 +127,10 @@ async def http_get(
     try:
         if x_req_id is None:
             _headers = {}
-            print("HTTP_GET: empty")
+            logger.info("HTTP_GET: empty")
         else:
             _headers = {"x-request-id": str(x_req_id)}
-            print("HTTP_GET:", x_req_id)
+            logger.info("HTTP_GET: %s", x_req_id)
         async with session.get(url, headers=_headers) as response:
             if response.status >= 300:
                 response.raise_for_status()
@@ -134,7 +139,7 @@ async def http_get(
         if require:
             raise e
         else:
-            print("Fetch exception of get:", "url=", url)
+            logger.warning("Fetch exception of get: url=%s", url)
 
 
 # マイクロサービス呼び出し: Master
@@ -156,7 +161,7 @@ async def fetch_all(
 
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, exc):
-    print("Error: ", exc.detail)
+    logger.error("Error: %s", exc.detail)
     message = "システムの内部で問題が発生しました．"
     if exc.status_code == 404:
         message = "コンテンツが見つかりません．"
@@ -172,7 +177,7 @@ async def custom_http_exception_handler(request, exc):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    print("Error: ", exc.detail)
+    logger.error("Error: %s", exc.detail)
     templates.TemplateResponse(
         "error.html",
         {"message": "不正なリクエストです．", "request": request},
@@ -221,12 +226,12 @@ async def top_handler(
                 session=session, urls=urls, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Top Error 1:", e)
+            logger.error("Top Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Top Error 2:", e)
+            logger.error("Top Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_paper = json_raw[0]["papers"]
@@ -387,12 +392,12 @@ async def paper_handler(
                 session=session, urls=urls, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Paper Single View Fetch Error 1:", e)
+            logger.error("Paper Single View Fetch Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Paper Single View Fetch Error 2:", e)
+            logger.error("Paper Single View Fetch Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_author = json_raw[0]
@@ -411,7 +416,7 @@ async def paper_handler(
                 author = candidates_lst[0]
                 found_author.append(author)
         except Exception as e:
-            print("Paper Single View Author Error:", e)
+            logger.error("Paper Single View Author Error: %s", e)
             continue
 
     # サムネイル一覧
@@ -494,7 +499,7 @@ async def paper_download_handler(
             "ip_v4_addr": "192.0.2.0",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        print("Stats update:", body)
+        logger.info("Stats update: %s", body)
         task = asyncio.create_task(
             http_post(
                 session=session,
@@ -517,17 +522,17 @@ async def paper_download_handler(
         try:
             json_raw = await asyncio.gather(*tasks)
         except aiohttp.ClientResponseError as e:
-            print("Paper Download Error 1:", e)
+            logger.error("Paper Download Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Paper Download Error 2:", e)
+            logger.error("Paper Download Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_stats = json_raw[0]
     res_paper_file = json_raw[1]
-    print("Stats Response:", res_stats)
+    logger.info("Stats Response: %s", res_stats)
 
     tomorrow = datetime.utcnow() + timedelta(days=1)
     http_tomorrow = formatdate(tomorrow.timestamp(), usegmt=True)
@@ -562,12 +567,12 @@ async def author_handler(
                 session=session, urls=urls, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Author Single View Error 1:", e)
+            logger.error("Author Single View Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Author Single View Error 2:", e)
+            logger.error("Author Single View Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_paper = json_res[0]["papers"]
@@ -636,13 +641,13 @@ async def thumbnail_handler(
                 session=session, url=url, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Thumbnail Download Error 1:", e)
+            logger.error("Thumbnail Download Error 1: %s", e)
             if e.code == 404:
                 # raise HTTPException(status_code=404)
                 return FileResponse("assets/404.png")
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Thumbnail Download Error 2:", e)
+            logger.error("Thumbnail Download Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     return Response(content=res_img, media_type="image/png")
