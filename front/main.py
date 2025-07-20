@@ -1,26 +1,32 @@
 import asyncio
+import logging
 import os
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from email.utils import formatdate
 from typing import Optional, Tuple, Union
 from uuid import UUID, uuid4
-from datetime import datetime, timedelta
-from email.utils import formatdate
 
 import aiohttp
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
-from starlette.exceptions import HTTPException as StarletteHTTPException
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
+from opentelemetry.instrumentation.aiohttp_client import \
+    AioHttpClientInstrumentor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # OpenTelemetry TracerProvider の設定
 resource = Resource(attributes={"service.name": "front"})
@@ -78,7 +84,7 @@ async def http_get_file(
     try:
         if x_req_id is None:
             _headers = {}
-            print("HTTP_GET_FILE: empty")
+            logger.info("HTTP_GET_FILE: empty")
         else:
             _headers = {"x-request-id": str(x_req_id)}
         async with session.get(url, headers=_headers) as response:
@@ -86,7 +92,7 @@ async def http_get_file(
                 response.raise_for_status()
             return await response.read()
     except Exception as e:
-        print(e)
+        logger.error(e)
         raise e
 
 
@@ -101,7 +107,7 @@ async def http_post(
     try:
         if x_req_id is None:
             _headers = {}
-            print("HTTP_POST: empty")
+            logger.info("HTTP_POST: empty")
         else:
             _headers = {"x-request-id": str(x_req_id)}
         async with session.post(url=url, headers=_headers, json=body) as response:
@@ -112,20 +118,22 @@ async def http_post(
         if require:
             raise e
         else:
-            print("Fetch exception of post:", "url=", url)
+            logger.warning("Fetch exception of post: url=%s", url)
 
 
 # マイクロサービス呼び出し: Worker
 async def http_get(
-    session: aiohttp.ClientSession, require: bool, url: str, x_req_id: Optional[UUID]
-):
+        session: aiohttp.ClientSession,
+        require: bool,
+        url: str,
+        x_req_id: Optional[UUID]):
     try:
         if x_req_id is None:
             _headers = {}
-            print("HTTP_GET: empty")
+            logger.info("HTTP_GET: empty")
         else:
             _headers = {"x-request-id": str(x_req_id)}
-            print("HTTP_GET:", x_req_id)
+            logger.info("HTTP_GET: %s", x_req_id)
         async with session.get(url, headers=_headers) as response:
             if response.status >= 300:
                 response.raise_for_status()
@@ -134,21 +142,23 @@ async def http_get(
         if require:
             raise e
         else:
-            print("Fetch exception of get:", "url=", url)
+            logger.warning("Fetch exception of get: url=%s", url)
 
 
 # マイクロサービス呼び出し: Master
 # Masterから複数のWorkerを呼び出す．
 async def fetch_all(
-    session: aiohttp.ClientSession, urls: Tuple[FetchUrl], x_req_id: Optional[UUID]
-):
+        session: aiohttp.ClientSession,
+        urls: Tuple[FetchUrl],
+        x_req_id: Optional[UUID]):
     tasks = []
     for url in urls:
         task = asyncio.create_task(
             http_get(
-                session=session, url=url.url, require=url.require, x_req_id=x_req_id
-            )
-        )
+                session=session,
+                url=url.url,
+                require=url.require,
+                x_req_id=x_req_id))
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
@@ -156,7 +166,7 @@ async def fetch_all(
 
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, exc):
-    print("Error: ", exc.detail)
+    logger.error("Error: %s", exc.detail)
     message = "システムの内部で問題が発生しました．"
     if exc.status_code == 404:
         message = "コンテンツが見つかりません．"
@@ -172,7 +182,7 @@ async def custom_http_exception_handler(request, exc):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    print("Error: ", exc.detail)
+    logger.error("Error: %s", exc.detail)
     templates.TemplateResponse(
         "error.html",
         {"message": "不正なリクエストです．", "request": request},
@@ -197,7 +207,9 @@ async def top_handler(
 
     urls = (
         # 論文タイトルの検索
-        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper",
+            require=True),
         # 著者の一覧
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
@@ -213,7 +225,9 @@ async def top_handler(
             require=False,
         ),
         # 統計の取得
-        FetchUrl(url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats", require=False),
+        FetchUrl(
+            url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats",
+            require=False),
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
@@ -221,12 +235,12 @@ async def top_handler(
                 session=session, urls=urls, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Top Error 1:", e)
+            logger.error("Top Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Top Error 2:", e)
+            logger.error("Top Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_paper = json_raw[0]["papers"]
@@ -249,7 +263,8 @@ async def top_handler(
             display_name = (
                 author.get("last_name_ja") + " " + author.get("first_name_ja")
             )
-            author_details.append({"name": display_name, "uuid": author["uuid"]})
+            author_details.append(
+                {"name": display_name, "uuid": author["uuid"]})
 
     # 全文の検索
     paper_id_detail = {rp["uuid"]: rp for rp in res_paper}
@@ -274,9 +289,8 @@ async def top_handler(
     # 論文のダウンロード数
     downloads_count = {}
     if res_stats:
-        downloads_count = {
-            rs["paper_uuid"]: rs["total_downloads"] for rs in res_stats["stats"]
-        }
+        downloads_count = {rs["paper_uuid"]: rs["total_downloads"]
+                           for rs in res_stats["stats"]}
 
     # 論文ごとの詳細情報を組み立て
     paper_details = {}
@@ -289,8 +303,9 @@ async def top_handler(
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
                 display_name = (
-                    author.get("last_name_ja") + " " + author.get("first_name_ja")
-                )
+                    author.get("last_name_ja") +
+                    " " +
+                    author.get("first_name_ja"))
                 found_author.append(display_name)
 
         # 論文の作成年月日
@@ -387,12 +402,12 @@ async def paper_handler(
                 session=session, urls=urls, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Paper Single View Fetch Error 1:", e)
+            logger.error("Paper Single View Fetch Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Paper Single View Fetch Error 2:", e)
+            logger.error("Paper Single View Fetch Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_author = json_raw[0]
@@ -411,7 +426,7 @@ async def paper_handler(
                 author = candidates_lst[0]
                 found_author.append(author)
         except Exception as e:
-            print("Paper Single View Author Error:", e)
+            logger.error("Paper Single View Author Error: %s", e)
             continue
 
     # サムネイル一覧
@@ -494,7 +509,7 @@ async def paper_download_handler(
             "ip_v4_addr": "192.0.2.0",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        print("Stats update:", body)
+        logger.info("Stats update: %s", body)
         task = asyncio.create_task(
             http_post(
                 session=session,
@@ -517,17 +532,17 @@ async def paper_download_handler(
         try:
             json_raw = await asyncio.gather(*tasks)
         except aiohttp.ClientResponseError as e:
-            print("Paper Download Error 1:", e)
+            logger.error("Paper Download Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Paper Download Error 2:", e)
+            logger.error("Paper Download Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_stats = json_raw[0]
     res_paper_file = json_raw[1]
-    print("Stats Response:", res_stats)
+    logger.info("Stats Response: %s", res_stats)
 
     tomorrow = datetime.utcnow() + timedelta(days=1)
     http_tomorrow = formatdate(tomorrow.timestamp(), usegmt=True)
@@ -535,7 +550,9 @@ async def paper_download_handler(
     return Response(
         content=res_paper_file,
         media_type="application/pdf",
-        headers={"Cache-Control": "public, max-age=86400", "Expires": http_tomorrow},
+        headers={
+            "Cache-Control": "public, max-age=86400",
+            "Expires": http_tomorrow},
     )
 
 
@@ -562,12 +579,12 @@ async def author_handler(
                 session=session, urls=urls, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Author Single View Error 1:", e)
+            logger.error("Author Single View Error 1: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Author Single View Error 2:", e)
+            logger.error("Author Single View Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     res_paper = json_res[0]["papers"]
@@ -588,8 +605,9 @@ async def author_handler(
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
                 display_name = (
-                    author.get("last_name_ja") + " " + author.get("first_name_ja")
-                )
+                    author.get("last_name_ja") +
+                    " " +
+                    author.get("first_name_ja"))
                 found_author.append(display_name)
 
         paper_details.append(
@@ -603,7 +621,8 @@ async def author_handler(
         )
 
     author_details = {
-        "name": res_author_me.get("last_name_ja") + res_author_me.get("first_name_ja"),
+        "name": res_author_me.get("last_name_ja") +
+        res_author_me.get("first_name_ja"),
         "status": "既卒" if res_author_me.get("is_graduated") else "在学",
         "joined_year": res_author_me.get("joined_year"),
     }
@@ -636,13 +655,13 @@ async def thumbnail_handler(
                 session=session, url=url, x_req_id=x_request_id
             )
         except aiohttp.ClientResponseError as e:
-            print("Thumbnail Download Error 1:", e)
+            logger.error("Thumbnail Download Error 1: %s", e)
             if e.code == 404:
                 # raise HTTPException(status_code=404)
                 return FileResponse("assets/404.png")
             raise HTTPException(status_code=503)
         except Exception as e:
-            print("Thumbnail Download Error 2:", e)
+            logger.error("Thumbnail Download Error 2: %s", e)
             raise HTTPException(status_code=503)
 
     return Response(content=res_img, media_type="image/png")

@@ -1,5 +1,6 @@
 import asyncio
 import io
+import logging
 import os
 from asyncio.base_subprocess import ReadSubprocessPipeProto
 from datetime import datetime
@@ -11,12 +12,18 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
+from opentelemetry.instrumentation.aiohttp_client import \
+    AioHttpClientInstrumentor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 SVC_PAPER_HOST = os.getenv("SERVICE_PAPER_HOST", "paper-app")
 SVC_PAPER_PORT = os.getenv("SERVICE_PAPER_PORT", "8000")
@@ -151,18 +158,20 @@ async def add_paper_exec_handler(
         try:
             """Add paper info"""
             url_meta = f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper"
-            print("Request url for paper_meta:", url_meta)
+            logger.info("Request url for paper_meta: %s", url_meta)
             async with session.post(url_meta, json=req_body) as res_meta:
                 if res_meta.status != 200:
-                    print("Invalid status on meta:", res_meta.status)
-                    print("Response on meta:", res_meta.json)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    logger.error("Invalid status on meta: %s", res_meta.status)
+                    logger.error("Response on meta: %s", res_meta.json)
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res_meta_detail = await res_meta.json()
                 if res_meta_detail.get("uuid"):
                     paper_uuid = res_meta_detail.get("uuid")
                 else:
-                    raise HTTPException(status_code=503, detail="Internal Error")
-                print("Response on meta:", res_meta_detail)
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
+                logger.info("Response on meta: %s", res_meta_detail)
 
             """ Add paper pdf file """
             url_file = (
@@ -177,17 +186,18 @@ async def add_paper_exec_handler(
                 filename=f"{paper_uuid}.pdf",
                 content_type="application/pdf",
             )
-            print("Request url for paper_file:", url_file)
+            logger.info("Request url for paper_file: %s", url_file)
             async with session.post(url_file, data=payload) as res_file:
                 if res_file.status != 200:
-                    print("Invalid status on file:", res_file.status)
-                    print("Response on file:", res_file.json)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    logger.error("Invalid status on file: %s", res_file.status)
+                    logger.error("Response on file: %s", res_file.json)
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res_file_detail = res_file.json()
-                print("Response on file:", res_file_detail)
+                logger.info("Response on file: %s", res_file_detail)
 
         except Exception as e:
-            print("HTTP Request failed:", e)
+            logger.error("HTTP Request failed: %s", e)
             raise HTTPException(status_code=503, detail="Internal Error")
 
     async with aiohttp.ClientSession() as session:
@@ -197,27 +207,28 @@ async def add_paper_exec_handler(
                 f"http://{SVC_FULLTEXT_HOST}:{SVC_FULLTEXT_PORT}"
                 f"/fulltext/{paper_uuid}"
             )
-            print("Request url for text:", url_text)
+            logger.info("Request url for text: %s", url_text)
             async with session.post(url_text) as res_text:
                 if res_text.status != 200:
-                    print("Invalid status on text:", res_text.status)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    logger.error("Invalid status on text: %s", res_text.status)
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res_text_detail = res_text.json()
-                print("Response on text:", res_text_detail)
+                logger.info("Response on text: %s", res_text_detail)
 
             # """ Add thumbnail """
             # url_thumb = (f"http://{SVC_THUMBNAIL_HOST}:{SVC_THUMBNAIL_PORT}"
             #              f"/thumbnail/{paper_uuid}")
-            # print("Request url for thumbnail:", url_thumb)
+            # logger.info("Request url for thumbnail: %s", url_thumb)
             # async with session.post(url_thumb) as res_thumb:
             #     if res_thumb.status != 200:
-            #         print("Invalid status on text:", res_thumb.status)
+            #         logger.error("Invalid status on text: %s", res_thumb.status)
             #         raise HTTPException(status_code=503,
             #                             detail="Internal Error")
             #     res_thumb = res_thumb.json()
-            #     print("Response on thumbnail:", res_thumb)
+            #     logger.info("Response on thumbnail: %s", res_thumb)
         except Exception as e:
-            print("HTTP Request failed:", e)
+            logger.error("HTTP Request failed: %s", e)
             raise HTTPException(status_code=503, detail="Internal Error")
 
     return "/paper"
@@ -230,7 +241,7 @@ async def paper_download_handler(paper_uuid: UUID, request: Request):
         try:
             res_pdf = await fetch_file(session, url)
         except aiohttp.ClientResponseError as e:
-            print("Paper Download Error:", e)
+            logger.error("Paper Download Error: %s", e)
             if e.code == 404:
                 raise HTTPException(status_code=404)
             raise HTTPException(status_code=503)
@@ -296,17 +307,18 @@ async def add_author_exec_handler(
         "joined_year": joined_year,
         "is_graduated": graduation,
     }
-    print("Request Body:", req_body)
+    logger.info("Request Body: %s", req_body)
     async with aiohttp.ClientSession() as session:
         try:
             async with session.post(url, json=req_body) as response:
                 if response.status != 200:
-                    print("Invalid status:", response.status)
-                    print("Response:", response.json)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    logger.error("Invalid status: %s", response.status)
+                    logger.error("Response: %s", response.json)
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res = await response.json()
         except Exception as e:
-            print("HTTP Request failed:", e)
+            logger.error("HTTP Request failed: %s", e)
             raise HTTPException(status_code=503, detail="Internal Error")
 
     return templates.TemplateResponse(

@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from datetime import datetime
@@ -7,17 +8,21 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, OperationFailure
-
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from pydantic import BaseModel
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, OperationFailure
+
+# ログ設定
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
@@ -120,7 +125,7 @@ def create_author_handler(author: AuthorCreateUpdate):
         "updated_at": datetime.now(),
     }
     insert_id = db["author"].insert_one(my_author).inserted_id
-    print("insert_id:", insert_id)
+    logger.info("insert_id: %s", insert_id)
     return AuthorRead(**my_author)
 
 
@@ -136,7 +141,7 @@ def read_authors_handler(name: str = ""):
     ]
     or_conditions = [{tf: {"$regex": name}} for tf in target_fields]
     query = {"$or": or_conditions}
-    print("Mongo Query:", query)
+    logger.info("Mongo Query: %s", query)
     return list(db["author"].find(query, {"_id": 0}))
 
 
@@ -177,16 +182,16 @@ def read_author_handler(author_uuid: UUID):
 @app.delete("/reset", response_model=StatusResponse)
 def delete_author_handler():
     res = db["author"].delete_many({})
-    print(res.deleted_count, " documents deleted.")
+    logger.info("%d documents deleted.", res.deleted_count)
     return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":
     try:
         client.admin.command("ping")
-        print("MongoDB connected.")
+        logger.info("MongoDB connected.")
     except (ConnectionFailure, OperationFailure) as e:
-        print("MongoDB not available. ", e)
+        logger.error("MongoDB not available. %s", e)
         sys.exit(-1)
 
     import uvicorn
