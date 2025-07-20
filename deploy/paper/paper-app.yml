@@ -36,6 +36,14 @@ spec:
               value: paper-mongo
             - name: MINIO_HOST
               value: "paper-minio.paper:9000"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://192.168.201.12:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
+            - name: OTEL_SERVICE_NAME
+              value: "paper"
 ---
 apiVersion: v1
 kind: Service
