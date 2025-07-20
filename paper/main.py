@@ -3,6 +3,7 @@ import re
 import socket
 import sys
 import time
+import logging
 from datetime import datetime
 from typing import List, Literal, Optional
 from uuid import UUID, uuid4
@@ -24,6 +25,10 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 """ MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
@@ -63,7 +68,7 @@ try:
         secure=False,
     )
 except (S3Error, urllib3.exceptions.MaxRetryError) as e:
-    print(e)
+    logger.error(e)
     sys.exit(-1)
 
 
@@ -139,7 +144,7 @@ def create_paper_handler(paper: PaperCreateUpdate):
         "updated_at": json_paper.get("updated_at"),
     }
     insert_id = db["paper"].insert_one(my_paper).inserted_id
-    print("insert_id:", insert_id)
+    logger.info("insert_id: %s", insert_id)
     return PaperRead(**my_paper)
 
 
@@ -192,7 +197,7 @@ async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(..
         response.close()
         response.release_conn()
     except S3Error as e:
-        print("Upload exception: ", e)
+        logger.error("Upload exception: %s", e)
         raise HTTPException(status_code=503, detail=str(e.message))
 
 
@@ -212,7 +217,7 @@ async def download_paper_handler(paper_uuid: UUID):
         response.close()
         response.release_conn()
     except S3Error as e:
-        print("Download exception: ", e)
+        logger.error("Download exception: %s", e)
         _status_code = (
             404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
         )
@@ -237,23 +242,23 @@ async def download_paper_handler(paper_uuid: UUID):
 @app.delete("/reset", response_model=StatusResponse)
 def delete_paper_handler():
     res = db["paper"].delete_many({})
-    print(res.deleted_count, " documents deleted.")
+    logger.info("%d documents deleted.", res.deleted_count)
     delete_object_list = map(
         lambda x: DeleteObject(x.object_name),
         minio_client.list_objects(MINIO_BUCKET_NAME, recursive=True),
     )
     errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
     for error in errors:
-        print("error occured when deleting object", error)
+        logger.error("error occured when deleting object %s", error)
     return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":
     try:
         mongo_client.admin.command("ping")
-        print("MongoDB connected.")
+        logger.info("MongoDB connected.")
     except (ConnectionFailure, OperationFailure) as e:
-        print("MongoDB not available. ", e)
+        logger.error("MongoDB not available. %s", e)
         sys.exit(-1)
 
     while True:
@@ -261,14 +266,14 @@ if __name__ == "__main__":
             res = socket.getaddrinfo(MINIO_HOST, None)
             break
         except Exception as e:
-            print("Retry resolve host:", e)
+            logger.warning("Retry resolve host: %s", e)
             time.sleep(1)
 
     found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
     if not found:
         minio_client.make_bucket(MINIO_BUCKET_NAME)
     else:
-        print("Bucket 'paper' already exists")
+        logger.info("Bucket 'paper' already exists")
 
     import uvicorn
 
