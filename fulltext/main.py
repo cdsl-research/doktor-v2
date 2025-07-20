@@ -1,6 +1,7 @@
 import os
 import socket
 import time
+import logging
 from curses import raw
 from turtle import st
 from typing import List, Literal, Optional
@@ -19,6 +20,10 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -46,13 +51,13 @@ for _ in range(120):
         res = socket.getaddrinfo(_host, None)
         break
     except Exception as e:
-        print("Retry resolve host:", e)
+        logger.warning("Retry resolve host: %s", e)
         time.sleep(1)
 
 es = Elasticsearch(f"http://{ELASTICSEARCH_HOST}")
 
 for i in range(300):
-    print("try to connect elasticsearch", i)
+    logger.info("try to connect elasticsearch %d", i)
     if es.ping():
         break
     time.sleep(1)
@@ -116,10 +121,10 @@ def create_fulltext_handler(paper_uuid: UUID):
     # ファイルの取得
     try:
         file_url = f"http://{PAPER_SVC_HOST}/paper/{paper_uuid}/download"
-        print("Fetch url:", file_url)
+        logger.info("Fetch url: %s", file_url)
         pdf_data = requests.get(file_url)
     except Exception as e:
-        print("Fail to download:", e)
+        logger.error("Fail to download: %s", e)
         raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
 
     # PDFからテキストを取り出し
@@ -128,12 +133,12 @@ def create_fulltext_handler(paper_uuid: UUID):
             raw_text = doc.get_page_text(pno=i)
             formated_text = raw_text.replace("\n", "")
             record = {"paper_uuid": paper_uuid, "page_number": i, "text": formated_text}
-            print("Insert record:", record)
+            logger.info("Insert record: %s", record)
             try:
                 es.index(index=ELASTICSEARCH_INDEX, document=record)
-                # print(res)
+                # logger.info(res)
             except Exception as e:
-                print("Fail to create record:", e)
+                logger.error("Fail to create record: %s", e)
     return StatusResponse(status="ok", message="Created fulltext ")
 
 
@@ -148,11 +153,11 @@ def read_fulltext_handler(paper_uuid: UUID, background_tasks: BackgroundTasks):
             }
         }
     }
-    print("Elasticsearch Query:", payload)
+    logger.info("Elasticsearch Query: %s", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
     records_count = int(res["hits"]["total"]["value"])
     if records_count == 0:
-        print("Matched 0 records:")
+        logger.info("Matched 0 records:")
         background_tasks.add_task(create_fulltext_handler, paper_uuid)
     records_list = list(
         map(lambda x: FulltextRead(**x["_source"]), res["hits"]["hits"])
@@ -166,7 +171,7 @@ def reads_fulltext_handler(keyword: str = ""):
         "query": {"match": {"text": {"query": keyword, "operator": "and"}}},
         "highlight": {"fields": {"text": {}}},
     }
-    print("Elasticsearch Query:", payload)
+    logger.info("Elasticsearch Query: %s", payload)
     res = es.search(index=ELASTICSEARCH_INDEX, body=payload)
     records_list = []
     for hit in res["hits"]["hits"]:
@@ -189,7 +194,7 @@ if __name__ == "__main__":
             res = socket.getaddrinfo(_host, None)
             break
         except Exception as e:
-            print("Retry resolve host:", e)
+            logger.warning("Retry resolve host: %s", e)
             time.sleep(1)
 
     import uvicorn
