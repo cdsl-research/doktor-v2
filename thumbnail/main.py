@@ -3,6 +3,7 @@ import os
 import socket
 import sys
 import time
+import logging
 from typing import Literal, Optional
 from uuid import UUID
 
@@ -20,6 +21,10 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 """ Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
@@ -50,7 +55,7 @@ try:
         secure=False,
     )
 except (S3Error, urllib3.exceptions.MaxRetryError) as e:
-    print(e)
+    logger.error(e)
     sys.exit(-1)
 
 
@@ -99,7 +104,7 @@ def read_thumbnail(paper_uuid: UUID):
         ]
         return {"images": filenames}
     except S3Error as e:
-        print("Download exception: ", e)
+        logger.error("Download exception: %s", e)
         _status_code = (
             404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
         )
@@ -111,7 +116,7 @@ def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
     try:
         file_url = f"http://{PAPER_SVC_HOST}/paper/{paper_uuid}/download"
-        print("Fetch url:", file_url)
+        logger.info("Fetch url: %s", file_url)
         pdf_data = requests.get(file_url)
     except Exception:
         raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
@@ -131,7 +136,7 @@ def create_thumbnail(paper_uuid: UUID):
     # 画像の書き出し
     for fname, fbody in write_file_buffer.items():
         put_path = os.path.join(f"{paper_uuid}", fname)
-        print("put_path =", put_path)
+        logger.info("put_path = %s", put_path)
         minio_client.put_object(
             MINIO_BUCKET_NAME,
             put_path,
@@ -152,7 +157,7 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
         # response.close()
         return Response(content=response.read(), media_type="image/png")
     except S3Error as e:
-        print("Download exception: ", e)
+        logger.error("Download exception: %s", e)
         _status_code = (
             404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
         )
@@ -160,7 +165,7 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
     except Exception as e:
         res_status = 503
         res_message = "Internal Error"
-        print("image fetch error:", e)
+        logger.error("image fetch error: %s", e)
         raise HTTPException(status_code=res_status, detail=res_message)
 
 
@@ -172,7 +177,7 @@ def delete_thumbnail_handler():
     )
     errors = minio_client.remove_objects(MINIO_BUCKET_NAME, delete_object_list)
     for error in errors:
-        print("error occured when deleting object", error)
+        logger.error("error occurred when deleting object %s", error)
     return StatusResponse(**{"status": "ok"})
 
 
@@ -182,14 +187,14 @@ if __name__ == "__main__":
             res = socket.getaddrinfo(MINIO_HOST, None)
             break
         except Exception as e:
-            print("Retry resolve host:", e)
+            logger.warning("Retry resolve host: %s", e)
             time.sleep(1)
 
     found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
     if not found:
         minio_client.make_bucket(MINIO_BUCKET_NAME)
     else:
-        print("Bucket 'paper' already exists")
+        logger.info("Bucket 'paper' already exists")
 
     import uvicorn
 
