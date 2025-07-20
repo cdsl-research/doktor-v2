@@ -1,9 +1,10 @@
 import glob
-import yaml
-from collections import defaultdict
 import json
 import os
+from collections import defaultdict
 from pathlib import Path
+
+import yaml
 
 OUTPUT_DIR = Path(__file__).parent.resolve()
 # YAMLファイルのパスをpathlibで取得
@@ -121,8 +122,8 @@ for k, spec in resources.items():
                 if spec["kind"] == "Service":
                     domain_name = spec["name"] + "." + spec["namespace"]
                     print(
-                        f"compare: {domain_name} in {env_var}:", domain_name in env_var
-                    )
+                        f"compare: {domain_name} in {env_var}:",
+                        domain_name in env_var)
                     if domain_name in env_var:
                         deps[("Deployment", name, namespace)].append(k)
 

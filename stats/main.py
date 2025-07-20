@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 from datetime import datetime
 from http.client import HTTPException
 from ipaddress import IPv4Address
@@ -9,16 +9,17 @@ from uuid import UUID
 
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, OperationFailure
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from pydantic import BaseModel
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, OperationFailure
 
 # ログ設定
 logging.basicConfig(level=logging.INFO)
@@ -107,7 +108,9 @@ def read_stats_handler():
         downloads = db["stats"].aggregate(query)
         res = []
         for x in list(downloads):
-            sc = StatsCount(paper_uuid=x["_id"], total_downloads=x["total_downloads"])
+            sc = StatsCount(
+                paper_uuid=x["_id"],
+                total_downloads=x["total_downloads"])
             res.append(sc)
         return StatsCountSeveral(stats=res)
     except Exception:
@@ -125,7 +128,8 @@ def create_stats_handler(stats: StatsCreateUpdate):
     try:
         insert_id = db["stats"].insert_one(my_stats).inserted_id
         logger.info("insert_id: %s", insert_id)
-        return StatusResponse(status="ok", message=f"Success insert = {insert_id}")
+        return StatusResponse(status="ok",
+                              message=f"Success insert = {insert_id}")
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to insert")
 

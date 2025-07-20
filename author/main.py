@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 from datetime import datetime
 from email import message
 from typing import List, Literal, Optional
@@ -8,17 +8,17 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, OperationFailure
-
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from pydantic import BaseModel
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, OperationFailure
 
 # ログ設定
 logging.basicConfig(level=logging.DEBUG)
