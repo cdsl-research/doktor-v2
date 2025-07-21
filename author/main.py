@@ -21,7 +21,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
 
 # ログ設定
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
