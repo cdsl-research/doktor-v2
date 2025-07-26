@@ -12,12 +12,17 @@ import requests
 from elasticsearch import Elasticsearch
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Response
 from opentelemetry import trace
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
     OTLPSpanExporter
 from opentelemetry.instrumentation.elasticsearch import \
     ElasticsearchInstrumentor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -27,10 +32,7 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-""" Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
-
-""" Elasticsearch Setup """
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "fulltext-elastic:9200")
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "fulltext")
 
@@ -39,9 +41,39 @@ resource = Resource(attributes={"service.name": "fulltext"})
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer_provider = trace.get_tracer_provider()
 
-# OTLP Exporter の設定
-otlp_exporter = OTLPSpanExporter()
-tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+# =============================================================================
+# OpenTelemetry setup
+# =============================================================================
+
+resource = Resource(attributes={"service.name": "fulltext"})
+
+# Setup TracerProvider
+trace.set_tracer_provider(TracerProvider(resource=resource))
+tracer_provider = trace.get_tracer_provider()
+
+# Setup OTLP Span Exporter
+otlp_span_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_span_exporter))
+
+# Setup LoggerProvider
+logger_provider = LoggerProvider()
+set_logger_provider(logger_provider)
+
+# Setup OTLP Log Exporter
+otlp_log_exporter = OTLPLogExporter()
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
+
+# Setup LoggingHandler
+# Integrate Python's standard logging library with OpenTelemetry
+# This allows logging.info() calls to be sent in OTLP format
+otlp_handler = LoggingHandler(
+    level=logging.NOTSET, logger_provider=logger_provider  # Handle all log levels
+)
+
+# Add OTLP handler to root logger
+# This allows all application logs to be sent in OTLP format
+logging.getLogger().addHandler(otlp_handler)
 
 # Elasticsearch と Requests の計装
 ElasticsearchInstrumentor().instrument()

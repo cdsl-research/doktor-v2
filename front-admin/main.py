@@ -2,9 +2,8 @@ import asyncio
 import io
 import logging
 import os
-from asyncio.base_subprocess import ReadSubprocessPipeProto
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 import aiohttp
@@ -12,16 +11,21 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from opentelemetry import trace
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
     OTLPSpanExporter
 from opentelemetry.instrumentation.aiohttp_client import \
     AioHttpClientInstrumentor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-# ログ設定
+# Logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -34,14 +38,39 @@ SVC_THUMBNAIL_PORT = os.getenv("SERVICE_THUMBNAIL_PORT", "8000")
 SVC_FULLTEXT_HOST = os.getenv("SERVICE_FULLTEXT_HOST", "fulltext-app")
 SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
 
-# OpenTelemetry TracerProvider の設定
+# =============================================================================
+# OpenTelemetry setup
+# =============================================================================
+
 resource = Resource(attributes={"service.name": "front-admin"})
+
+# Setup TracerProvider
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer_provider = trace.get_tracer_provider()
 
-# OTLP Exporter の設定
-otlp_exporter = OTLPSpanExporter()
-tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+# Setup OTLP Span Exporter
+otlp_span_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_span_exporter))
+
+# Setup LoggerProvider
+logger_provider = LoggerProvider()
+set_logger_provider(logger_provider)
+
+# Setup OTLP Log Exporter
+otlp_log_exporter = OTLPLogExporter()
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
+
+# Setup LoggingHandler
+# Integrate Python's standard logging library with OpenTelemetry
+# This allows logging.info() calls to be sent in OTLP format
+otlp_handler = LoggingHandler(
+    level=logging.NOTSET, logger_provider=logger_provider  # Handle all log levels
+)
+
+# Add OTLP handler to root logger
+# This allows all application logs to be sent in OTLP format
+logging.getLogger().addHandler(otlp_handler)
 
 # AIOHTTP クライアントの計装
 AioHttpClientInstrumentor().instrument()

@@ -14,10 +14,15 @@ from fastapi import FastAPI, HTTPException, Response
 from minio import Minio, S3Error
 from minio.deleteobjects import DeleteObject
 from opentelemetry import trace
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
     OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -27,23 +32,45 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-""" Paper Service """
 PAPER_SVC_HOST = os.getenv("PAPER_SVC_HOST", "paper-app:8000")
-
-""" Minio Setup"""
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
 MINIO_HOST = os.getenv("MINIO_HOST", "thumbnail-minio:9000")
 MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "thumbnail")
 
-# OpenTelemetry TracerProvider の設定
-resource = Resource(attributes={"service.name": "thumbnail"})
+# =============================================================================
+# OpenTelemetry setup
+# =============================================================================
+
+resource = Resource(attributes={"service.name": "author"})
+
+# Setup TracerProvider
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer_provider = trace.get_tracer_provider()
 
-# OTLP Exporter の設定
-otlp_exporter = OTLPSpanExporter()
-tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+# Setup OTLP Span Exporter
+otlp_span_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_span_exporter))
+
+# Setup LoggerProvider
+logger_provider = LoggerProvider()
+set_logger_provider(logger_provider)
+
+# Setup OTLP Log Exporter
+otlp_log_exporter = OTLPLogExporter()
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
+
+# Setup LoggingHandler
+# Integrate Python's standard logging library with OpenTelemetry
+# This allows logging.info() calls to be sent in OTLP format
+otlp_handler = LoggingHandler(
+    level=logging.NOTSET, logger_provider=logger_provider  # Handle all log levels
+)
+
+# Add OTLP handler to root logger
+# This allows all application logs to be sent in OTLP format
+logging.getLogger().addHandler(otlp_handler)
 
 # Requests の計装
 RequestsInstrumentor().instrument()
