@@ -15,11 +15,14 @@ from fastapi.responses import Response
 from minio import Minio, S3Error
 from minio.deleteobjects import DeleteObject
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
-    OTLPSpanExporter
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -31,21 +34,48 @@ from pymongo.errors import ConnectionFailure, OperationFailure
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-""" MongoDB Setup """
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
 MONGO_DBNAME = os.getenv("MONGO_DBNAME", "paper")
 MONGO_HOST = os.getenv("MONGO_HOST", "paper-mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/?uuidRepresentation=pythonLegacy"
+MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
+MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
+MINIO_HOST = os.getenv("MINIO_HOST", "paper-minio:9000")
+MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "paper")
 
-# OpenTelemetry TracerProvider の設定
+# =============================================================================
+# OpenTelemetry setup
+# =============================================================================
+
 resource = Resource(attributes={"service.name": "paper"})
+
+# Setup TracerProvider
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer_provider = trace.get_tracer_provider()
 
-# OTLP Exporter の設定
-otlp_exporter = OTLPSpanExporter()
-tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+# Setup OTLP Span Exporter
+otlp_span_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_span_exporter))
+
+# Setup LoggerProvider
+logger_provider = LoggerProvider()
+set_logger_provider(logger_provider)
+
+# Setup OTLP Log Exporter
+otlp_log_exporter = OTLPLogExporter()
+logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_log_exporter))
+
+# Setup LoggingHandler
+# Integrate Python's standard logging library with OpenTelemetry
+# This allows logging.info() calls to be sent in OTLP format
+otlp_handler = LoggingHandler(
+    level=logging.NOTSET, logger_provider=logger_provider  # Handle all log levels
+)
+
+# Add OTLP handler to root logger
+# This allows all application logs to be sent in OTLP format
+logging.getLogger().addHandler(otlp_handler)
 
 # PyMongo と Requests の計装
 PymongoInstrumentor().instrument()
@@ -53,13 +83,6 @@ RequestsInstrumentor().instrument()
 
 mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 db = mongo_client[MONGO_DBNAME]
-
-
-""" Minio Setup"""
-MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER", "minio")
-MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD", "minio123")
-MINIO_HOST = os.getenv("MINIO_HOST", "paper-minio:9000")
-MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "paper")
 
 try:
     minio_client = Minio(
@@ -170,8 +193,7 @@ def read_papers_handler(private: bool = False, title: str = ""):
 
 @app.get("/paper/{paper_uuid}", response_model=PaperRead)
 def read_paper_handler(paper_uuid: UUID):
-    entry = db["paper"].find_one(
-        {"uuid": paper_uuid, "is_public": True}, {"_id": 0})
+    entry = db["paper"].find_one({"uuid": paper_uuid, "is_public": True}, {"_id": 0})
     if entry:
         return entry
     else:
@@ -179,9 +201,7 @@ def read_paper_handler(paper_uuid: UUID):
 
 
 @app.post("/paper/{paper_uuid}/upload", response_model=StatusResponse)
-async def upload_paper_file_handler(
-        paper_uuid: UUID,
-        file: UploadFile = File(...)):
+async def upload_paper_file_handler(paper_uuid: UUID, file: UploadFile = File(...)):
     try:
         if file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="Invalid Content-Type")
@@ -216,18 +236,15 @@ async def upload_paper_file_handler(
 )
 async def download_paper_handler(paper_uuid: UUID):
     try:
-        response = minio_client.get_object(
-            MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
+        response = minio_client.get_object(MINIO_BUCKET_NAME, f"{paper_uuid}.pdf")
         return Response(content=response.read(), media_type="application/pdf")
         response.close()
         response.release_conn()
     except S3Error as e:
         logger.error("Download exception: %s", e)
         _status_code = (
-            404 if e.code in (
-                "NoSuchKey",
-                "NoSuchBucket",
-                "ResourceNotFound") else 503)
+            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
+        )
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
