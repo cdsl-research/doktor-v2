@@ -15,8 +15,10 @@ from minio import Minio, S3Error
 from minio.deleteobjects import DeleteObject
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -56,7 +58,8 @@ set_logger_provider(logger_provider)
 
 # Setup OTLP Log Exporter
 otlp_log_exporter = OTLPLogExporter()
-logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_log_exporter))
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
 
 # Setup LoggingHandler
 # Integrate Python's standard logging library with OpenTelemetry
@@ -122,7 +125,8 @@ def topz_handler():
 @app.get("/thumbnail/{paper_uuid}")
 def read_thumbnail(paper_uuid: UUID):
     try:
-        files = minio_client.list_objects(MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
+        files = minio_client.list_objects(
+            MINIO_BUCKET_NAME, prefix=f"{paper_uuid}/")
         filenames = [
             f._object_name.replace(f"{paper_uuid}/", "").replace(".png", "")
             for f in files
@@ -131,8 +135,10 @@ def read_thumbnail(paper_uuid: UUID):
     except S3Error as e:
         logger.error("Download exception: %s", e)
         _status_code = (
-            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        )
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
@@ -144,7 +150,8 @@ def create_thumbnail(paper_uuid: UUID):
         logger.info("Fetch url: %s", file_url)
         pdf_data = requests.get(file_url)
     except Exception:
-        raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
+        raise HTTPException(status_code=400,
+                            detail="Cloud not downloads the file.")
 
     # 画像の取り出し
     write_file_buffer = {}
@@ -184,8 +191,10 @@ def read_thumbnail(paper_uuid: UUID, image_id: str):
     except S3Error as e:
         logger.error("Download exception: %s", e)
         _status_code = (
-            404 if e.code in ("NoSuchKey", "NoSuchBucket", "ResourceNotFound") else 503
-        )
+            404 if e.code in (
+                "NoSuchKey",
+                "NoSuchBucket",
+                "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
     except Exception as e:
         res_status = 503
