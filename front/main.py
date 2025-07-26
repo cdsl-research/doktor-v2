@@ -201,7 +201,8 @@ async def top_handler(
 
     urls = (
         # 論文タイトルの検索
-        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
         # 著者の一覧
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
@@ -217,7 +218,8 @@ async def top_handler(
             require=False,
         ),
         # 統計の取得
-        FetchUrl(url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats", require=False),
+        FetchUrl(
+            url=f"http://{SVC_STATS_HOST}:{SVC_STATS_PORT}/stats", require=False),
     )
     async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
         try:
@@ -253,7 +255,8 @@ async def top_handler(
             display_name = (
                 author.get("last_name_ja") + " " + author.get("first_name_ja")
             )
-            author_details.append({"name": display_name, "uuid": author["uuid"]})
+            author_details.append(
+                {"name": display_name, "uuid": author["uuid"]})
 
     # 全文の検索
     paper_id_detail = {rp["uuid"]: rp for rp in res_paper}
@@ -293,7 +296,8 @@ async def top_handler(
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
                 display_name = (
-                    author.get("last_name_ja") + " " + author.get("first_name_ja")
+                    author.get("last_name_ja") + " " +
+                    author.get("first_name_ja")
                 )
                 found_author.append(display_name)
 
@@ -539,7 +543,8 @@ async def paper_download_handler(
     return Response(
         content=res_paper_file,
         media_type="application/pdf",
-        headers={"Cache-Control": "public, max-age=86400", "Expires": http_tomorrow},
+        headers={"Cache-Control": "public, max-age=86400",
+                 "Expires": http_tomorrow},
     )
 
 
@@ -551,7 +556,8 @@ async def author_handler(
 ):
     x_request_id = uuid4() if x_request_id is None else x_request_id
     urls = (
-        FetchUrl(url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
+        FetchUrl(
+            url=f"http://{SVC_PAPER_HOST}:{SVC_PAPER_PORT}/paper", require=True),
         FetchUrl(
             url=f"http://{SVC_AUTHOR_HOST}:{SVC_AUTHOR_PORT}/author", require=True
         ),
@@ -592,7 +598,8 @@ async def author_handler(
             if len(candidates_lst) > 0:
                 author = candidates_lst[0]
                 display_name = (
-                    author.get("last_name_ja") + " " + author.get("first_name_ja")
+                    author.get("last_name_ja") + " " +
+                    author.get("first_name_ja")
                 )
                 found_author.append(display_name)
 
