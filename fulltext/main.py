@@ -13,9 +13,12 @@ from elasticsearch import Elasticsearch
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Response
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.elasticsearch import ElasticsearchInstrumentor
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
+from opentelemetry.instrumentation.elasticsearch import \
+    ElasticsearchInstrumentor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -58,7 +61,8 @@ set_logger_provider(logger_provider)
 
 # Setup OTLP Log Exporter
 otlp_log_exporter = OTLPLogExporter()
-logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_log_exporter))
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
 
 # Setup LoggingHandler
 # Integrate Python's standard logging library with OpenTelemetry
@@ -138,7 +142,9 @@ def healthz_handler(response: Response):
         return StatusResponse(status="ok", message="it works")
     else:
         response.status_code = 503
-        return StatusResponse(status="error", message="waiting for elasticsearch")
+        return StatusResponse(
+            status="error",
+            message="waiting for elasticsearch")
 
 
 @app.get("/topz", response_model=ServiceHealth)
@@ -155,14 +161,18 @@ def create_fulltext_handler(paper_uuid: UUID):
         pdf_data = requests.get(file_url)
     except Exception as e:
         logger.error("Fail to download: %s", e)
-        raise HTTPException(status_code=400, detail="Cloud not downloads the file.")
+        raise HTTPException(status_code=400,
+                            detail="Cloud not downloads the file.")
 
     # PDFからテキストを取り出し
     with fitz.open(stream=pdf_data.content, filetype="pdf") as doc:
         for i in range(doc.page_count):
             raw_text = doc.get_page_text(pno=i)
             formated_text = raw_text.replace("\n", "")
-            record = {"paper_uuid": paper_uuid, "page_number": i, "text": formated_text}
+            record = {
+                "paper_uuid": paper_uuid,
+                "page_number": i,
+                "text": formated_text}
             logger.info("Insert record: %s", record)
             try:
                 es.index(index=ELASTICSEARCH_INDEX, document=record)

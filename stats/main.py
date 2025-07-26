@@ -11,8 +11,10 @@ from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -54,7 +56,8 @@ set_logger_provider(logger_provider)
 
 # Setup OTLP Log Exporter
 otlp_log_exporter = OTLPLogExporter()
-logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_log_exporter))
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
 
 # Setup LoggingHandler
 # Integrate Python's standard logging library with OpenTelemetry
@@ -135,7 +138,9 @@ def read_stats_handler():
         downloads = db["stats"].aggregate(query)
         res = []
         for x in list(downloads):
-            sc = StatsCount(paper_uuid=x["_id"], total_downloads=x["total_downloads"])
+            sc = StatsCount(
+                paper_uuid=x["_id"],
+                total_downloads=x["total_downloads"])
             res.append(sc)
         return StatsCountSeveral(stats=res)
     except Exception:
@@ -153,7 +158,8 @@ def create_stats_handler(stats: StatsCreateUpdate):
     try:
         insert_id = db["stats"].insert_one(my_stats).inserted_id
         logger.info("insert_id: %s", insert_id)
-        return StatusResponse(status="ok", message=f"Success insert = {insert_id}")
+        return StatusResponse(status="ok",
+                              message=f"Success insert = {insert_id}")
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to insert")
 

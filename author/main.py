@@ -10,8 +10,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -53,7 +55,8 @@ set_logger_provider(logger_provider)
 
 # Setup OTLP Log Exporter
 otlp_log_exporter = OTLPLogExporter()
-logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_log_exporter))
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
 
 # Setup LoggingHandler
 # Integrate Python's standard logging library with OpenTelemetry

@@ -12,9 +12,12 @@ from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
+from opentelemetry.instrumentation.aiohttp_client import \
+    AioHttpClientInstrumentor
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
@@ -55,7 +58,8 @@ set_logger_provider(logger_provider)
 
 # Setup OTLP Log Exporter
 otlp_log_exporter = OTLPLogExporter()
-logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_log_exporter))
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
 
 # Setup LoggingHandler
 # Integrate Python's standard logging library with OpenTelemetry
@@ -188,12 +192,14 @@ async def add_paper_exec_handler(
                 if res_meta.status != 200:
                     logger.error("Invalid status on meta: %s", res_meta.status)
                     logger.error("Response on meta: %s", res_meta.json)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res_meta_detail = await res_meta.json()
                 if res_meta_detail.get("uuid"):
                     paper_uuid = res_meta_detail.get("uuid")
                 else:
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 logger.info("Response on meta: %s", res_meta_detail)
 
             """ Add paper pdf file """
@@ -214,7 +220,8 @@ async def add_paper_exec_handler(
                 if res_file.status != 200:
                     logger.error("Invalid status on file: %s", res_file.status)
                     logger.error("Response on file: %s", res_file.json)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res_file_detail = res_file.json()
                 logger.info("Response on file: %s", res_file_detail)
 
@@ -233,7 +240,8 @@ async def add_paper_exec_handler(
             async with session.post(url_text) as res_text:
                 if res_text.status != 200:
                     logger.error("Invalid status on text: %s", res_text.status)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res_text_detail = res_text.json()
                 logger.info("Response on text: %s", res_text_detail)
 
@@ -335,7 +343,8 @@ async def add_author_exec_handler(
                 if response.status != 200:
                     logger.error("Invalid status: %s", response.status)
                     logger.error("Response: %s", response.json)
-                    raise HTTPException(status_code=503, detail="Internal Error")
+                    raise HTTPException(
+                        status_code=503, detail="Internal Error")
                 res = await response.json()
         except Exception as e:
             logger.error("HTTP Request failed: %s", e)
