@@ -10,10 +10,13 @@ from uuid import UUID
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
-    OTLPSpanExporter
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -31,14 +34,38 @@ MONGO_DBNAME = os.getenv("MONGO_DBNAME", "stats")
 MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/?uuidRepresentation=pythonLegacy"
 
-# OpenTelemetry TracerProvider の設定
+# =============================================================================
+# OpenTelemetry setup
+# =============================================================================
+
 resource = Resource(attributes={"service.name": "stats"})
+
+# Setup TracerProvider
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer_provider = trace.get_tracer_provider()
 
-# OTLP Exporter の設定
-otlp_exporter = OTLPSpanExporter()
-tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+# Setup OTLP Span Exporter
+otlp_span_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_span_exporter))
+
+# Setup LoggerProvider
+logger_provider = LoggerProvider()
+set_logger_provider(logger_provider)
+
+# Setup OTLP Log Exporter
+otlp_log_exporter = OTLPLogExporter()
+logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_log_exporter))
+
+# Setup LoggingHandler
+# Integrate Python's standard logging library with OpenTelemetry
+# This allows logging.info() calls to be sent in OTLP format
+otlp_handler = LoggingHandler(
+    level=logging.NOTSET, logger_provider=logger_provider  # Handle all log levels
+)
+
+# Add OTLP handler to root logger
+# This allows all application logs to be sent in OTLP format
+logging.getLogger().addHandler(otlp_handler)
 
 # PyMongo の計装
 PymongoInstrumentor().instrument()
@@ -108,9 +135,7 @@ def read_stats_handler():
         downloads = db["stats"].aggregate(query)
         res = []
         for x in list(downloads):
-            sc = StatsCount(
-                paper_uuid=x["_id"],
-                total_downloads=x["total_downloads"])
+            sc = StatsCount(paper_uuid=x["_id"], total_downloads=x["total_downloads"])
             res.append(sc)
         return StatsCountSeveral(stats=res)
     except Exception:
@@ -128,8 +153,7 @@ def create_stats_handler(stats: StatsCreateUpdate):
     try:
         insert_id = db["stats"].insert_one(my_stats).inserted_id
         logger.info("insert_id: %s", insert_id)
-        return StatusResponse(status="ok",
-                              message=f"Success insert = {insert_id}")
+        return StatusResponse(status="ok", message=f"Success insert = {insert_id}")
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to insert")
 
