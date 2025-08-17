@@ -38,6 +38,20 @@ spec:
               value: fulltext
             - name: PAPER_SVC_HOST
               value: "paper-app.paper:4000"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE),k8s.node.name=$(NODE_NAME)"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://192.168.201.12:4317"
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
