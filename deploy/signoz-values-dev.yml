@@ -1,0 +1,30 @@
+global:
+  cloud: others
+  clusterName: doktor-dev
+  deploymentEnvironment: development
+otelCollectorEndpoint: koyama-signoz.a910.tak-cslab.org:4317  # grpc
+otelInsecure: true
+presets:
+  # debugExporter:
+  #   enabled: true
+  otlpExporter:
+    enabled: true  # grpc
+  hostMetrics:
+    enabled: true
+    collectionInterval: 60s
+  logsCollection:
+    enabled: true
+    blacklist:
+      enabled: true
+      namespaces:
+        - kube-system
+  kubeletMetrics:
+    enabled: true
+    collectionInterval: 60s
+  kubernetesAttributes:
+    enabled: true
+otelAgent:
+  enabled: true
+otelDeployment:
+  enabled: true
+
