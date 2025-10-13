@@ -37,6 +37,15 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 4
+      affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: NotIn
+                  values:
+                  - clematis-worker2
       volumes:
         - name: author-mongo-volv
           persistentVolumeClaim:
