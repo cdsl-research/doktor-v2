@@ -4,6 +4,7 @@ import os
 import socket
 import sys
 import time
+from contextlib import asynccontextmanager
 from typing import Literal, Optional
 from uuid import UUID
 
@@ -87,8 +88,27 @@ except (S3Error, urllib3.exceptions.MaxRetryError) as e:
     sys.exit(-1)
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """アプリケーション起動時にMinIOバケットを確認・作成"""
+    while True:
+        try:
+            socket.getaddrinfo(MINIO_HOST, None)
+            break
+        except Exception as e:
+            logger.warning("Retry resolve host: %s", e)
+            time.sleep(1)
+
+    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
+    if not found:
+        minio_client.make_bucket(MINIO_BUCKET_NAME)
+    else:
+        logger.info("Bucket '%s' already exists", MINIO_BUCKET_NAME)
+    yield
+
+
 """ FastAPI Setup """
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 # FastAPI アプリケーションの計装
 FastAPIInstrumentor.instrument_app(app)
@@ -216,20 +236,6 @@ def delete_thumbnail_handler():
 
 
 if __name__ == "__main__":
-    while True:
-        try:
-            res = socket.getaddrinfo(MINIO_HOST, None)
-            break
-        except Exception as e:
-            logger.warning("Retry resolve host: %s", e)
-            time.sleep(1)
-
-    found = minio_client.bucket_exists(MINIO_BUCKET_NAME)
-    if not found:
-        minio_client.make_bucket(MINIO_BUCKET_NAME)
-    else:
-        logger.info("Bucket 'paper' already exists")
-
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0")
