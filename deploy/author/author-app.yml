@@ -27,7 +27,7 @@ spec:
               app: author  # REPLACE_TAG for author-app
       containers:
         - name: author-app-container
-          image: ghcr.io/cdsl-research/author:master-2b81d22
+          image: ghcr.io/cdsl-research/author:master-9670246
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
