@@ -8,14 +8,16 @@ doktor.tak-cslab.org 負荷テスト用 Locust シナリオ
 import random
 from pathlib import Path
 
-from locust import HttpUser, task, between
+from locust import HttpUser, between, task
 
 
 def load_paper_ids(filename: str = "paper_ids.txt") -> list[str]:
     """論文IDリストをファイルから読み込む"""
     path = Path(__file__).parent / filename
     if not path.exists():
-        raise FileNotFoundError(f"{filename} が見つかりません。ログ解析スクリプトを先に実行してください。")
+        raise FileNotFoundError(
+            f"{filename} が見つかりません。ログ解析スクリプトを先に実行してください。"
+        )
     with open(path) as f:
         return [line.strip() for line in f if line.strip()]
 
@@ -54,4 +56,3 @@ class DoktorUser(HttpUser):
 
         if random.random() < DOWNLOAD_PROBABILITY:
             self.client.get(f"/paper/{paper_id}/download", name="論文ダウンロード")
-
