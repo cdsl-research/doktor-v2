@@ -16,6 +16,7 @@ pycparser==2.22
 pycryptodome==3.21.0
 pydantic==2.10.6
 pydantic_core==2.27.2
+Pillow==11.1.0
 pymongo==4.11
 PyMuPDF==1.25.3
 requests==2.32.3

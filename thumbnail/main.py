@@ -12,6 +12,7 @@ import fitz
 import requests
 import urllib3
 from fastapi import FastAPI, HTTPException, Response
+from PIL import Image
 from minio import Minio, S3Error
 from minio.deleteobjects import DeleteObject
 from opentelemetry import trace
@@ -180,10 +181,56 @@ def create_thumbnail(paper_uuid: UUID):
             imglist = doc.get_page_images(p)
             for j, img in enumerate(imglist):
                 x_ref = img[0]  # xref number
+                smask = img[1]  # smask (マスク画像のxref)
                 x_img = doc.extract_image(x_ref)
-                x_ext = x_img.get("ext")
-                filename = f"{p}-{j}.{x_ext}"
-                write_file_buffer[filename] = x_img.get("image")
+
+                # smaskがある場合、マスク画像を結合して背景を白にする
+                if smask != 0:
+                    try:
+                        # 元画像をPILで開く
+                        base_image = Image.open(io.BytesIO(x_img.get("image")))
+                        # RGBAに変換
+                        if base_image.mode != "RGBA":
+                            base_image = base_image.convert("RGBA")
+
+                        # マスク画像を取得
+                        mask_img = doc.extract_image(smask)
+                        mask_image = Image.open(io.BytesIO(mask_img.get("image")))
+                        # グレースケールに変換してアルファチャンネルとして使用
+                        if mask_image.mode != "L":
+                            mask_image = mask_image.convert("L")
+
+                        # サイズが異なる場合はリサイズ
+                        if mask_image.size != base_image.size:
+                            mask_image = mask_image.resize(
+                                base_image.size, Image.Resampling.LANCZOS
+                            )
+
+                        # マスクをアルファチャンネルとして適用
+                        base_image.putalpha(mask_image)
+
+                        # 白背景の画像を作成して合成
+                        white_bg = Image.new("RGBA", base_image.size, (255, 255, 255, 255))
+                        composite = Image.alpha_composite(white_bg, base_image)
+
+                        # RGBに変換してPNGとして保存
+                        composite = composite.convert("RGB")
+                        output = io.BytesIO()
+                        composite.save(output, format="PNG")
+                        image_data = output.getvalue()
+                        filename = f"{p}-{j}.png"
+                    except Exception as e:
+                        logger.warning("Failed to apply mask for image %s-%s: %s", p, j, e)
+                        # マスク適用に失敗した場合は元の画像を使用
+                        x_ext = x_img.get("ext")
+                        filename = f"{p}-{j}.{x_ext}"
+                        image_data = x_img.get("image")
+                else:
+                    x_ext = x_img.get("ext")
+                    filename = f"{p}-{j}.{x_ext}"
+                    image_data = x_img.get("image")
+
+                write_file_buffer[filename] = image_data
 
     # 画像の書き出し
     for fname, fbody in write_file_buffer.items():
