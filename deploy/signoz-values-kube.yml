@@ -1,0 +1,30 @@
+global:
+  cloud: others
+  clusterName: kube
+  deploymentEnvironment: development
+otelCollectorEndpoint: 192.168.0.13:4317  # grpc
+otelInsecure: true
+presets:
+  # debugExporter:
+  #   enabled: true
+  otlpExporter:
+    enabled: true  # grpc
+  hostMetrics:
+    enabled: true
+    collectionInterval: 60s
+  logsCollection:
+    enabled: true
+    blacklist:
+      enabled: true
+      namespaces:
+        - kube-system
+  kubeletMetrics:
+    enabled: true
+    collectionInterval: 60s
+  kubernetesAttributes:
+    enabled: true
+otelAgent:
+  enabled: true
+otelDeployment:
+  enabled: true
+
