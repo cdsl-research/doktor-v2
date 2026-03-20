@@ -33,13 +33,13 @@ spec:
             - containerPort: 8000
           readinessProbe:
             httpGet:
-              path: /
+              path: /author
               port: 8000
             periodSeconds: 5
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
-              path: /
+              path: /author
               port: 8000
             periodSeconds: 10
             timeoutSeconds: 3

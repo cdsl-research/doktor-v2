@@ -208,9 +208,9 @@ def fulltext_add():
 
 
 def main():
-    author_add_wrapper()
-    paper_add_wrapper()
-    paper_only_upload()
+    # author_add_wrapper()
+    #paper_add_wrapper()
+    #paper_only_upload()
     thumbnail_add()
     fulltext_add()
 
