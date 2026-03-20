@@ -43,7 +43,7 @@ MINIO_BUCKET_NAME = os.getenv("MINIO_BUCKET_NAME", "thumbnail")
 # OpenTelemetry setup
 # =============================================================================
 
-resource = Resource(attributes={"service.name": "author"})
+resource = Resource(attributes={"service.name": os.getenv("OTEL_SERVICE_NAME", "thumbnail")})
 
 # Setup TracerProvider
 trace.set_tracer_provider(TracerProvider(resource=resource))
