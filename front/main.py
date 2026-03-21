@@ -665,6 +665,14 @@ async def author_handler(
     )
 
 
+@app.get("/poster/{filename}", response_class=FileResponse)
+async def poster_handler(filename: str):
+    file_path = f"assets/{filename}"
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404)
+    return FileResponse(file_path, media_type="application/pdf")
+
+
 @app.get("/thumbnail/{paper_uuid}/{image_id}")
 async def thumbnail_handler(
     paper_uuid: UUID,
