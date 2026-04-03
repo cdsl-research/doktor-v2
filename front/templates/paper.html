@@ -21,6 +21,9 @@
     <section class="mb-8">
         <a href="{{ paper.uuid }}/download"><button class="bg-blue-500 text-white p-2 rounded">ダウンロード(PDF形式)</button></a>
         <button class="bg-gray-500 text-white p-2 rounded ml-2" id="cite_btn">引用(BibTeX)</button>
+        {% if "DPSWS" in paper.label %}
+        <a href="/poster/IPSJ-DPSWS2025-poster.pdf"><button class="bg-green-500 text-white p-2 rounded ml-2">DPS Workshop ポスター(PDF形式)</button></a>
+        {% endif %}
     </section>
 
     <div id="cite_aria" style="display: none;" class="mb-8">
