@@ -10,6 +10,6 @@ do
     else
         # pip install gdown
         gdown -O pdf_files/$f.pdf "https://drive.google.com/uc?id=$f"
-        sleep 300
+        sleep 60
     fi
 done

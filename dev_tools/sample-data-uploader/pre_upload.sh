@@ -3,7 +3,7 @@
 endpoint_base="http://192.168.40.1"
 
 get_svc_port () {
-  echo $(kubectl get svc -n $1 | grep app | awk -F: '{print $2}' | grep -o '3[0-9]\+')
+  echo $(kubectl get svc -n $1 | grep app | awk -F: '{print $2}' | grep -oE '3[0-9]{4}')
 }
 
 # kubectl get svc -n paper | grep app | awk -F: '{print $2}' | grep -o '3[0-9]\+'
