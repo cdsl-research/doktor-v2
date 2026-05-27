@@ -95,7 +95,7 @@ async def lifespan(app: FastAPI):
     """アプリケーション起動時にMinIOバケットを確認・作成"""
     while True:
         try:
-            socket.getaddrinfo(MINIO_HOST, None)
+            socket.getaddrinfo(MINIO_HOST.split(":")[0], None)
             break
         except Exception as e:
             logger.warning("Retry resolve host: %s", e)
