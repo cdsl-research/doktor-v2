@@ -46,8 +46,28 @@ spec:
           env:
             - name: MONGO_HOST
               value: paper-mongo
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: paper-mongo-secret
+                  key: username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paper-mongo-secret
+                  key: password
             - name: MINIO_HOST
               value: "paper-minio.paper:9000"
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: paper-minio-secret
+                  key: accesskey
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paper-minio-secret
+                  key: secretkey
             - name: POD_NAME
               valueFrom:
                 fieldRef:

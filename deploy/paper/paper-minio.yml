@@ -28,9 +28,15 @@ spec:
               containerPort: 9100
           env:
             - name: MINIO_ACCESS_KEY
-              value: minio
+              valueFrom:
+                secretKeyRef:
+                  name: paper-minio-secret
+                  key: accesskey
             - name: MINIO_SECRET_KEY
-              value: minio123
+              valueFrom:
+                secretKeyRef:
+                  name: paper-minio-secret
+                  key: secretkey
           volumeMounts:
             - name: paper-minio-volv
               mountPath: /data

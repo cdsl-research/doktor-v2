@@ -46,6 +46,16 @@ spec:
           env:
             - name: MINIO_HOST
               value: "thumbnail-minio.thumbnail:9000"
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: thumbnail-minio-secret
+                  key: accesskey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: thumbnail-minio-secret
+                  key: secretkey
             - name: PAPER_SVC_HOST
               value: "paper-app.paper:4000"
             - name: POD_NAME
