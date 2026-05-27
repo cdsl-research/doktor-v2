@@ -27,10 +27,22 @@ spec:
               app: front-admin
       containers:
         - name: front-admin-app-container
-          image: ghcr.io/cdsl-research/front-admin:master-aac9010
+          image: ghcr.io/cdsl-research/front-admin:master-4863ea2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 10
+            timeoutSeconds: 3
           env:
             - name: SERVICE_PAPER_HOST
               value: paper-app.paper
@@ -48,6 +60,29 @@ spec:
               value: fulltext-app.fulltext
             - name: SERVICE_FULLTEXT_PORT
               value: "4000"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE),k8s.node.name=$(NODE_NAME)"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              # value: "http://192.168.201.12:4317"
+              value: "http://signoz-k8s-k8s-infra-otel-agent.signoz.svc.cluster.local:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
+            - name: OTEL_SERVICE_NAME
+              value: "front-admin"
 ---
 apiVersion: v1
 kind: Service

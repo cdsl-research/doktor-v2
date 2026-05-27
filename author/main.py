@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from datetime import datetime
@@ -7,17 +8,26 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
+from opentelemetry import trace
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, OperationFailure
 
-from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+# Logging configuration
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
@@ -25,16 +35,41 @@ MONGO_DBNAME = os.getenv("MONGO_DBNAME", "author")
 MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/?uuidRepresentation=pythonLegacy"
 
-# OpenTelemetry TracerProvider の設定
+# =============================================================================
+# OpenTelemetry setup
+# =============================================================================
+
 resource = Resource(attributes={"service.name": "author"})
+
+# Setup TracerProvider
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer_provider = trace.get_tracer_provider()
 
-# OTLP Exporter の設定
-otlp_exporter = OTLPSpanExporter()
-tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+# Setup OTLP Span Exporter
+otlp_span_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_span_exporter))
 
-# PyMongo の計装
+# Setup LoggerProvider
+logger_provider = LoggerProvider()
+set_logger_provider(logger_provider)
+
+# Setup OTLP Log Exporter
+otlp_log_exporter = OTLPLogExporter()
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
+
+# Setup LoggingHandler
+# Integrate Python's standard logging library with OpenTelemetry
+# This allows logging.info() calls to be sent in OTLP format
+otlp_handler = LoggingHandler(
+    level=logging.NOTSET, logger_provider=logger_provider  # Handle all log levels
+)
+
+# Add OTLP handler to root logger
+# This allows all application logs to be sent in OTLP format
+logging.getLogger().addHandler(otlp_handler)
+
+# PyMongo instrumentation
 PymongoInstrumentor().instrument()
 
 client = MongoClient(MONGO_CONNECTION_STRING)
@@ -120,7 +155,7 @@ def create_author_handler(author: AuthorCreateUpdate):
         "updated_at": datetime.now(),
     }
     insert_id = db["author"].insert_one(my_author).inserted_id
-    print("insert_id:", insert_id)
+    logger.info("insert_id: %s", insert_id)
     return AuthorRead(**my_author)
 
 
@@ -136,7 +171,7 @@ def read_authors_handler(name: str = ""):
     ]
     or_conditions = [{tf: {"$regex": name}} for tf in target_fields]
     query = {"$or": or_conditions}
-    print("Mongo Query:", query)
+    logger.info("Mongo Query: %s", query)
     return list(db["author"].find(query, {"_id": 0}))
 
 
@@ -177,16 +212,16 @@ def read_author_handler(author_uuid: UUID):
 @app.delete("/reset", response_model=StatusResponse)
 def delete_author_handler():
     res = db["author"].delete_many({})
-    print(res.deleted_count, " documents deleted.")
+    logger.info("%d documents deleted.", res.deleted_count)
     return StatusResponse(**{"status": "ok"})
 
 
 if __name__ == "__main__":
     try:
         client.admin.command("ping")
-        print("MongoDB connected.")
+        logger.info("MongoDB connected.")
     except (ConnectionFailure, OperationFailure) as e:
-        print("MongoDB not available. ", e)
+        logger.error("MongoDB not available. %s", e)
         sys.exit(-1)
 
     import uvicorn

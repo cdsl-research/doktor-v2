@@ -9,10 +9,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
+          cache-dependency-path: "**/requirements.txt"
       - name: Generate docs from FastAPI
         run: |
           find . -type f -name requirements.txt -exec pip install -r {} \;

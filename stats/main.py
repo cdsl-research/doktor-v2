@@ -1,25 +1,34 @@
+import logging
 import os
 import sys
 from datetime import datetime
-from email import message
 from http.client import HTTPException
 from ipaddress import IPv4Address
-from turtle import down
 from typing import List, Literal, Optional
 from uuid import UUID
 
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, OperationFailure
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
+    OTLPLogExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
+    OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from pydantic import BaseModel
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, OperationFailure
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 MONGO_USERNAME = os.getenv("MONGO_USERNAME", "root")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "example")
@@ -27,14 +36,39 @@ MONGO_DBNAME = os.getenv("MONGO_DBNAME", "stats")
 MONGO_HOST = os.getenv("MONGO_HOST", "mongo")
 MONGO_CONNECTION_STRING = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/?uuidRepresentation=pythonLegacy"
 
-# OpenTelemetry TracerProvider の設定
+# =============================================================================
+# OpenTelemetry setup
+# =============================================================================
+
 resource = Resource(attributes={"service.name": "stats"})
+
+# Setup TracerProvider
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer_provider = trace.get_tracer_provider()
 
-# OTLP Exporter の設定
-otlp_exporter = OTLPSpanExporter()
-tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+# Setup OTLP Span Exporter
+otlp_span_exporter = OTLPSpanExporter()
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_span_exporter))
+
+# Setup LoggerProvider
+logger_provider = LoggerProvider()
+set_logger_provider(logger_provider)
+
+# Setup OTLP Log Exporter
+otlp_log_exporter = OTLPLogExporter()
+logger_provider.add_log_record_processor(
+    BatchLogRecordProcessor(otlp_log_exporter))
+
+# Setup LoggingHandler
+# Integrate Python's standard logging library with OpenTelemetry
+# This allows logging.info() calls to be sent in OTLP format
+otlp_handler = LoggingHandler(
+    level=logging.NOTSET, logger_provider=logger_provider  # Handle all log levels
+)
+
+# Add OTLP handler to root logger
+# This allows all application logs to be sent in OTLP format
+logging.getLogger().addHandler(otlp_handler)
 
 # PyMongo の計装
 PymongoInstrumentor().instrument()
@@ -99,12 +133,14 @@ def read_stats_handler():
         },
         {"$sort": {"total_downloads": -1}},
     ]
-    print("All Stats Query:", query)
+    logger.info("All Stats Query: %s", query)
     try:
         downloads = db["stats"].aggregate(query)
         res = []
         for x in list(downloads):
-            sc = StatsCount(paper_uuid=x["_id"], total_downloads=x["total_downloads"])
+            sc = StatsCount(
+                paper_uuid=x["_id"],
+                total_downloads=x["total_downloads"])
             res.append(sc)
         return StatsCountSeveral(stats=res)
     except Exception:
@@ -121,8 +157,9 @@ def create_stats_handler(stats: StatsCreateUpdate):
     }
     try:
         insert_id = db["stats"].insert_one(my_stats).inserted_id
-        print("insert_id:", insert_id)
-        return StatusResponse(status="ok", message=f"Success insert = {insert_id}")
+        logger.info("insert_id: %s", insert_id)
+        return StatusResponse(status="ok",
+                              message=f"Success insert = {insert_id}")
     except Exception:
         raise HTTPException(status_code=500, detail="Fail to insert")
 
@@ -130,7 +167,7 @@ def create_stats_handler(stats: StatsCreateUpdate):
 @app.get("/stats/{paper_id}", response_model=StatsCount)
 def read_stat_handler(paper_id: UUID):
     query = {"paper_uuid": str(paper_id)}
-    print("Stats Query:", query)
+    logger.info("Stats Query: %s", query)
     try:
         downloads = db["stats"].count_documents(query)
         return StatsCount(paper_uuid=paper_id, total_downloads=downloads)
@@ -141,9 +178,9 @@ def read_stat_handler(paper_id: UUID):
 if __name__ == "__main__":
     try:
         client.admin.command("ping")
-        print("MongoDB connected.")
+        logger.info("MongoDB connected.")
     except (ConnectionFailure, OperationFailure) as e:
-        print("MongoDB not available. ", e)
+        logger.error("MongoDB not available. %s", e)
         sys.exit(-1)
 
     import uvicorn

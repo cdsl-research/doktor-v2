@@ -27,15 +27,70 @@ spec:
               app: paper
       containers:
         - name: paper-app-container
-          image: ghcr.io/cdsl-research/paper:master-aac9010
+          image: ghcr.io/cdsl-research/paper:master-4863ea2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /paper
+              port: 8000
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /paper
+              port: 8000
+            periodSeconds: 10
+            timeoutSeconds: 3
           env:
             - name: MONGO_HOST
               value: paper-mongo
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: paper-mongo-secret
+                  key: username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paper-mongo-secret
+                  key: password
             - name: MINIO_HOST
               value: "paper-minio.paper:9000"
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: paper-minio-secret
+                  key: accesskey
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paper-minio-secret
+                  key: secretkey
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "k8s.pod.name=$(POD_NAME),k8s.namespace.name=$(POD_NAMESPACE),k8s.node.name=$(NODE_NAME)"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              # value: "http://192.168.201.12:4317"
+              value: "http://signoz-k8s-k8s-infra-otel-agent.signoz.svc.cluster.local:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
+            - name: OTEL_SERVICE_NAME
+              value: "paper"
 ---
 apiVersion: v1
 kind: Service
