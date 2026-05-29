@@ -164,6 +164,45 @@ def read_thumbnail(paper_uuid: UUID):
         raise HTTPException(status_code=_status_code, detail=str(e.message))
 
 
+def _extract_image_as_png(doc: fitz.Document, img: tuple) -> bytes:
+    """PDFの埋め込み画像をPNGバイト列として取り出す。
+
+    PDFの画像は本体画像とソフトマスク(smask: 透過情報)が別オブジェクトに
+    分かれて格納されることがある。透過すべき領域は本体画像側では黒で埋められ、
+    smaskが「どこが透明か」を持つ。smaskを無視して本体画像だけを取り出すと
+    透過領域が黒く残ってしまう(issue #353)。
+
+    そのためsmaskが存在する場合は本体画像へalphaチャンネルとして合成する。
+    また配信側(read_thumbnail)は常に.pngを読むため、出力はPNGへ統一する。
+
+    img は doc.get_page_images() が返すタプルで、
+    img[0]=本体画像のxref, img[1]=smaskのxref(なければ0)。
+    """
+    xref = img[0]
+    smask = img[1]
+
+    # smaskあり: 本体画像にalphaとして合成する
+    if smask > 0:
+        base = fitz.Pixmap(doc.extract_image(xref)["image"])
+        if base.alpha:
+            # 既にalphaを持つ場合は一旦落としてからmaskを当てる
+            base = fitz.Pixmap(base, 0)
+        mask = fitz.Pixmap(doc.extract_image(smask)["image"])
+        try:
+            pix = fitz.Pixmap(base, mask)
+        except Exception as e:
+            # 合成に失敗した場合は本体画像のみで継続(黒背景の可能性は残る)
+            logger.warning("Failed to merge smask (xref=%s): %s", xref, e)
+            pix = fitz.Pixmap(doc.extract_image(xref)["image"])
+        return pix.tobytes("png")
+
+    # smaskなし: CMYK等の色空間もRGBのPNGへ正規化する
+    pix = fitz.Pixmap(doc, xref)
+    if pix.colorspace and pix.colorspace.n > 3:
+        pix = fitz.Pixmap(fitz.csRGB, pix)
+    return pix.tobytes("png")
+
+
 @app.post("/thumbnail/{paper_uuid}")
 def create_thumbnail(paper_uuid: UUID):
     # ファイルの取得
@@ -181,11 +220,9 @@ def create_thumbnail(paper_uuid: UUID):
         for p in range(doc.page_count):
             imglist = doc.get_page_images(p)
             for j, img in enumerate(imglist):
-                x_ref = img[0]  # xref number
-                x_img = doc.extract_image(x_ref)
-                x_ext = x_img.get("ext")
-                filename = f"{p}-{j}.{x_ext}"
-                write_file_buffer[filename] = x_img.get("image")
+                # smaskを合成しPNGへ統一して取り出す (issue #353)
+                filename = f"{p}-{j}.png"
+                write_file_buffer[filename] = _extract_image_as_png(doc, img)
 
     # 画像の書き出し
     for fname, fbody in write_file_buffer.items():
@@ -197,6 +234,7 @@ def create_thumbnail(paper_uuid: UUID):
             io.BytesIO(fbody),
             length=-1,
             part_size=1000 * 1024 * 1024,
+            content_type="image/png",
         )
 
     return {"status": "ok"}
