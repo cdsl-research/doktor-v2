@@ -9,24 +9,46 @@ on:
       - "docs_src/**"
       - ".github/**"
 jobs:
-  build-and-push:
+  detect-changes:
     runs-on: ubuntu-24.04
     if: ${{ github.event.pusher.name != 'github-actions' }}
+    outputs:
+      services: ${{ steps.filter.outputs.services }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed service directories
+        id: filter
+        run: |
+          BEFORE="${{ github.event.before }}"
+          # 初回push/force-push等でbeforeが解決できない場合は親コミットと比較
+          if ! git rev-parse --quiet --verify "$BEFORE^{commit}" >/dev/null 2>&1; then
+            BEFORE=$(git rev-parse ${{ github.sha }}^)
+          fi
+          CHANGED=$(git diff --name-only "$BEFORE" ${{ github.sha }})
+          SVCS=()
+          for svc in author front-admin front paper fulltext thumbnail stats; do
+            if echo "$CHANGED" | grep -q "^$svc/"; then
+              SVCS+=("\"$svc\"")
+            fi
+          done
+          JSON="[$(IFS=,; echo "${SVCS[*]}")]"
+          echo "services=$JSON" >> "$GITHUB_OUTPUT"
+          echo "Changed services: $JSON"
+
+  build-and-push:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.services != '[]' }}
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        target:
-          [
-            "author",
-            "front-admin",
-            "front",
-            "paper",
-            "fulltext",
-            "thumbnail",
-            "stats",
-          ]
+        target: ${{ fromJSON(needs.detect-changes.outputs.services) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,11 +63,15 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set image tag for master
+      - name: Read version and fail if tag already exists
         run: |
-          COMMITID=$(git rev-parse --short ${{ github.sha }} | cut -c1-7)
-          CUR_BRANCH=$(git symbolic-ref --short HEAD)
-          echo "DOCKER_TAG=${CUR_BRANCH}-${COMMITID}" >> $GITHUB_ENV
+          VER=$(tr -d '[:space:]' < ./${{ matrix.target }}/VERSION)
+          IMAGE="ghcr.io/cdsl-research/${{ matrix.target }}:${VER}"
+          if docker manifest inspect "$IMAGE" >/dev/null 2>&1; then
+            echo "::error::Tag already exists: $IMAGE — bump ${{ matrix.target }}/VERSION"
+            exit 1
+          fi
+          echo "DOCKER_TAG=${VER}" >> "$GITHUB_ENV"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -55,16 +81,19 @@ jobs:
           tags: ghcr.io/cdsl-research/${{ matrix.target }}:${{ env.DOCKER_TAG }}
 
   k8s-config-update:
-    needs: build-and-push
+    needs: [detect-changes, build-and-push]
+    if: ${{ needs.detect-changes.outputs.services != '[]' }}
     runs-on: ubuntu-24.04
-    if: ${{ github.event.pusher.name != 'github-actions' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Update k8s config
+      - name: Update k8s config for changed services
         run: |
-          COMMITID=$(git rev-parse --short ${{ github.sha }} | cut -c1-7)
-          find deploy -type f -exec sed -i "s/:master-.*/:master-$COMMITID/g" \{\} \;
+          for svc in $(echo '${{ needs.detect-changes.outputs.services }}' | jq -r '.[]'); do
+            VER=$(tr -d '[:space:]' < ./$svc/VERSION)
+            find deploy -type f -exec sed -i -E \
+              "s|(ghcr.io/cdsl-research/$svc):.*|\1:$VER|g" {} \;
+          done
       - uses: EndBug/add-and-commit@v9
         with:
           add: "deploy/"
