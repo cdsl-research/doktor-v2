@@ -367,12 +367,16 @@ async def top_handler(
 
     # 全論文をフラットなリストに展開してページネーション
     all_papers_flat = [
-        (ym, p)
-        for ym, papers_in_ym in paper_details_sort.items()
-        for p in papers_in_ym
-    ]
+        (ym,
+         p) for ym,
+        papers_in_ym in paper_details_sort.items() for p in papers_in_ym]
     total_papers = len(all_papers_flat)
-    total_pages = max(1, (total_papers + PAPERS_PER_PAGE - 1) // PAPERS_PER_PAGE)
+    total_pages = max(
+        1,
+        (total_papers +
+         PAPERS_PER_PAGE -
+         1) //
+        PAPERS_PER_PAGE)
     page = max(1, min(page, total_pages))
     start = (page - 1) * PAPERS_PER_PAGE
     end = start + PAPERS_PER_PAGE
@@ -680,7 +684,12 @@ async def author_handler(
 
     # ページネーション
     total_papers = len(paper_details)
-    total_pages = max(1, (total_papers + PAPERS_PER_PAGE - 1) // PAPERS_PER_PAGE)
+    total_pages = max(
+        1,
+        (total_papers +
+         PAPERS_PER_PAGE -
+         1) //
+        PAPERS_PER_PAGE)
     page = max(1, min(page, total_pages))
     start = (page - 1) * PAPERS_PER_PAGE
     end = start + PAPERS_PER_PAGE
