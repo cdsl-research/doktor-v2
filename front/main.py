@@ -44,6 +44,7 @@ SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
 SVC_STATS_HOST = os.getenv("SERVICE_STATS_HOST", "stats-app")
 SVC_STATS_PORT = os.getenv("SERVICE_STATS_PORT", "8000")
 REQ_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", 5))
+PAPERS_PER_PAGE = 3
 
 # =============================================================================
 # OpenTelemetry setup
@@ -221,6 +222,7 @@ async def validation_exception_handler(request, exc):
 async def top_handler(
     request: Request,
     keyword: str = "",
+    page: int = 1,
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
     x_request_id = uuid4() if x_request_id is None else x_request_id
@@ -363,13 +365,34 @@ async def top_handler(
         sorted(paper_details.items(), key=lambda x: x[0], reverse=True)
     )
 
+    # 全論文をフラットなリストに展開してページネーション
+    all_papers_flat = [
+        (ym, p)
+        for ym, papers_in_ym in paper_details_sort.items()
+        for p in papers_in_ym
+    ]
+    total_papers = len(all_papers_flat)
+    total_pages = max(1, (total_papers + PAPERS_PER_PAGE - 1) // PAPERS_PER_PAGE)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * PAPERS_PER_PAGE
+    end = start + PAPERS_PER_PAGE
+    paged_papers_flat = all_papers_flat[start:end]
+
+    # ページ分の論文を年月ごとに再グループ化
+    paged_paper_details: dict = {}
+    for ym, p in paged_papers_flat:
+        paged_paper_details.setdefault(ym, []).append(p)
+
     return templates.TemplateResponse(
         "top.html",
         {
             "request": request,
-            "papers": paper_details_sort,
+            "papers": paged_paper_details,
             "authors": author_details,
             "search_keyword": striped_keyword,
+            "page": page,
+            "total_pages": total_pages,
+            "total_papers": total_papers,
         },
     )
 
@@ -587,6 +610,7 @@ async def paper_download_handler(
 async def author_handler(
     author_uuid: UUID,
     request: Request,
+    page: int = 1,
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
     x_request_id = uuid4() if x_request_id is None else x_request_id
@@ -654,13 +678,24 @@ async def author_handler(
         "joined_year": res_author_me.get("joined_year"),
     }
 
+    # ページネーション
+    total_papers = len(paper_details)
+    total_pages = max(1, (total_papers + PAPERS_PER_PAGE - 1) // PAPERS_PER_PAGE)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * PAPERS_PER_PAGE
+    end = start + PAPERS_PER_PAGE
+    paged_paper_details = paper_details[start:end]
+
     return templates.TemplateResponse(
         "author.html",
         {
             "request": request,
-            "papers": paper_details,
+            "papers": paged_paper_details,
             "author": author_details,
             "page_title": author_details["name"],
+            "page": page,
+            "total_pages": total_pages,
+            "total_papers": total_papers,
         },
     )
 

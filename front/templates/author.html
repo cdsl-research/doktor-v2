@@ -13,6 +13,50 @@
             </a></li>
         {% endfor %}
     </ul>
+
+    {% if total_pages > 1 %}
+    <nav class="flex items-center justify-center gap-1 py-8" aria-label="ページネーション">
+        {% if page > 1 %}
+        <a href="?page={{ page - 1 }}"
+           class="px-3 py-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm">
+            &laquo; 前へ
+        </a>
+        {% else %}
+        <span class="px-3 py-2 rounded border border-gray-200 text-gray-300 text-sm cursor-not-allowed">
+            &laquo; 前へ
+        </span>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+            <span class="px-3 py-2 rounded border border-blue-500 bg-blue-500 text-white text-sm font-semibold">
+                {{ p }}
+            </span>
+            {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+            <a href="?page={{ p }}"
+               class="px-3 py-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm">
+                {{ p }}
+            </a>
+            {% elif p == page - 3 or p == page + 3 %}
+            <span class="px-2 py-2 text-gray-400 text-sm">…</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if page < total_pages %}
+        <a href="?page={{ page + 1 }}"
+           class="px-3 py-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm">
+            次へ &raquo;
+        </a>
+        {% else %}
+        <span class="px-3 py-2 rounded border border-gray-200 text-gray-300 text-sm cursor-not-allowed">
+            次へ &raquo;
+        </span>
+        {% endif %}
+    </nav>
+    <p class="text-center text-sm text-gray-500 mb-8">
+        {{ total_papers }} 件中 {{ (page - 1) * 10 + 1 }}〜{{ page * 10 if page * 10 < total_papers else total_papers }} 件を表示
+    </p>
+    {% endif %}
 </main>
 
 {% include '_footer.html' %}
