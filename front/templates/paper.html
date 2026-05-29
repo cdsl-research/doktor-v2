@@ -1,48 +1,79 @@
 {% include '_header.html' %}
 
-<main class="container mx-auto">
-    <h2 class="text-2xl font-bold mb-4">{{ paper.title }}</h2>
-    <section class="mb-8">
-        <ul class="list-disc list-inside mb-4">
-            <li class="mb-2">著者:
-                <ul class="list-disc list-inside ml-4">
-                    {% for author in paper.author %}
-                    <li class="mb-1"><a class="text-blue-500 hover:underline" href="/author/{{ author.uuid }}">{{ author.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            </li>
-            <li class="mb-2">ラベル: {{ paper.label }}</li>
-            <li class="mb-2">公開日: {{ paper.created_at }}</li>
-            <li class="mb-2">更新日: {{ paper.updated_at }}</li>
-            <li class="mb-2">ダウンロード数: {{ paper.downloads }}</li>
-        </ul>
-    </section>
+<main class="container mx-auto flex flex-col md:flex-row gap-8 mt-6">
 
-    <section class="mb-8">
-        <a href="{{ paper.uuid }}/download"><button class="bg-blue-500 text-white p-2 rounded">ダウンロード(PDF形式)</button></a>
-        <button class="bg-gray-500 text-white p-2 rounded ml-2" id="cite_btn">引用(BibTeX)</button>
-    </section>
+    <!-- 左サイドバー -->
+    <aside class="w-full md:w-56 flex-shrink-0">
 
-    <div id="cite_aria" style="display: none;" class="mb-8">
-        <section class="mb-2">
-            <button class="bg-gray-500 text-white p-2 rounded" id="cp_btn">コピー</button> <a id="cp_info"></a>
-        </section>
-        <section>
-            <textarea id="bibtex" readonly="readonly" cols="200" rows="7" class="w-full p-2 border border-gray-300 rounded">{{ bibtex.text }}</textarea>
-        </section>
-    </div>
+        <a class="block text-lg font-bold text-gray-800 hover:text-gray-600 mb-6" href="/">doktor</a>
 
-    <section class="mb-8">
-        <cite>{{ abstract }} ...</cite>
-    </section>
-
-    <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {% for img_url in image_urls %}
-        <div class="flex justify-center">
-            <img src="{{ img_url }}" class="mb-4 max-w-full h-auto">
+        <div class="mb-5">
+            <p class="text-xs text-gray-400 mb-1">著者</p>
+            <ul>
+                {% for author in paper.author %}
+                <li class="mb-1">
+                    <a class="text-sm text-blue-600 hover:underline" href="/author/{{ author.uuid }}">{{ author.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-        {% endfor %}
-    </section>
+
+        <div class="text-sm text-gray-600 space-y-1 mb-5">
+            <p>{{ paper.label }}</p>
+            <p>{{ paper.created_at }}</p>
+            <p>更新: {{ paper.updated_at }}</p>
+            <p>ダウンロード: {{ paper.downloads }}</p>
+        </div>
+
+        <div class="space-y-2 mb-5">
+            <a href="{{ paper.uuid }}/download"
+               class="block border border-gray-400 text-gray-700 text-sm text-center py-1 px-3 hover:bg-gray-100">
+                PDF をダウンロード
+            </a>
+            <button id="cite_btn"
+               class="block w-full border border-gray-300 text-gray-500 text-sm text-center py-1 px-3 hover:bg-gray-100">
+                BibTeX で引用
+            </button>
+        </div>
+
+        <div id="cite_aria" style="display: none;" class="mb-5">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-xs text-gray-400">BibTeX</span>
+                <button id="cp_btn" class="text-xs text-gray-400 hover:text-gray-600">コピー</button>
+            </div>
+            <span id="cp_info" class="text-xs text-green-600"></span>
+            <textarea id="bibtex" readonly="readonly" rows="7"
+                class="w-full p-2 text-xs border border-gray-200 font-mono resize-none focus:outline-none mt-1">{{ bibtex.text }}</textarea>
+        </div>
+
+        <a href="/" class="text-sm text-blue-600 hover:underline">&larr; 一覧へ戻る</a>
+
+    </aside>
+
+    <!-- 右メインコンテンツ -->
+    <div class="flex-1 min-w-0">
+
+        <h2 class="text-xl font-bold text-gray-800 mb-5 leading-normal">{{ paper.title }}</h2>
+
+        {% if abstract %}
+        <div class="mb-8">
+            <p class="text-sm font-bold text-gray-700 mb-2">概要</p>
+            <p class="text-sm text-gray-600 leading-relaxed">{{ abstract }} ...</p>
+        </div>
+        {% endif %}
+
+        {% if image_urls %}
+        <div>
+            <p class="text-sm font-bold text-gray-700 mb-3">ページプレビュー</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {% for img_url in image_urls %}
+                <img src="{{ img_url }}" class="max-w-full h-auto border border-gray-200">
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
 </main>
 
 <script>
@@ -52,13 +83,13 @@
     const cp_info = document.getElementById("cp_info");
 
     cite_btn.addEventListener("click", function() {
-        if(cite_aria.style.display=="none"){
-            cite_aria.style.display ="block";    
-            cite_btn.innerText = "引用(BibTeX) 非表示";
+        if (cite_aria.style.display === "none") {
+            cite_aria.style.display = "block";
+            cite_btn.innerText = "BibTeX を閉じる";
             cp_info.innerText = "";
-        }else{
-            cite_aria.style.display ="none";    
-            cite_btn.innerText = "引用(BibTeX)";
+        } else {
+            cite_aria.style.display = "none";
+            cite_btn.innerText = "BibTeX で引用";
         }
     });
 
