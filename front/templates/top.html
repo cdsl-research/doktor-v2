@@ -23,6 +23,12 @@
                 placeholder="キーワードで検索"
                 class="border border-gray-300 p-2 w-full text-sm mb-2 focus:outline-none focus:border-gray-500"
             >
+            <select name="sort" onchange="this.form.submit()"
+                    class="border border-gray-300 p-2 w-full text-sm mb-2 focus:outline-none focus:border-gray-500">
+                <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>公開日（新しい順）</option>
+                <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>公開日（古い順）</option>
+                <option value="downloads_desc" {% if sort == 'downloads_desc' %}selected{% endif %}>ダウンロード数（多い順）</option>
+            </select>
             <button type="submit" class="border border-gray-400 text-gray-700 text-sm py-1 px-3 hover:bg-gray-100 w-full">
                 検索
             </button>
@@ -62,7 +68,7 @@
         {% if papers %}
         {% for year_month, year_month_papers in papers.items() %}
         <section class="mb-8">
-            <h3 class="text-sm text-gray-500 mb-3">{{ year_month }}</h3>
+            {% if year_month %}<h3 class="text-sm text-gray-500 mb-3">{{ year_month }}</h3>{% endif %}
             <ul>
                 {% for paper in year_month_papers %}
                 <li class="border-t border-gray-200 py-3">
@@ -89,7 +95,7 @@
         {% if total_pages > 1 %}
         <nav class="flex items-center gap-1 py-6 border-t border-gray-200" aria-label="ページネーション">
             {% if page > 1 %}
-            <a href="/?keyword={{ search_keyword }}&page={{ page - 1 }}"
+            <a href="/?keyword={{ search_keyword }}&sort={{ sort }}&page={{ page - 1 }}"
                class="px-3 py-1 border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm">前へ</a>
             {% else %}
             <span class="px-3 py-1 border border-gray-200 text-gray-300 text-sm">前へ</span>
@@ -99,7 +105,7 @@
                 {% if p == page %}
                 <span class="px-3 py-1 border border-gray-700 bg-gray-700 text-white text-sm">{{ p }}</span>
                 {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
-                <a href="/?keyword={{ search_keyword }}&page={{ p }}"
+                <a href="/?keyword={{ search_keyword }}&sort={{ sort }}&page={{ p }}"
                    class="px-3 py-1 border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm">{{ p }}</a>
                 {% elif p == page - 3 or p == page + 3 %}
                 <span class="px-2 py-1 text-gray-400 text-sm">…</span>
@@ -107,7 +113,7 @@
             {% endfor %}
 
             {% if page < total_pages %}
-            <a href="/?keyword={{ search_keyword }}&page={{ page + 1 }}"
+            <a href="/?keyword={{ search_keyword }}&sort={{ sort }}&page={{ page + 1 }}"
                class="px-3 py-1 border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm">次へ</a>
             {% else %}
             <span class="px-3 py-1 border border-gray-200 text-gray-300 text-sm">次へ</span>
