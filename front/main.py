@@ -44,7 +44,7 @@ SVC_FULLTEXT_PORT = os.getenv("SERVICE_FULLTEXT_PORT", "8000")
 SVC_STATS_HOST = os.getenv("SERVICE_STATS_HOST", "stats-app")
 SVC_STATS_PORT = os.getenv("SERVICE_STATS_PORT", "8000")
 REQ_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", 5))
-PAPERS_PER_PAGE = 3
+PAPERS_PER_PAGE = 20
 
 # =============================================================================
 # OpenTelemetry setup
