@@ -218,14 +218,20 @@ async def validation_exception_handler(request, exc):
     )
 
 
+VALID_SORTS = {"date_desc", "date_asc", "downloads_desc"}
+
+
 @app.get("/", response_class=HTMLResponse)
 async def top_handler(
     request: Request,
     keyword: str = "",
     page: int = 1,
+    sort: str = "date_desc",
     x_request_id: Union[UUID, None] = Header(default=None),
 ):
     x_request_id = uuid4() if x_request_id is None else x_request_id
+    if sort not in VALID_SORTS:
+        sort = "date_desc"
     striped_keyword = ""
     if keyword:
         # スペースを削除
@@ -321,9 +327,9 @@ async def top_handler(
         downloads_count = {rs["paper_uuid"]: rs["total_downloads"]
                            for rs in res_stats["stats"]}
 
-    # 論文ごとの詳細情報を組み立て
-    paper_details = {}
-    for rp in found_papers:  # 論文を選択
+    # 論文ごとの詳細情報をフラットリストとして構築
+    all_papers = []
+    for rp in found_papers:
         # 論文に対応する著者名を検索
         found_author = []
         for uuid in rp.get("author_uuid"):
@@ -343,45 +349,46 @@ async def top_handler(
 
         # 論文のダウンロード数
         paper_uuid = rp.get("uuid", "#")
-        total_downloads = downloads_count.get(paper_uuid, "0")
+        total_downloads = downloads_count.get(paper_uuid, 0)
 
         # 部分一致した箇所
         highlight = matched_parts.get(paper_uuid, [])
 
-        paper_details[year_month] = paper_details.get(year_month, []) + [
-            {
-                "uuid": paper_uuid,
-                "title": rp.get("title", "No Title"),
-                "author": found_author,
-                "label": rp.get("label", "No Label"),
-                "created_at": reformat_datetime(rp.get("created_at")),
-                "downloads": total_downloads,
-                "highlight": highlight,
-            }
-        ]
+        all_papers.append({
+            "uuid": paper_uuid,
+            "title": rp.get("title", "No Title"),
+            "author": found_author,
+            "label": rp.get("label", "No Label"),
+            "created_at": reformat_datetime(rp.get("created_at")),
+            "created_at_dt": created_at,
+            "downloads": total_downloads,
+            "highlight": highlight,
+            "year_month": year_month,
+        })
 
     # 並べ替え
-    paper_details_sort = dict(
-        sorted(paper_details.items(), key=lambda x: x[0], reverse=True)
-    )
+    if sort == "date_asc":
+        all_papers.sort(key=lambda x: x["created_at_dt"])
+    elif sort == "downloads_desc":
+        all_papers.sort(key=lambda x: x["downloads"], reverse=True)
+    else:  # date_desc
+        all_papers.sort(key=lambda x: x["created_at_dt"], reverse=True)
 
-    # 全論文をフラットなリストに展開してページネーション
-    all_papers_flat = [
-        (ym, p)
-        for ym, papers_in_ym in paper_details_sort.items()
-        for p in papers_in_ym
-    ]
-    total_papers = len(all_papers_flat)
+    # ページネーション
+    total_papers = len(all_papers)
     total_pages = max(1, (total_papers + PAPERS_PER_PAGE - 1) // PAPERS_PER_PAGE)
     page = max(1, min(page, total_pages))
     start = (page - 1) * PAPERS_PER_PAGE
     end = start + PAPERS_PER_PAGE
-    paged_papers_flat = all_papers_flat[start:end]
+    paged_papers = all_papers[start:end]
 
-    # ページ分の論文を年月ごとに再グループ化
+    # ページ分の論文を表示用にグループ化
     paged_paper_details: dict = {}
-    for ym, p in paged_papers_flat:
-        paged_paper_details.setdefault(ym, []).append(p)
+    if sort == "downloads_desc":
+        paged_paper_details[""] = paged_papers
+    else:
+        for p in paged_papers:
+            paged_paper_details.setdefault(p["year_month"], []).append(p)
 
     return templates.TemplateResponse(
         "top.html",
@@ -393,6 +400,7 @@ async def top_handler(
             "page": page,
             "total_pages": total_pages,
             "total_papers": total_papers,
+            "sort": sort,
         },
     )
 
