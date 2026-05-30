@@ -183,7 +183,7 @@ def read_papers_handler(private: bool = False, title: str = ""):
 
     if title:
         _title = title.strip()
-        validate = re.search("^[0-9a-zA-Zあ-んア-ン一-鿐ー]+$", _title)
+        validate = re.search("^[0-9a-zA-Zあ-んァ-ン一-鿐ー]+$", _title)
         if validate is None:
             raise HTTPException(status_code=400, detail="Invalid input")
         else:

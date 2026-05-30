@@ -236,7 +236,7 @@ async def top_handler(
     if keyword:
         # スペースを削除
         striped_keyword = keyword.strip().replace("　", "")
-        validate_word = re.match("^[0-9a-zA-Zあ-んア-ン一-鿐ー ]+$", striped_keyword)
+        validate_word = re.match("^[0-9a-zA-Zあ-んァ-ン一-鿐ー ]+$", striped_keyword)
         if validate_word is None:
             raise HTTPException(status_code=400, detail="不正なキーワードです．")
 
