@@ -100,8 +100,37 @@ jobs:
           default_author: github_actions
           message: "Update k8s config for new image"
           new_branch: "k8s-config-update-${{ github.sha }}"
+      - name: Prepare PR info
+        id: pr-info
+        env:
+          HEAD_COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMITS_JSON: ${{ toJSON(github.event.commits) }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=$(echo "$HEAD_COMMIT_MSG" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)
+
+          if [ -n "$PR_NUM" ]; then
+            echo "title=Kubernetes config update (PR #${PR_NUM})" >> "$GITHUB_OUTPUT"
+          else
+            echo "title=Kubernetes config update" >> "$GITHUB_OUTPUT"
+          fi
+
+          {
+            if [ -n "$PR_NUM" ]; then
+              echo "## 元のPR"
+              echo "https://github.com/${REPO}/pull/${PR_NUM}"
+              echo ""
+            fi
+            echo "## 変更コミット"
+            echo "$COMMITS_JSON" | \
+              jq -r '.[] | "- \(.id[0:7]) \(.message | split("\n")[0])"'
+          } > /tmp/pr-body.txt
       - name: Create Pull Req
         run: |
-          gh pr create --base "master" --body "automated pull request" --title "Kubernetes config update" --head "k8s-config-update-${{ github.sha }}"
+          gh pr create \
+            --base "master" \
+            --title "${{ steps.pr-info.outputs.title }}" \
+            --head "k8s-config-update-${{ github.sha }}" \
+            --body "$(cat /tmp/pr-body.txt)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
