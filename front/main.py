@@ -207,8 +207,9 @@ async def custom_http_exception_handler(request, exc):
         message = "リクエストが不正です．"
 
     return templates.TemplateResponse(
+        request,
         "error.html",
-        {"message": message, "request": request},
+        {"message": message},
         status_code=exc.status_code,
     )
 
@@ -217,8 +218,9 @@ async def custom_http_exception_handler(request, exc):
 async def validation_exception_handler(request, exc):
     logger.error("Error: %s", exc.detail)
     templates.TemplateResponse(
+        request,
         "error.html",
-        {"message": "不正なリクエストです．", "request": request},
+        {"message": "不正なリクエストです．"},
         status_code=400,
     )
 
@@ -396,9 +398,9 @@ async def top_handler(
             paged_paper_details.setdefault(p["year_month"], []).append(p)
 
     return templates.TemplateResponse(
+        request,
         "top.html",
         {
-            "request": request,
             "papers": paged_paper_details,
             "authors": author_details,
             "search_keyword": striped_keyword,
@@ -542,9 +544,9 @@ async def paper_handler(
         first_page_300 = ""
 
     return templates.TemplateResponse(
+        request,
         "paper.html",
         {
-            "request": request,
             "paper": paper_details,
             "page_title": f"{paper_details['title']}",
             "bibtex": bibtex_data,
@@ -700,9 +702,9 @@ async def author_handler(
     paged_paper_details = paper_details[start:end]
 
     return templates.TemplateResponse(
+        request,
         "author.html",
         {
-            "request": request,
             "papers": paged_paper_details,
             "author": author_details,
             "page_title": author_details["name"],
