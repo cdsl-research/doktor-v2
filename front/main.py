@@ -85,7 +85,12 @@ AioHttpClientInstrumentor().instrument()
 
 TIMEOUT = aiohttp.ClientTimeout(total=REQ_TIMEOUT_SEC)
 
-app = FastAPI()
+_debug = os.getenv("DEBUG", "false").lower() == "true"
+app = FastAPI(
+    docs_url="/docs" if _debug else None,
+    redoc_url="/redoc" if _debug else None,
+    openapi_url="/openapi.json" if _debug else None,
+)
 
 # FastAPI アプリケーションの計装
 FastAPIInstrumentor.instrument_app(app)
