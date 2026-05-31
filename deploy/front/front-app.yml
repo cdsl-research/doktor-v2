@@ -27,7 +27,7 @@ spec:
               app: front
       containers:
         - name: front-app-container
-          image: ghcr.io/cdsl-research/front:2.1.4
+          image: ghcr.io/cdsl-research/front:2.1.5
           imagePullPolicy: IfNotPresent
           ports:
             - name: health-port
