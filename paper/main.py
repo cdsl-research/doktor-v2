@@ -29,7 +29,7 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from pydantic import BaseModel
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import ConnectionFailure, OperationFailure
 
 # ログ設定
@@ -136,7 +136,12 @@ class PaperRead(BaseModel):
     is_public: bool
     created_at: datetime
     updated_at: Optional[datetime] = datetime.now()
+    keywords: List[str] = []
     # todo) reference_id: List[int]
+
+
+class PaperKeywordsUpdate(BaseModel):
+    keywords: List[str]
 
 
 class PaperReadSeveral(BaseModel):
@@ -255,6 +260,19 @@ async def download_paper_handler(paper_uuid: UUID):
                 "NoSuchBucket",
                 "ResourceNotFound") else 503)
         raise HTTPException(status_code=_status_code, detail=str(e.message))
+
+
+@app.patch("/paper/{paper_uuid}/keywords", response_model=PaperRead)
+def update_paper_keywords_handler(paper_uuid: UUID, body: PaperKeywordsUpdate):
+    result = db["paper"].find_one_and_update(
+        {"uuid": paper_uuid},
+        {"$set": {"keywords": body.keywords}},
+        projection={"_id": 0},
+        return_document=ReturnDocument.AFTER,
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail="Not Found")
+    return PaperRead(**result)
 
 
 # @app.put("/paper/{paper_uuid}", response_model=PaperRead)
