@@ -27,7 +27,7 @@ spec:
               app: fulltext
       containers:
         - name: fulltext-app-container
-          image: ghcr.io/cdsl-research/fulltext:2.0
+          image: ghcr.io/cdsl-research/fulltext:2.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
