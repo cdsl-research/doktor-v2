@@ -123,7 +123,7 @@ class AuthorReadSeveral(BaseModel):
     authors: List[AuthorRead]
 
 
-@app.get("/", response_model=ServiceHello)
+@app.api_route("/", methods=["GET", "HEAD"], response_model=ServiceHello, include_in_schema=False)
 def root_handler():
     return ServiceHello(name="author")
 
