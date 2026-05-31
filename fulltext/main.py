@@ -1,14 +1,14 @@
 import logging
+import math
 import os
 import socket
 import time
-from curses import raw
-from turtle import st
 from typing import List, Literal, Optional
 from uuid import UUID
 
 import fitz
 import requests
+from janome.tokenizer import Tokenizer as JanomeTokenizer
 from elasticsearch import Elasticsearch
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Response
 from opentelemetry import trace
@@ -97,7 +97,74 @@ for i in range(300):
     time.sleep(1)
 
 
-es.indices.create(index=ELASTICSEARCH_INDEX, ignore=400)
+es.indices.create(
+    index=ELASTICSEARCH_INDEX,
+    mappings={
+        "properties": {
+            "paper_uuid": {"type": "keyword"},
+            "page_number": {"type": "integer"},
+            "text": {"type": "text"},
+            "tokens": {"type": "text", "analyzer": "whitespace"},
+        }
+    },
+    ignore=400,
+)
+try:
+    es.indices.put_mapping(
+        index=ELASTICSEARCH_INDEX,
+        body={"properties": {"tokens": {"type": "text", "analyzer": "whitespace"}}},
+    )
+except Exception as e:
+    logger.warning("Could not update index mapping: %s", e)
+
+_janome = JanomeTokenizer()
+
+
+def _tokenize_ja(text: str) -> str:
+    tokens = [
+        t.surface for t in _janome.tokenize(text)
+        if t.part_of_speech.split(",")[0] == "名詞" and len(t.surface) > 1
+    ]
+    return " ".join(tokens)
+
+
+def _compute_keywords(paper_uuid: UUID, top_n: int = 10) -> List[str]:
+    res = es.search(
+        index=ELASTICSEARCH_INDEX,
+        body={
+            "query": {"match": {"paper_uuid": {"query": str(paper_uuid)}}},
+            "size": 1000,
+            "_source": ["tokens"],
+        },
+    )
+    if res["hits"]["total"]["value"] == 0:
+        return []
+    combined_tokens = " ".join(
+        hit["_source"].get("tokens", "") for hit in res["hits"]["hits"]
+    ).strip()
+    if not combined_tokens:
+        return []
+    tv_res = es.termvectors(
+        index=ELASTICSEARCH_INDEX,
+        body={
+            "doc": {"tokens": combined_tokens},
+            "term_statistics": True,
+            "fields": ["tokens"],
+        },
+    )
+    term_vectors = tv_res.get("term_vectors", {}).get("tokens", {})
+    terms = term_vectors.get("terms", {})
+    field_stats = term_vectors.get("field_statistics", {})
+    if not terms:
+        return []
+    n_docs = field_stats.get("doc_count", 1) or 1
+    scores = {
+        term: stats.get("term_freq", 0) * math.log(
+            (n_docs + 1) / (stats.get("doc_freq", 0) + 1)
+        )
+        for term, stats in terms.items()
+    }
+    return [t for t, _ in sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_n]]
 
 
 """ FastAPI Setup """
@@ -152,6 +219,34 @@ def topz_handler():
     return ServiceHealth(resource="busy")
 
 
+@app.post("/fulltext/keywords/refresh", response_model=StatusResponse)
+def refresh_all_keywords_handler():
+    res = es.search(
+        index=ELASTICSEARCH_INDEX,
+        body={"_source": ["paper_uuid"], "size": 10000, "query": {"match_all": {}}},
+    )
+    paper_uuids = list({
+        hit["_source"]["paper_uuid"]
+        for hit in res["hits"]["hits"]
+        if "paper_uuid" in hit["_source"]
+    })
+    failed = 0
+    for puid in paper_uuids:
+        try:
+            keywords = _compute_keywords(UUID(puid))
+            requests.patch(
+                f"http://{PAPER_SVC_HOST}/paper/{puid}/keywords",
+                json={"keywords": keywords},
+                timeout=10,
+            )
+        except Exception as e:
+            logger.error("Failed to refresh keywords for %s: %s", puid, e)
+            failed += 1
+    msg = f"Refreshed {len(paper_uuids) - failed}/{len(paper_uuids)} papers"
+    logger.info(msg)
+    return StatusResponse(status="ok", message=msg)
+
+
 @app.post("/fulltext/{paper_uuid}", response_model=StatusResponse)
 def create_fulltext_handler(paper_uuid: UUID):
     # ファイルの取得
@@ -172,14 +267,27 @@ def create_fulltext_handler(paper_uuid: UUID):
             record = {
                 "paper_uuid": paper_uuid,
                 "page_number": i,
-                "text": formated_text}
+                "text": formated_text,
+                "tokens": _tokenize_ja(formated_text),
+            }
             logger.info("Insert record: %s", record)
             try:
                 es.index(index=ELASTICSEARCH_INDEX, document=record)
-                # logger.info(res)
             except Exception as e:
                 logger.error("Fail to create record: %s", e)
-    return StatusResponse(status="ok", message="Created fulltext ")
+
+    try:
+        keywords = _compute_keywords(paper_uuid)
+        requests.patch(
+            f"http://{PAPER_SVC_HOST}/paper/{paper_uuid}/keywords",
+            json={"keywords": keywords},
+            timeout=10,
+        )
+        logger.info("Updated keywords for %s: %s", paper_uuid, keywords)
+    except Exception as e:
+        logger.error("Failed to update keywords for %s: %s", paper_uuid, e)
+
+    return StatusResponse(status="ok", message="Created fulltext")
 
 
 @app.get("/fulltext/{paper_uuid}", response_model=FulltextReadSeveral)
