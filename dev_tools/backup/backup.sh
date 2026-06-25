@@ -8,6 +8,8 @@
 set -uo pipefail
 
 PORT_FORWARD_READY_TIMEOUT=30
+MC_MIRROR_MAX_ATTEMPTS=3
+MC_MIRROR_RETRY_INTERVAL=10
 
 # namespace:service:port:db_name:secret_name
 MONGO_TARGETS=(
@@ -192,11 +194,12 @@ run_cmd() {
     return 0
   fi
   log "実行: $display"
-  if ! "$@"; then
-    local rc=$?
+  "$@"
+  local rc=$?
+  if [[ "$rc" -ne 0 ]]; then
     echo "コマンドが失敗しました (exit=$rc): $display" >&2
-    return "$rc"
   fi
+  return "$rc"
 }
 
 # backup_mongo <entry> <out_dir>
@@ -278,8 +281,24 @@ backup_minio() {
 
   if [[ "$rc" -eq 0 ]]; then
     local dest="$out_dir/minio/$bucket"
-    run_cmd "mc mirror --overwrite $alias/$bucket $dest" \
-      mc mirror --overwrite "$alias/$bucket" "$dest" || rc=1
+    local attempt=1
+    rc=1
+    while [[ "$attempt" -le "$MC_MIRROR_MAX_ATTEMPTS" ]]; do
+      if [[ "$attempt" -gt 1 ]]; then
+        if [[ "$DRY_RUN" -eq 0 ]] && ! kill -0 "$PF_PID" 2>/dev/null; then
+          log "port-forwardが切断されていたため再接続します (namespace=$ns service=$svc)"
+          stop_port_forward
+          start_port_forward "$ns" "$svc" "$port" || return 1
+        fi
+        log "mc mirror を再試行します ($attempt/$MC_MIRROR_MAX_ATTEMPTS): $alias/$bucket -> $dest"
+      fi
+      run_cmd "mc --quiet mirror --overwrite $alias/$bucket $dest (試行 $attempt/$MC_MIRROR_MAX_ATTEMPTS)" \
+        mc --quiet mirror --overwrite "$alias/$bucket" "$dest"
+      rc=$?
+      [[ "$rc" -eq 0 ]] && break
+      attempt=$((attempt + 1))
+      [[ "$attempt" -le "$MC_MIRROR_MAX_ATTEMPTS" ]] && sleep "$MC_MIRROR_RETRY_INTERVAL"
+    done
   fi
 
   run_cmd "mc alias remove $alias" mc alias remove "$alias" || true
