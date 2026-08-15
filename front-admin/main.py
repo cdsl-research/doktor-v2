@@ -106,7 +106,7 @@ async def fetch_all(session, urls):
     return results
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
 async def top_handler(request: Request):
     return templates.TemplateResponse("top.html", {"request": request})
 

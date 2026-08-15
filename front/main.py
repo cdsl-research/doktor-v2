@@ -228,7 +228,7 @@ async def validation_exception_handler(request, exc):
 VALID_SORTS = {"date_desc", "date_asc", "downloads_desc"}
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse, include_in_schema=False)
 async def top_handler(
     request: Request,
     keyword: str = "",
